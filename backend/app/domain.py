@@ -81,3 +81,6 @@ class SiteAnalysis:
     tech: list[str]
     mobile_perf: int | None
     analyzed_at: datetime
+    # V2: booking / online order links detected on the site.
+    has_booking: bool = False
+    has_online_order: bool = False

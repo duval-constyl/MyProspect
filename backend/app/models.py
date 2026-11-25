@@ -100,6 +100,8 @@ class SiteAnalysisRow(Base):
     tech: Mapped[list[str]] = mapped_column(ARRAY(String(32)), default=list)
     mobile_perf: Mapped[int | None] = mapped_column(Integer)
     analyzed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    has_booking: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    has_online_order: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
 
 
 class ScoreRow(Base):

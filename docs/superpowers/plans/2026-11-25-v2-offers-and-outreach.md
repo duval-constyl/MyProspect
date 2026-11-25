@@ -40,11 +40,11 @@ Toutes celles de la V1, et en plus :
 
 Détection : domaines de prestataires connus dans les liens ou iframes (planity, calendly, zenchef, thefork, lafourchette, doctolib, resalib, uber eats, deliveroo, foodles) ; ou liens dont le **texte** ou l'**URL** contient « réserver », « prendre rendez-vous », « commander ». Le texte courant des paragraphes ne compte pas.
 
-- [ ] **Step 1: Tests.** `test_detects_planity_link_as_booking`. `test_detects_order_link_text`. `test_paragraph_mentioning_reservation_is_not_booking`. `test_reads_wordpress_version_from_generator_meta`. `test_reads_jquery_version_from_script_src`. `test_existing_v1_fields_unchanged`.
-- [ ] **Step 2: Lancer** `pytest tests/test_site_signals.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** et migrer (colonnes par défaut `false` pour les analyses déjà enregistrées).
-- [ ] **Step 4: Lancer** `alembic upgrade head && pytest backend/tests -v`. Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: signaux de réservation et versions techniques`.
+- [x] **Step 1: Tests.** `test_detects_planity_link_as_booking`. `test_detects_order_link_text`. `test_paragraph_mentioning_reservation_is_not_booking`. `test_reads_wordpress_version_from_generator_meta`. `test_reads_jquery_version_from_script_src`. `test_existing_v1_fields_unchanged`.
+- [x] **Step 2: Lancer** `pytest tests/test_site_signals.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** et migrer (colonnes par défaut `false` pour les analyses déjà enregistrées).
+- [x] **Step 4: Lancer** `alembic upgrade head && pytest backend/tests -v`. Attendu : PASS.
+- [x] **Step 5: Commit** `feat: signaux de réservation et versions techniques`.
 
 ### Task 2: Score Mobile
 

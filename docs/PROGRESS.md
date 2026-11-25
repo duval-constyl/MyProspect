@@ -25,6 +25,7 @@
   - Vérification réelle : cercle de 500 m autour de Bellecour à Lyon, métier coiffure. Résultat : 66 prospects en 42 s, sans erreur ; carte, liste, fiche et export CSV contrôlés dans un navigateur.
   - L'étape 4 du plan (récolte d'une commune réelle) reste à faire par Duval.
 - **V1 – Revue finale** : relecture faite par l'auteur du code, sans relecteur indépendant. Les 5 points sensibles du plan sont couverts par des tests. Un défaut corrigé : formules dans l'export CSV. Total : 130 tests backend et 25 tests interface, tous verts.
+- **V2 – Tâche 1 (signaux de réservation, versions)** : `detect_booking_signals` (liens et iframes de prestataires connus, ou mots « réserver », « prendre rendez-vous », « commander » dans le texte ou l'adresse d'un lien) ; `SiteAnalysis.has_booking` et `has_online_order` ; `tech` au format `nom@version` quand la version est lisible (WordPress via la balise generator, jQuery via le nom ou le paramètre `ver` du script). Migration `0003_site_signals`. 11 tests verts, 141 au total.
 
 ## Décisions et écarts par rapport au plan
 
@@ -125,6 +126,9 @@
   - le mot de passe de la base locale a été remplacé par une valeur aléatoire (`ALTER USER` et `.env`) ;
   - les URL de connexion utilisent `127.0.0.1` (via `localhost`, une connexion prenait 10 s sous Windows à cause d'IPv6).
   L'ancienne valeur reste dans l'historique Git de la branche poussée ; elle ne protège plus rien.
+- **V2 – Numéros de migration** : le plan V2 prévoit `0002_site_signals`, `0003_outreach`, `0004_followups`, mais `0002` est déjà prise en V1 (opposition à la prospection). Décalage : `0003_site_signals`, puis `0004_outreach` et `0005_followups`.
+- **V2 T1 – Détection** : prestataires de réservation (planity, calendly, zenchef, thefork, lafourchette, doctolib, resalib) et de commande (ubereats, deliveroo, foodles), repérés par leur domaine dans un lien ou une iframe. Mots recherchés sans accents ni casse, en mots entiers, uniquement dans le texte et l'adresse des liens : « réservation » dans un paragraphe ou dans un lien « conditions de réservation » ne compte pas. Une page illisible ne donne aucun signal.
+- **V2 T1 – Compatibilité V1** : les deux nouveaux champs de `SiteAnalysis` valent `False` par défaut (le code V1 reste valable) ; colonnes à `false` pour les analyses déjà enregistrées. Le test V1 `test_good_site_all_flags_true` attend désormais `wordpress@6.6` (changement de format voulu par le plan). Tests en plus : iframe de prestataire, plateforme de livraison, mots dans l'adresse ou le texte d'un lien, page vide ou cassée, site inaccessible sans signal.
 
 ## Questions ouvertes
 
