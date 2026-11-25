@@ -76,11 +76,11 @@ class Status(StrEnum): NEW="new"; TO_CONTACT="to_contact"; CONTACTED="contacted"
 **Interfaces:**
 - Produces: `app.main.app` (FastAPI) ; `app.config.Settings` (`database_url: str`, `home_lat: float`, `home_long: float`, `pagespeed_api_key: str | None`) ; `app.db.get_session() -> Iterator[Session]` ; les types de `domain.py` ci-dessus.
 
-- [ ] **Step 1: Test.** `test_health_reports_db_ok` : `GET /health` renvoie 200 et `{"status": "ok", "postgis": true}`.
-- [ ] **Step 2: Lancer** `docker compose up -d db && cd backend && pytest tests/test_health.py -v`. Attendu : FAIL (route absente).
-- [ ] **Step 3: Implémenter.** Services Compose : `db` (image `postgis/postgis:16-3.4`), `api`, `web`. `/health` exécute `SELECT postgis_version()`.
-- [ ] **Step 4: Relancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `chore: socle docker, fastapi, postgis`.
+- [x] **Step 1: Test.** `test_health_reports_db_ok` : `GET /health` renvoie 200 et `{"status": "ok", "postgis": true}`.
+- [x] **Step 2: Lancer** `docker compose up -d db && cd backend && pytest tests/test_health.py -v`. Attendu : FAIL (route absente).
+- [x] **Step 3: Implémenter.** Services Compose : `db` (image `postgis/postgis:16-3.4`), `api`, `web`. `/health` exécute `SELECT postgis_version()`.
+- [x] **Step 4: Relancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `chore: socle docker, fastapi, postgis`.
 
 ### Task 2: Modèles de données et migration
 
