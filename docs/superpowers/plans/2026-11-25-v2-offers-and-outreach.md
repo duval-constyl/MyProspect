@@ -58,11 +58,11 @@ Détection : domaines de prestataires connus dans les liens ou iframes (planity,
 
 Si `naf` n'est pas dans `BOOKING_NAF` : valeur 0, aucune raison. Sinon : pas de réservation en ligne détectée **+50** (`no_online_booking`) ; pour `ORDER_NAF`, pas de commande en ligne **+20** (`no_online_order`) ; pas de site **+20** (`no_site_for_mobile`) ; site sans viewport **+10** (`not_mobile_ready`). Plafond 100. Pas de site : réservation et commande sont considérées absentes.
 
-- [ ] **Step 1: Tests.** `test_naf_outside_list_scores_zero_no_reasons`. `test_hairdresser_without_site_scores_70` (50 + 20). `test_restaurant_without_booking_or_order_with_site_scores_70`. `test_restaurant_with_booking_and_order_scores_0`. `test_garage_site_without_viewport_adds_10`. `test_cap_100`.
-- [ ] **Step 2: Lancer** `pytest tests/test_scoring_mobile.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: score mobile`.
+- [x] **Step 1: Tests.** `test_naf_outside_list_scores_zero_no_reasons`. `test_hairdresser_without_site_scores_70` (50 + 20). `test_restaurant_without_booking_or_order_with_site_scores_70`. `test_restaurant_with_booking_and_order_scores_0`. `test_garage_site_without_viewport_adds_10`. `test_cap_100`.
+- [x] **Step 2: Lancer** `pytest tests/test_scoring_mobile.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: score mobile`.
 
 ### Task 3: Score Cloud et logiciel
 
