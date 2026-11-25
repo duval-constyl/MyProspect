@@ -91,10 +91,10 @@ Points : technologie obsolète **+30** (`outdated_tech` : jQuery < 3, WordPress 
 - Produces: `async def has_open_tech_job(company_name: str, siret: str, client=None) -> bool` ; réglage `Settings.francetravail_client_id/secret: str | None`.
 
 - [x] **Step 1: Étude (une heure maximum).** Lire la documentation de l'API « Offres d'emploi » de France Travail (inscription gratuite requise) et décider si une recherche par entreprise est possible. **Si non : sauter cette tâche** ; `hiring_tech` reste à `False` et la Task 3 est inchangée.
-- [ ] **Step 2: Tests (si retenue).** `test_returns_false_without_credentials`. `test_true_when_offer_matches_company_and_tech_keywords` (développeur, informatique, devops). `test_false_when_api_errors`.
-- [ ] **Step 3: Implémenter** avec jeton OAuth mis en cache.
-- [ ] **Step 4: Lancer** `pytest tests/test_jobs_source.py -v`. Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: offres d'emploi techniques`.
+- [x] **Step 2: Tests (si retenue).** `test_returns_false_without_credentials`. `test_true_when_offer_matches_company_and_tech_keywords` (développeur, informatique, devops). `test_false_when_api_errors`.
+- [x] **Step 3: Implémenter** avec jeton OAuth mis en cache.
+- [x] **Step 4: Lancer** `pytest tests/test_jobs_source.py -v`. Attendu : PASS.
+- [x] **Step 5: Commit** `feat: offres d'emploi techniques`.
 
 ### Task 5: Trois scores dans la récolte, l'API et l'interface
 

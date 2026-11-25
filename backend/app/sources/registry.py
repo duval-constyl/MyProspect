@@ -169,6 +169,7 @@ def _to_company(legal_unit: dict, establishment: dict) -> RegistryCompany:
         is_individual=bool(is_individual),
         closed=False,
         opposed_to_prospecting=legal_unit.get("opposition_diffusion_commerciale") is True,
+        legal_name=legal_unit.get("nom_complet") or legal_unit.get("nom_raison_sociale") or "",
     )
 
 
