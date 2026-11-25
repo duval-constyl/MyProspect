@@ -127,11 +127,11 @@ Appelle `GET https://recherche-entreprises.api.gouv.fr/near_point` avec `lat`, `
 
 Requête Overpass sur les éléments `shop`, `amenity`, `craft`, `office` ayant un nom, dans le cercle. Le rapprochement exige une distance ≤ 80 m **et** des noms normalisés (minuscules, sans accents ni forme juridique) dont la similarité (`difflib.SequenceMatcher`) est ≥ 0,6.
 
-- [ ] **Step 1: Tests.** `test_parses_phone_email_website_tags` (tags `phone`, `contact:phone`, `website`, `contact:email`). `test_match_requires_distance_and_name` : bon nom à 500 m → pas d'appariement ; nom proche à 20 m → apparié. `test_no_match_returns_empty` . `test_overpass_timeout_returns_empty_list_not_exception`.
-- [ ] **Step 2: Lancer** `pytest tests/test_osm.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: client osm et rapprochement`.
+- [x] **Step 1: Tests.** `test_parses_phone_email_website_tags` (tags `phone`, `contact:phone`, `website`, `contact:email`). `test_match_requires_distance_and_name` : bon nom à 500 m → pas d'appariement ; nom proche à 20 m → apparié. `test_no_match_returns_empty` . `test_overpass_timeout_returns_empty_list_not_exception`.
+- [x] **Step 2: Lancer** `pytest tests/test_osm.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: client osm et rapprochement`.
 
 ### Task 5: Géométrie des zones
 
