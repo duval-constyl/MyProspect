@@ -145,11 +145,11 @@ Requête Overpass sur les éléments `shop`, `amenity`, `craft`, `office` ayant 
 
 Un cercle reste un cercle (≤ 50 km). Un polygone est recouvert par des cercles de 2 km de rayon placés sur une grille, puis filtré par `point_in_zone`. Largeur maximale : 50 km, sinon `ZoneTooLarge`.
 
-- [ ] **Step 1: Tests.** `test_circle_zone_returns_itself`. `test_polygon_is_covered_by_circles` : un carré de 3 km de côté produit ≥ 1 cercle et chaque coin est à moins de 2 km d'un centre. `test_polygon_wider_than_50km_raises_zone_too_large`. `test_point_in_zone_for_polygon_and_circle`. `test_commune_zone_returns_polygon` (HTTP simulé).
-- [ ] **Step 2: Lancer** `pytest tests/test_geo.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** avec `shapely`.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: géométrie des zones`.
+- [x] **Step 1: Tests.** `test_circle_zone_returns_itself`. `test_polygon_is_covered_by_circles` : un carré de 3 km de côté produit ≥ 1 cercle et chaque coin est à moins de 2 km d'un centre. `test_polygon_wider_than_50km_raises_zone_too_large`. `test_point_in_zone_for_polygon_and_circle`. `test_commune_zone_returns_polygon` (HTTP simulé).
+- [x] **Step 2: Lancer** `pytest tests/test_geo.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** avec `shapely`.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: géométrie des zones`.
 
 ### Task 6: Analyse d'un site
 

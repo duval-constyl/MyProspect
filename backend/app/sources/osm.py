@@ -8,7 +8,6 @@ OpenStreetMap data is optional enrichment: any failure yields an empty list.
 
 import asyncio
 import logging
-import math
 import re
 import time
 import unicodedata
@@ -17,6 +16,7 @@ from difflib import SequenceMatcher
 import httpx
 
 from app.domain import Circle, OsmBusiness, RegistryCompany
+from app.geo import distance_m
 
 logger = logging.getLogger(__name__)
 
@@ -146,12 +146,3 @@ def normalize_name(name: str) -> str:
     words = re.sub(r"[^a-z0-9]+", " ", ascii_name.lower()).split()
     return " ".join(word for word in words if word not in LEGAL_FORMS)
 
-
-def distance_m(lat1: float, long1: float, lat2: float, long2: float) -> float:
-    """Great-circle distance in metres (haversine)."""
-    earth_radius_m = 6_371_000
-    phi1, phi2 = math.radians(lat1), math.radians(lat2)
-    d_phi = phi2 - phi1
-    d_lambda = math.radians(long2 - long1)
-    a = math.sin(d_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(d_lambda / 2) ** 2
-    return 2 * earth_radius_m * math.asin(math.sqrt(a))
