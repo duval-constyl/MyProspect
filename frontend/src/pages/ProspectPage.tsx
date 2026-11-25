@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { ApiError, api } from "../api";
 import ContactList from "../components/ContactList";
+import OutreachDrafts from "../components/OutreachDrafts";
 import ScoreCard from "../components/ScoreCard";
 import TrackingForm from "../components/TrackingForm";
 import { MISSING, OFFERS, frenchDate, tradeLabel } from "../labels";
@@ -153,6 +154,7 @@ export default function ProspectPage({ id }: { id: number }) {
 
         <div className="detail-side">
           <TrackingForm tracking={data.tracking} onChange={(patch) => tracking.mutate(patch)} saving={tracking.isPending} />
+          <OutreachDrafts prospectId={data.id} opposed={data.opposed_to_prospecting} />
           <section className="card actions" aria-label="Actions">
             <button type="button" className="secondary" onClick={() => doNotContact.mutate()} disabled={doNotContact.isPending}>
               Ne plus contacter

@@ -88,3 +88,9 @@ table.prospects { width: 100%; border-collapse: collapse; background: #fff; bord
 .tracking textarea { font: inherit; padding: 0.4rem; border: 1px solid var(--line); border-radius: 6px; }
 .priority-block + .priority-block { margin-top: 0.8rem; }
 .priority-block h4 { margin: 0 0 0.3rem; font-size: 0.95rem; }
+.drafts { display: flex; flex-direction: column; gap: 0.6rem; }
+.draft-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-end; }
+.draft { border-top: 1px dashed var(--line); padding-top: 0.6rem; }
+.draft-subject { font-weight: 600; margin: 0.3rem 0; }
+.draft-body { white-space: pre-wrap; margin: 0.3rem 0 0.5rem; }
+.warning-text { color: #7a4f00; }

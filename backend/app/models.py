@@ -34,6 +34,8 @@ STATUSES = ("new", "to_contact", "contacted", "replied", "refused")
 EXCLUSION_REASONS = ("deleted", "do_not_contact")
 ZONE_KINDS = ("commune", "circle", "polygon")
 JOB_STATES = ("pending", "running", "done", "failed")
+CHANNELS = ("email", "call")
+DRAFT_SOURCES = ("llm", "template")
 
 
 class Prospect(Base):
@@ -176,3 +178,29 @@ class Job(Base):
     done: Mapped[int] = mapped_column(Integer, default=0)
     total: Mapped[int] = mapped_column(Integer, default=0)
     error: Mapped[str | None] = mapped_column(Text)
+
+
+class OutreachDraft(Base):
+    """A draft e-mail or call script, never sent by the tool (V2 Task 6)."""
+
+    __tablename__ = "outreach_drafts"
+    __table_args__ = (
+        CheckConstraint(_one_of("offer", OFFERS), name="draft_offer"),
+        CheckConstraint(_one_of("channel", CHANNELS), name="draft_channel"),
+        CheckConstraint(_one_of("source", DRAFT_SOURCES), name="draft_source"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    prospect_id: Mapped[int] = mapped_column(
+        ForeignKey("prospects.id", ondelete="CASCADE"), index=True
+    )
+    offer: Mapped[str] = mapped_column(String(16))
+    channel: Mapped[str] = mapped_column(String(16))
+    subject: Mapped[str | None] = mapped_column(String(255))
+    body: Mapped[str] = mapped_column(Text)
+    source: Mapped[str] = mapped_column(String(16))
+    # Which prompt or template produced it, for the reply statistics (V3).
+    variant: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )

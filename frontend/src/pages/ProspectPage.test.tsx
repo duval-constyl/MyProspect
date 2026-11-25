@@ -263,6 +263,54 @@ describe("ProspectPage", () => {
     );
   });
 
+  it("test_prepare_email_draft_posts_offer_and_channel_then_shows_it", async () => {
+    const user = userEvent.setup();
+    const draft = {
+      id: 5,
+      offer: "mobile",
+      channel: "email",
+      subject: "Réservations en ligne pour SALON ECLAT",
+      body: ["Bonjour,", "Je vous contacte au sujet de SALON ECLAT.", "Répondez « STOP » pour ne plus recevoir de message."].join("\n\n"),
+      source: "llm",
+      variant: "llm:claude-opus-5-5:v1",
+      created_at: "2026-11-25T10:00:00Z",
+    };
+    const { requests } = mockApi({
+      "GET /prospects/1": { body: DETAIL },
+      "GET /prospects/1/outreach": [{ body: [] }, { body: [draft] }],
+      "POST /prospects/1/outreach": { status: 201, body: draft },
+    });
+    renderPage();
+
+    await user.selectOptions(await screen.findByLabelText("Offre du brouillon"), "Mobile");
+    await user.click(screen.getByRole("button", { name: "Préparer un e-mail" }));
+
+    await waitFor(() => expect(requests.some((r) => r.method === "POST")).toBe(true));
+    expect(requests.find((r) => r.method === "POST")!.body).toEqual({ offer: "mobile", channel: "email" });
+    const card = (await screen.findByText("Objet : Réservations en ligne pour SALON ECLAT")).closest("article")!;
+    expect(within(card).getByText(/Rédigé par l'IA/)).toBeInTheDocument();
+    expect(within(card).getByText(/Répondez « STOP »/)).toBeInTheDocument();
+    expect(within(card).getByRole("button", { name: "Copier" })).toBeInTheDocument();
+    expect(screen.getByText(/L'outil n'envoie rien/)).toBeInTheDocument();
+  });
+
+  it("test_draft_refused_for_do_not_contact_shows_reason", async () => {
+    const user = userEvent.setup();
+    mockApi({
+      "GET /prospects/1": { body: DETAIL },
+      "GET /prospects/1/outreach": { body: [] },
+      "POST /prospects/1/outreach": {
+        status: 409,
+        body: { detail: "Ce prospect est sur la liste « ne plus contacter » : aucun brouillon." },
+      },
+    });
+    renderPage();
+
+    await user.click(await screen.findByRole("button", { name: "Préparer un script d'appel" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("ne plus contacter");
+  });
+
   it("test_unknown_prospect_shows_message", async () => {
     mockApi({ "GET /prospects/9": { status: 404, body: { detail: "Prospect introuvable." } } });
 

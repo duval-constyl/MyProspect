@@ -124,11 +124,11 @@ Points : technologie obsolète **+30** (`outdated_tech` : jQuery < 3, WordPress 
 - Le modèle reçoit uniquement : nom de l'entreprise, métier, ville, raisons du score pour l'offre, `sender_name`, `sender_business`. Demande : texte en français, vouvoiement, 120 mots maximum, aucune promesse de résultat chiffré.
 - Repli (`source="template"`) : modèle fixe par offre et par canal, rempli avec les raisons.
 
-- [ ] **Step 1: Tests (modèle de langage simulé).** `test_email_draft_contains_source_sender_and_optout`. `test_draft_mentions_only_given_reasons` (le brouillon d'un prospect sans HTTPS parle de sécurité du site, pas de lenteur). `test_call_script_under_120_words`. `test_without_api_key_uses_template`. `test_llm_error_falls_back_to_template`. `test_overlong_llm_answer_is_rejected_then_template`. `test_do_not_contact_prospect_returns_409`. `test_unknown_prospect_404`. `test_variant_is_stored_for_later_statistics`.
-- [ ] **Step 2: Lancer** `pytest tests/test_outreach.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.** Le contrôle de présence de la source, de l'identité et de la phrase de désinscription se fait **après** génération ; s'il manque un élément, on l'ajoute de façon fixe.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: brouillons d'approche`.
+- [x] **Step 1: Tests (modèle de langage simulé).** `test_email_draft_contains_source_sender_and_optout`. `test_draft_mentions_only_given_reasons` (le brouillon d'un prospect sans HTTPS parle de sécurité du site, pas de lenteur). `test_call_script_under_120_words`. `test_without_api_key_uses_template`. `test_llm_error_falls_back_to_template`. `test_overlong_llm_answer_is_rejected_then_template`. `test_do_not_contact_prospect_returns_409`. `test_unknown_prospect_404`. `test_variant_is_stored_for_later_statistics`.
+- [x] **Step 2: Lancer** `pytest tests/test_outreach.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.** Le contrôle de présence de la source, de l'identité et de la phrase de désinscription se fait **après** génération ; s'il manque un élément, on l'ajoute de façon fixe.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: brouillons d'approche`.
 
 ### Task 7: Relances et page « Aujourd'hui »
 

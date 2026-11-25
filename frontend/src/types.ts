@@ -108,7 +108,21 @@ export type SiteAnalysis = {
 
 export type Tracking = { status: Status; favorite: boolean; notes: string; updated_at: string | null };
 
-export type TrackingPatch = Partial<Pick<Tracking, "status" | "favorite" | "notes">>;
+export type Channel = "email" | "call";
+
+/** An outreach draft: never sent by the tool. */
+export type Draft = {
+  id: number;
+  offer: Offer;
+  channel: Channel;
+  subject: string | null;
+  body: string;
+  source: "llm" | "template";
+  variant: string;
+  created_at: string;
+};
+
+export type TrackingPatch =Partial<Pick<Tracking, "status" | "favorite" | "notes">>;
 
 export type ProspectDetail = {
   id: number;

@@ -47,6 +47,10 @@ os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 os.environ["HOME_LAT"] = "48.8566"
 os.environ["HOME_LONG"] = "2.3522"
 os.environ["PAGESPEED_API_KEY"] = ""
+# Never call a real model or job API from the test suite, whatever .env contains.
+os.environ["ANTHROPIC_API_KEY"] = ""
+os.environ["FRANCETRAVAIL_CLIENT_ID"] = ""
+os.environ["FRANCETRAVAIL_CLIENT_SECRET"] = ""
 
 
 @pytest.fixture(scope="session")

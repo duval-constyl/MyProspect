@@ -1,7 +1,9 @@
 import type {
   Bbox,
+  Channel,
   Cluster,
   CollectBody,
+  Draft,
   Job,
   Offer,
   ProspectDetail,
@@ -77,4 +79,7 @@ export const api = {
     request<Tracking>(`/prospects/${id}/tracking`, { method: "PATCH", body: JSON.stringify(patch) }),
   deleteProspect: (id: number) => request<void>(`/prospects/${id}`, { method: "DELETE" }),
   doNotContact: (id: number) => request<Tracking>(`/prospects/${id}/do-not-contact`, { method: "POST" }),
+  listDrafts: (id: number) => request<Draft[]>(`/prospects/${id}/outreach`),
+  prepareDraft: (id: number, offer: Offer, channel: Channel) =>
+    request<Draft>(`/prospects/${id}/outreach`, { method: "POST", body: JSON.stringify({ offer, channel }) }),
 };
