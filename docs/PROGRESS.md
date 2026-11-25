@@ -42,6 +42,11 @@
   - routes `POST /prospects/{id}/followups`, `POST /followups/{id}/done`, `GET /today`, `GET /prospects/{id}/history` ;
   - page « Aujourd'hui » (relances dues, bouton « Fait », 20 prospects à contacter en priorité) et panneau « Relances et historique » sur la fiche ;
   - 11 tests backend et 4 tests interface ; total : 214 et 34, tous verts.
+- **V2 – Vérification réelle et relecture finale** :
+  - API reconstruite (migrations jusqu'à `0005`), nouvelle récolte du même cercle de Lyon : 66 prospects, trois scores chacun (moyennes : Web 67, Mobile 63, Cloud 4) ; réservation en ligne détectée sur 6 des 9 sites ; versions lues (`wordpress@7.1.4`, `jquery@3.7.1`).
+  - Dans le navigateur : la fiche montre trois priorités et trois scores, un brouillon d'e-mail (modèle fixe, sans clé Claude) avec ses mentions obligatoires, et la page « Aujourd'hui » liste 20 prospects.
+  - Relecture faite par l'auteur du code, sans relecteur indépendant.
+  - Total : 214 tests backend et 34 tests interface, tous verts, sans appel réseau réel.
 
 ## Décisions et écarts par rapport au plan
 
@@ -190,3 +195,9 @@
   - Recommandation initiale : sauter la tâche. **Décision de Duval : tenter le rapprochement approximatif** (fait, voir « Décisions »).
 - **Offres d'emploi : à activer et à vérifier par toi** : crée une application sur francetravail.io, abonne-la à « Offres d'emploi v2 », puis renseigne `FRANCETRAVAIL_CLIENT_ID` et `FRANCETRAVAIL_CLIENT_SECRET` dans `.env`. Lis aussi la « Licence de réutilisation de la base de données des offres d'emploi » : l'outil n'en garde qu'un indicateur (« recrute sur un poste technique »), sans stocker les offres. Sans identifiants, le bonus n'est jamais attribué.
 - **Clé Claude et identité** : renseigne `SENDER_NAME`, `SENDER_BUSINESS` et, si tu veux des brouillons rédigés par Claude, `ANTHROPIC_API_KEY` dans `.env`. Chaque brouillon rédigé par le modèle coûte un appel facturé (texte court, effort `low`). Sans clé, les modèles fixes fonctionnent.
+- **Limites mineures notées à la relecture de la V2** (non corrigées) :
+  - le jeton France Travail en cache n'est pas lié aux identifiants (s'ils changent, l'ancien jeton sert jusqu'à son expiration, environ 25 min) ;
+  - la date d'un brouillon est affichée au jour UTC, ce qui peut décaler d'un jour entre minuit et 1 h ;
+  - la page « Aujourd'hui » relit les prospects trois fois (une par offre), sans conséquence pour quelques milliers de prospects ;
+  - l'export CSV ne contient pas encore les scores Mobile et Cloud.
+- **Données de test dans ta base** : le cercle de Lyon (66 salons) a été récolté deux fois, et un brouillon de test existe pour « SALON PARTICULIER ». `docker compose down -v` remet tout à zéro si tu préfères repartir de rien.
