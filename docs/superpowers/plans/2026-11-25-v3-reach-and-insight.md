@@ -45,6 +45,8 @@ Toutes celles de la V1 et de la V2, et en plus :
 
 ### Task 2: Signaux d'avis (lieux Google) avec plafond
 
+> **Sautée le 25/11/2026, décision de Duval** : les conditions Google Maps Platform pour l'EEE (15.1, aucun usage avec une carte ; 15.4, seules latitude et longitude peuvent être mises en cache) contredisent le stockage de la note et son usage dans un score affiché sur la carte. Voir `docs/PROGRESS.md`.
+
 **Files:**
 - Create: `backend/app/sources/places.py`, migration `0005_places.py`
 - Modify: `backend/app/scoring/web.py`, `backend/app/config.py` (`places_api_key`, `places_monthly_cap_eur: float = 5.0`)

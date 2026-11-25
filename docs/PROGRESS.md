@@ -48,6 +48,7 @@
   - Relecture faite par l'auteur du code, sans relecteur indépendant.
   - Total : 214 tests backend et 34 tests interface, tous verts, sans appel réseau réel.
 - **V3 – Tâche 1 (doublons et entreprises disparues)** : `find_duplicates` (même nom normalisé, à 30 m au plus) et route `GET /prospects/duplicates` ; `mark_closed` (prospects d'une zone absents de sa dernière récolte terminée, dont le registre dit l'établissement fermé → `closed=True`) ; `registry_lookup_by_siret` ; les entreprises fermées sont masquées par défaut (liste, carte, compteurs, export, « Aujourd'hui »), mais restent visibles avec `include_closed=true`. Migration `0006_job_started`. 10 tests verts, 224 au total.
+- **V3 – Tâche 2 (avis Google)** : **sautée** sur décision de Duval, car les conditions de Google pour l'EEE empêchent de stocker la note et de l'utiliser sur une carte. Voir « Questions ouvertes ».
 
 ## Décisions et écarts par rapport au plan
 
@@ -206,3 +207,9 @@
   - la page « Aujourd'hui » relit les prospects trois fois (une par offre), sans conséquence pour quelques milliers de prospects ;
   - l'export CSV ne contient pas encore les scores Mobile et Cloud.
 - **Données de test dans ta base** : le cercle de Lyon (66 salons) a été récolté deux fois, et un brouillon de test existe pour « SALON PARTICULIER ». `docker compose down -v` remet tout à zéro si tu préfères repartir de rien.
+- **V3 T2 – Avis Google (constats du 25/11/2026 ; décision : tâche sautée)** :
+  - Tarif : « Places API Text Search Enterprise » (palier qui donne la note et le nombre d'avis) à 35 $ les 1 000 appels pour le premier palier, après 1 000 appels gratuits par mois.
+  - Conditions pour un compte de facturation dans l'EEE (ton cas) : le contenu Places ne peut servir qu'à des usages listés, le plus proche du nôtre étant « visualiser et gérer le contenu Places lié aux clients ou opportunités d'une équipe commerciale ».
+  - Article 15.1 : hors latitude, longitude et `place_id`, aucun usage « avec une carte ». Or le score colore la carte.
+  - Article 15.4 : seules la latitude et la longitude peuvent être mises en cache, 30 jours au plus. Rien n'autorise à conserver la note ou le nombre d'avis.
+  - Conclusion : le plan (stocker la note et le nombre d'avis, en tirer des points du score Web affiché sur la carte) ne paraît pas conforme. **Décision de Duval : tâche sautée** (aucun appel à Google, score Web inchangé).
