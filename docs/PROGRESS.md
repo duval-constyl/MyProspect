@@ -59,6 +59,8 @@
 - **T7 – Plafond jamais atteint** : avec ces points, le maximum est 75 (aucun site), et un site joignable avec tous les défauts vaut 70. Le plafond à 100 est conservé par sécurité ; `test_all_defects_caps_at_100` vérifie le cumul maximal réel (70 ≤ 100). Voir la question ouverte sur le palier 6.
 - **T7 – Site connu mais pas encore analysé** (cas qui ne devrait pas se produire après une récolte) : score 0 avec la raison `site_not_analyzed` (« Site connu, pas encore analysé », 0 point), pour qu'aucun score ne soit sans explication.
 - **T7 – Libellés des raisons** : « Aucun site web connu », « Site web inaccessible », « Site sans HTTPS (connexion non sécurisée) », « Balises de référencement manquantes : titre, description, titre principal H1 », « Site non adapté au mobile (pas de balise viewport) », « Site lent sur mobile (PageSpeed N/100) ».
+- **T8 – Raison « opportunity »** : la moitié de l'opportunité apparaît aussi comme raison (« Opportunité 75/100, comptée pour moitié »), pour que la somme des raisons égale la priorité et que rien ne reste opaque. Elle est omise si elle vaut 0. Arrondi : `round()` de Python, comme écrit dans le plan (37,5 → 38, mais 12,5 → 12). Distance de 20 km incluse dans le bonus « proche ».
+- **T8 – Plafond jamais atteint** : avec une opportunité de 100 et tous les bonus, on obtient 84, et 72 avec le score Web maximal (75). Le plafond est gardé par sécurité ; `test_cap_at_100` vérifie le maximum réel (84) et un test séparé vérifie le plafond avec une valeur hors limites.
 
 ## Questions ouvertes
 

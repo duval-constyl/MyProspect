@@ -199,11 +199,11 @@ Points (cumulés, plafonnés à 100) : pas de site connu **75** (`no_site`) ; si
 
 Valeur = `round(0,5 × opportunité)` + points, plafonnée à 100 : téléphone **+12** (`phone`), e-mail **+8** (`email`), petite structure (`effectif_code` vide, `"NN"`, `"00"`, `"01"` ou `"02"`) **+8** (`small_structure`), distance ≤ 20 km **+6** (`nearby`).
 
-- [ ] **Step 1: Tests.** `test_base_is_half_of_opportunity`. `test_each_bonus_adds_its_points` (un test par bonus). `test_cap_at_100`. `test_unknown_distance_gives_no_bonus`.
-- [ ] **Step 2: Lancer** `pytest tests/test_priority.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: priorité de contact`.
+- [x] **Step 1: Tests.** `test_base_is_half_of_opportunity`. `test_each_bonus_adds_its_points` (un test par bonus). `test_cap_at_100`. `test_unknown_distance_gives_no_bonus`.
+- [x] **Step 2: Lancer** `pytest tests/test_priority.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: priorité de contact`.
 
 ### Task 9: Orchestrateur de récolte et jobs
 
