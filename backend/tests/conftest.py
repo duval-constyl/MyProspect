@@ -21,14 +21,27 @@ CONTACT_SEEN_ON = date(2026, 11, 20)
 
 
 class _TestEnv(BaseSettings):
+    """Test database settings, read from the environment or the root .env (no default password)."""
+
     model_config = SettingsConfigDict(env_file=ROOT_ENV_FILE, extra="ignore")
 
-    test_database_url: str = (
-        "postgresql+psycopg://prospect:prospect@localhost:5433/prospect_test"
-    )
+    test_database_url: str | None = None
+    postgres_user: str = "prospect"
+    postgres_password: str | None = None
+    db_port: int = 5433
+
+    def url(self) -> str:
+        if self.test_database_url:
+            return self.test_database_url
+        if not self.postgres_password:
+            pytest.exit("TEST_DATABASE_URL ou POSTGRES_PASSWORD manquant : copiez .env.example vers .env.")
+        return (
+            f"postgresql+psycopg://{self.postgres_user}:{self.postgres_password}"
+            f"@127.0.0.1:{self.db_port}/prospect_test"
+        )
 
 
-TEST_DATABASE_URL = _TestEnv().test_database_url
+TEST_DATABASE_URL = _TestEnv().url()
 
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 os.environ["HOME_LAT"] = "48.8566"

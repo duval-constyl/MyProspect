@@ -29,11 +29,12 @@ Arrêt : `docker compose down`. Pour effacer aussi toutes les données : `docker
 
 | Variable | Rôle |
 |---|---|
+| `POSTGRES_PASSWORD` | **Obligatoire.** Mot de passe de la base locale : choisissez-le long et aléatoire, et reportez-le dans `DATABASE_URL` et `TEST_DATABASE_URL`. Aucun mot de passe par défaut n'existe dans le dépôt. |
 | `HOME_LAT`, `HOME_LONG` | **Obligatoires.** Votre position en degrés décimaux. Elle sert au bonus « proche » (≤ 20 km) de la priorité de contact. |
 | `PAGESPEED_API_KEY` | Facultative. Clé Google PageSpeed Insights pour mesurer la vitesse mobile des sites. Sans clé, cette mesure est simplement absente. |
-| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | Identifiants de la base locale. |
-| `DB_PORT`, `API_PORT`, `WEB_PORT` | Ports publiés sur votre machine (par défaut 5433, 8000, 5173). |
-| `DATABASE_URL`, `TEST_DATABASE_URL` | Utilisées seulement quand le backend tourne hors Docker (tests, migrations). |
+| `POSTGRES_USER`, `POSTGRES_DB` | Utilisateur et nom de la base locale. |
+| `DB_PORT`, `API_PORT`, `WEB_PORT` | Ports publiés **sur votre machine uniquement** (`127.0.0.1`), par défaut 5433, 8000, 5173 : rien n'est accessible depuis le réseau. |
+| `DATABASE_URL`, `TEST_DATABASE_URL` | Utilisées seulement quand le backend tourne hors Docker (tests, migrations). Gardez `127.0.0.1` plutôt que `localhost` : sous Windows, `localhost` tente d'abord IPv6 et chaque connexion perd une dizaine de secondes. |
 
 **Windows : « Ports are not available … bind »** au démarrage de `web` ? Windows (Hyper-V) réserve des plages de ports. Vérifiez-les avec `netsh interface ipv4 show excludedportrange protocol=tcp`, puis choisissez un `WEB_PORT` hors de ces plages (par exemple 5300).
 

@@ -118,6 +118,13 @@
 - **T15 – Compose et Windows** : `VITE_USE_POLLING=true` pour le service `web` (sans cela, Vite dans le conteneur ne voit pas les fichiers modifiés depuis Windows). Le port 5173 tombait dans une plage réservée par Windows sur cette machine (5158-5257) : ton `.env` local utilise `WEB_PORT=5300` ; `.env.example` garde 5173 et le README explique le cas.
 - **T15 – Carte** : les nombres des regroupements utilisaient la police par défaut de MapLibre (Open Sans), absente d'OpenFreeMap (erreur 404) ; ils utilisent maintenant « Noto Sans Bold », servie par le style Liberty. Favicon ajouté (évitait un 404). `.playwright-mcp/` ignoré par git (captures de la vérification).
 - **Revue finale – Export CSV et formules** : les noms, adresses, coordonnées et notes viennent en partie de sources tierces (OSM, registre). Une cellule qui commence par `=`, `+`, `-`, `@`, une tabulation ou un retour chariot reçoit désormais une apostrophe devant (recommandation OWASP contre l'injection CSV). Effet visible : dans Excel, « +33 4 78 … » s'affiche enfin comme du texte (avant, Excel y voyait une formule cassée) ; dans d'autres logiciels, l'apostrophe peut apparaître.
+- **Après la PR n° 1 – Secret signalé par GitGuardian, corrigé** : `docker-compose.yml` contenait un mot de passe par défaut (`${POSTGRES_PASSWORD:-prospect}`, repris dans `tests/conftest.py`). C'était aussi le vrai mot de passe de la base locale, publiée sur toutes les interfaces. Corrections :
+  - aucun mot de passe par défaut : `POSTGRES_PASSWORD` est obligatoire, avec un message clair ;
+  - les tests construisent leur URL depuis `.env` ;
+  - les ports `db`, `api` et `web` sont publiés sur `127.0.0.1` seulement ;
+  - le mot de passe de la base locale a été remplacé par une valeur aléatoire (`ALTER USER` et `.env`) ;
+  - les URL de connexion utilisent `127.0.0.1` (via `localhost`, une connexion prenait 10 s sous Windows à cause d'IPv6).
+  L'ancienne valeur reste dans l'historique Git de la branche poussée ; elle ne protège plus rien.
 
 ## Questions ouvertes
 
