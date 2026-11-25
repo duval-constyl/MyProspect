@@ -13,6 +13,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    false,
     func,
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
@@ -51,6 +52,10 @@ class Prospect(Base):
     address: Mapped[str] = mapped_column(String(500), default="")
     is_individual: Mapped[bool] = mapped_column(Boolean, default=False)
     closed: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Not in the V1 plan: decided by Duval on 2026-11-25 (see docs/PROGRESS.md).
+    opposed_to_prospecting: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false()
+    )
     first_seen_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

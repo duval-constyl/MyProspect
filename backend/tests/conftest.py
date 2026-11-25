@@ -84,7 +84,7 @@ def db_session(migrated_database):
 
 
 @pytest.fixture
-def client(test_database):
+def client(migrated_database):
     from fastapi.testclient import TestClient
 
     from app.main import app

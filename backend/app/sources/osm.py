@@ -17,6 +17,7 @@ import httpx
 
 from app.domain import Circle, OsmBusiness, RegistryCompany
 from app.geo import distance_m
+from app.http import new_http_client
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +56,7 @@ async def fetch_osm_businesses(
         await _sleep(wait)
 
     own_client = client is None
-    http = client or httpx.AsyncClient(timeout=HTTP_TIMEOUT_S)
+    http = client or new_http_client(timeout=HTTP_TIMEOUT_S)
     try:
         response = await http.post(
             OVERPASS_URL,

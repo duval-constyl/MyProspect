@@ -16,6 +16,7 @@ from shapely.geometry import shape
 from shapely.geometry.base import BaseGeometry
 
 from app.domain import Circle
+from app.http import new_http_client
 
 MAX_ZONE_WIDTH_KM = 50
 MAX_CIRCLE_RADIUS_KM = 50
@@ -101,7 +102,7 @@ async def commune_zone(name_or_code: str, client: httpx.AsyncClient | None = Non
         params["nom"] = query
 
     own_client = client is None
-    http = client or httpx.AsyncClient(timeout=TIMEOUT_S)
+    http = client or new_http_client(timeout=TIMEOUT_S)
     try:
         response = await http.get(GEO_API_URL, params=params)
         response.raise_for_status()

@@ -14,6 +14,7 @@ import httpx
 from selectolax.lexbor import LexborHTMLParser
 
 from app.domain import SiteAnalysis
+from app.http import new_http_client
 
 TIMEOUT_S = 10.0
 MAX_REDIRECTS = 5
@@ -32,7 +33,7 @@ TECH_IN_ASSETS = {
 
 def new_site_client() -> httpx.AsyncClient:
     """HTTP client with the redirect limit and timeout expected by analyze_site."""
-    return httpx.AsyncClient(
+    return new_http_client(
         timeout=TIMEOUT_S,
         follow_redirects=True,
         max_redirects=MAX_REDIRECTS,

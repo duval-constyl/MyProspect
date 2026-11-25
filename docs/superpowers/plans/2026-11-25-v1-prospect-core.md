@@ -217,11 +217,11 @@ Valeur = `round(0,5 × opportunité)` + points, plafonnée à 100 : téléphone 
 
 Déroulé : zone → cercles → registre → exclure les SIRET de `Exclusion` → OSM → rapprochement → upsert des `Prospect` et `Contact` (une ligne par valeur, `source`, `seen_on`) → analyse des sites (5 en parallèle) → scores → `done/total` mis à jour après chaque entreprise. Un upsert ne touche jamais à `Tracking`.
 
-- [ ] **Step 1: Tests (sources simulées).** `test_collect_creates_prospects_contacts_scores`. `test_recollect_same_zone_creates_no_duplicates`. `test_recollect_keeps_notes_favorite_status` (le `Tracking` d'un prospect est identique avant et après). `test_excluded_siret_is_never_created`. `test_registry_failure_midway_keeps_prior_results_and_marks_job_failed_with_message`. `test_progress_counts_done_and_total`. `test_company_without_coordinates_is_stored_but_not_mapped` (le prospect existe, `geom` vide, aucune erreur). `test_zone_too_large_returns_422_before_any_call`.
-- [ ] **Step 2: Lancer** `pytest tests/test_collect.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** avec `BackgroundTasks` de FastAPI. Un job `running` au redémarrage de l'API passe à `failed` avec le message « interrompu ».
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: récolte et jobs`.
+- [x] **Step 1: Tests (sources simulées).** `test_collect_creates_prospects_contacts_scores`. `test_recollect_same_zone_creates_no_duplicates`. `test_recollect_keeps_notes_favorite_status` (le `Tracking` d'un prospect est identique avant et après). `test_excluded_siret_is_never_created`. `test_registry_failure_midway_keeps_prior_results_and_marks_job_failed_with_message`. `test_progress_counts_done_and_total`. `test_company_without_coordinates_is_stored_but_not_mapped` (le prospect existe, `geom` vide, aucune erreur). `test_zone_too_large_returns_422_before_any_call`.
+- [x] **Step 2: Lancer** `pytest tests/test_collect.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** avec `BackgroundTasks` de FastAPI. Un job `running` au redémarrage de l'API passe à `failed` avec le message « interrompu ».
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: récolte et jobs`.
 
 ### Task 10: API des prospects (liste, carte, fiche)
 

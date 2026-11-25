@@ -7,6 +7,8 @@ lighthouseResult.categories.performance.score (0 to 1).
 
 import httpx
 
+from app.http import new_http_client
+
 PAGESPEED_URL = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed"
 TIMEOUT_S = 60.0  # Lighthouse runs take tens of seconds
 
@@ -18,7 +20,7 @@ async def mobile_perf(
     if not api_key:
         return None
     own_client = client is None
-    http = client or httpx.AsyncClient(timeout=TIMEOUT_S)
+    http = client or new_http_client(timeout=TIMEOUT_S)
     try:
         response = await http.get(
             PAGESPEED_URL,

@@ -14,6 +14,7 @@ from datetime import date
 import httpx
 
 from app.domain import Circle, RegistryCompany
+from app.http import new_http_client
 
 REGISTRY_URL = "https://recherche-entreprises.api.gouv.fr/near_point"
 MAX_RADIUS_KM = 50
@@ -66,7 +67,7 @@ async def fetch_near_point(
         raise ValueError(f"Rayon de {circle.radius_km} km refusé : {MAX_RADIUS_KM} km maximum.")
 
     own_client = client is None
-    http = client or httpx.AsyncClient(timeout=TIMEOUT_S)
+    http = client or new_http_client(timeout=TIMEOUT_S)
     try:
         page = 1
         while True:
