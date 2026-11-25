@@ -68,7 +68,7 @@ async def run_collection(
     with session_factory() as session:
         job = session.get(Job, job_id)
         zone = session.get(Zone, job.zone_id)
-        job.state, job.error = "running", None
+        job.state, job.error, job.started_at = "running", None, func.now()
         session.commit()
 
         api_client = new_http_client(timeout=API_TIMEOUT_S)

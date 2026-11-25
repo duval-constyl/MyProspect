@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
 from sqlalchemy import Select, and_, exists, func, or_, select
 from sqlalchemy.orm import Session, aliased
 
@@ -56,6 +57,7 @@ class ProspectFilters:
     opposed: bool | None = None
     sort: str = "priority"
     order: str | None = None
+    include_closed: bool = False
 
 
 def parse_bbox(bbox: str | None) -> tuple[float, float, float, float] | None:
@@ -80,6 +82,7 @@ def prospect_filters(
     opposed: bool | None = None,
     sort: Literal["priority", "score", "name"] = "priority",
     order: Literal["asc", "desc"] | None = None,
+    include_closed: bool = False,
 ) -> ProspectFilters:
     """Query parameters shared by the list and the CSV export."""
     codes = [code.strip() for code in naf.split(",") if code.strip()] if naf else None
@@ -95,6 +98,7 @@ def prospect_filters(
         opposed=opposed,
         sort=sort,
         order=order,
+        include_closed=include_closed,
     )
 
 
@@ -163,6 +167,8 @@ def _rows_query(filters: ProspectFilters) -> Select:
         .outerjoin(web, and_(web.prospect_id == Prospect.id, web.offer == Offer.WEB.value))
         .outerjoin(Tracking, Tracking.prospect_id == Prospect.id)
     )
+    if not filters.include_closed:
+        query = query.where(Prospect.closed.is_(False))
     if filters.bbox:
         query = query.where(func.ST_Intersects(Prospect.geom, _envelope(filters.bbox)))
     if filters.naf:
@@ -294,7 +300,11 @@ def prospect_clusters(
             func.min(Prospect.id).label("first_id"),
         )
         .outerjoin(score, and_(score.prospect_id == Prospect.id, score.offer == offer))
-        .where(Prospect.geom.is_not(None), func.ST_Intersects(Prospect.geom, envelope))
+        .where(
+            Prospect.geom.is_not(None),
+            Prospect.closed.is_(False),
+            func.ST_Intersects(Prospect.geom, envelope),
+        )
         .group_by(func.ST_SnapToGrid(Prospect.geom, cell))
     )
     return Clusters(
@@ -317,11 +327,34 @@ def prospect_stats(session: SessionDep, bbox: str | None = None) -> Stats:
     query = select(
         func.count().label("in_view"),
         func.count().filter(_has_site()).label("with_site"),
-    ).select_from(Prospect)
+    ).select_from(Prospect).where(Prospect.closed.is_(False))
     if bbox:
         query = query.where(func.ST_Intersects(Prospect.geom, _envelope(parse_bbox(bbox))))
     row = session.execute(query).one()
     return Stats(in_view=row.in_view, with_site=row.with_site, without_site=row.in_view - row.with_site)
+
+
+class ProspectRef(BaseModel):
+    id: int
+    name: str
+
+
+class DuplicatePair(BaseModel):
+    first: ProspectRef
+    second: ProspectRef
+
+
+@router.get("/prospects/duplicates")
+def duplicates(session: SessionDep) -> list[DuplicatePair]:
+    """Pairs of prospects with the same normalized name, less than 30 m apart."""
+    from app.reconcile import find_duplicates
+
+    pairs = find_duplicates(session)
+    names = {p.id: p.name for p in session.scalars(select(Prospect).where(Prospect.id.in_({i for pair in pairs for i in pair})))}
+    return [
+        DuplicatePair(first=ProspectRef(id=a, name=names[a]), second=ProspectRef(id=b, name=names[b]))
+        for a, b in pairs
+    ]
 
 
 @router.get("/prospects/{prospect_id}")

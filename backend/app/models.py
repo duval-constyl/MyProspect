@@ -179,6 +179,8 @@ class Job(Base):
     done: Mapped[int] = mapped_column(Integer, default=0)
     total: Mapped[int] = mapped_column(Integer, default=0)
     error: Mapped[str | None] = mapped_column(Text)
+    # V3: start of the run; prospects collected before it were absent from this run.
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class OutreachDraft(Base):

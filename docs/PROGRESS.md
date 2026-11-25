@@ -47,6 +47,7 @@
   - Dans le navigateur : la fiche montre trois priorités et trois scores, un brouillon d'e-mail (modèle fixe, sans clé Claude) avec ses mentions obligatoires, et la page « Aujourd'hui » liste 20 prospects.
   - Relecture faite par l'auteur du code, sans relecteur indépendant.
   - Total : 214 tests backend et 34 tests interface, tous verts, sans appel réseau réel.
+- **V3 – Tâche 1 (doublons et entreprises disparues)** : `find_duplicates` (même nom normalisé, à 30 m au plus) et route `GET /prospects/duplicates` ; `mark_closed` (prospects d'une zone absents de sa dernière récolte terminée, dont le registre dit l'établissement fermé → `closed=True`) ; `registry_lookup_by_siret` ; les entreprises fermées sont masquées par défaut (liste, carte, compteurs, export, « Aujourd'hui »), mais restent visibles avec `include_closed=true`. Migration `0006_job_started`. 10 tests verts, 224 au total.
 
 ## Décisions et écarts par rapport au plan
 
@@ -171,6 +172,10 @@
 - **V2 T7 – Ajouts pour rendre la fonction utilisable** : le plan crée la route de relance et l'historique sans écran pour les saisir ni les voir. Ajoutés : `GET /prospects/{id}/history` (relances et événements, du plus récent au plus ancien) et, sur la fiche, le panneau « Relances et historique » (date, note, « Programmer la relance », « Fait »). Lien « Aujourd'hui » dans la barre (`#/aujourdhui`).
 - **V2 T7 – « À contacter en priorité »** : chaque prospect compte avec sa **meilleure offre** (la priorité la plus haute parmi Web, Mobile et Cloud ; à égalité, l'ordre Web, Mobile, Cloud), affichée dans la colonne « Meilleure offre ». Statuts exclus : contacté, a répondu, refusé. 20 prospects au plus. Pas d'événement pour un simple changement de favori.
 - **V2 T7 – Horloge** : `GET /today` et `POST /followups/{id}/done` lisent l'heure par la dépendance `get_now` (remplacée dans les tests). Dans l'interface, les horodatages (fait le…, historique) sont affichés au jour de Paris (`parisDate`), les dates de relance telles quelles.
+- **V3 – Numéros de migration** : le plan V3 prévoit `0005_places` et `0006_watch`, déjà pris. Numérotation retenue : `0006_job_started` (tâche 1, ajout), `0007_places` (tâche 2), `0008_watch` (tâche 5).
+- **V3 T1 – « Absent de la dernière récolte »** : il faut savoir quand cette récolte a commencé. Ajout de `jobs.started_at`, rempli au passage à « en cours ». Est absent tout prospect de la zone (position dans la zone) dont `last_collected_at` est antérieur au début de la dernière récolte terminée. Seuls ceux-là sont vérifiés dans le registre, un appel par prospect.
+- **V3 T1 – Registre par SIRET** (vérifié sur l'API réelle le 25/11/2026) : `GET /search?q=<SIRET>` renvoie l'établissement dans `matching_etablissements`, avec `etat_administratif` (`F` = fermé) et `date_fermeture`. Réponse « fermé » si l'établissement est `F` ou l'entreprise cessée (`C`) ; « actif » sinon ; inconnu (on ne touche à rien) si l'API ne répond pas ou ne trouve pas le SIRET. La logique de reprise (3 tentatives, limite de 5 appels/s) est mise en commun avec la recherche par zone.
+- **V3 T1 – Branchement** : `mark_closed` est une fonction à part. La veille des zones (tâche 5) l'appellera après chaque récolte automatique ; les récoltes lancées à la main ne l'appellent pas. Les entreprises fermées sont masquées par défaut partout, pas seulement dans la liste, pour rester cohérent. Ajout : la route des doublons (la page des alertes, en tâche 5, les affichera).
 
 ## Questions ouvertes
 

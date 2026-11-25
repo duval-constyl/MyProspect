@@ -37,11 +37,11 @@ Toutes celles de la V1 et de la V2, et en plus :
 **Interfaces:**
 - Produces: `def find_duplicates(session, max_distance_m: int = 30) -> list[tuple[int, int]]` (paires d'identifiants de prospects de même nom normalisé et proches) ; `async def mark_closed(session, zone_id: int, lookup=registry_lookup_by_siret) -> int` (nombre de prospects de la zone absents de la dernière récolte et déclarés fermés par le registre, marqués `closed=True`).
 
-- [ ] **Step 1: Tests.** `test_duplicates_same_name_within_30m`. `test_same_name_far_apart_not_duplicate`. `test_absent_and_closed_company_is_marked_closed`. `test_absent_but_still_active_is_kept`. `test_closed_prospects_hidden_from_default_list_but_kept_in_database`.
-- [ ] **Step 2: Lancer** `pytest tests/test_reconcile.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.** Le filtre par défaut de `GET /prospects` exclut `closed=True` (paramètre `include_closed`).
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: doublons et fermetures`.
+- [x] **Step 1: Tests.** `test_duplicates_same_name_within_30m`. `test_same_name_far_apart_not_duplicate`. `test_absent_and_closed_company_is_marked_closed`. `test_absent_but_still_active_is_kept`. `test_closed_prospects_hidden_from_default_list_but_kept_in_database`.
+- [x] **Step 2: Lancer** `pytest tests/test_reconcile.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.** Le filtre par défaut de `GET /prospects` exclut `closed=True` (paramètre `include_closed`).
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: doublons et fermetures`.
 
 ### Task 2: Signaux d'avis (lieux Google) avec plafond
 
