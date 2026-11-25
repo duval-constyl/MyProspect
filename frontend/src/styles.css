@@ -1,0 +1,50 @@
+:root {
+  --ink: #1d2733;
+  --muted: #5f6b7a;
+  --line: #d9dee5;
+  --paper: #f6f7f9;
+  --accent: #1d3557;
+  --danger: #b3261e;
+  --ok: #2a7a3b;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+h1, h2, h3 { margin: 0 0 0.6rem; }
+h2 { font-size: 1.05rem; }
+
+.app { display: flex; flex-direction: column; height: 100vh; }
+.top-bar { display: flex; align-items: center; gap: 1.5rem; padding: 0.6rem 1rem; background: var(--accent); color: #fff; }
+.brand { font-weight: 700; letter-spacing: 0.02em; }
+.top-bar nav { display: flex; gap: 1rem; }
+.top-bar a { color: #dfe7f2; text-decoration: none; }
+.top-bar a[aria-current="page"] { color: #fff; border-bottom: 2px solid #fff; }
+.content { flex: 1; min-height: 0; }
+
+.map-page { display: grid; grid-template-columns: 320px 1fr; height: 100%; }
+.side-panel { overflow-y: auto; padding: 1rem; background: #fff; border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 1rem; }
+.map { width: 100%; height: 100%; min-height: 400px; }
+
+.zone-controls { display: flex; flex-direction: column; gap: 0.7rem; }
+.tabs { display: flex; gap: 0.3rem; }
+.tab { flex: 1; padding: 0.4rem; border: 1px solid var(--line); background: var(--paper); border-radius: 6px; cursor: pointer; }
+.tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.field { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.9rem; }
+.field input, .field select { padding: 0.4rem; border: 1px solid var(--line); border-radius: 6px; font: inherit; }
+.trades { border: 1px solid var(--line); border-radius: 6px; display: flex; flex-direction: column; gap: 0.3rem; }
+.check { display: flex; gap: 0.4rem; align-items: center; font-size: 0.9rem; }
+.primary { padding: 0.55rem; background: var(--accent); color: #fff; border: 0; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.primary:disabled { opacity: 0.5; cursor: wait; }
+.secondary { padding: 0.4rem; background: #fff; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
+.danger { padding: 0.4rem 0.7rem; background: #fff; color: var(--danger); border: 1px solid var(--danger); border-radius: 6px; cursor: pointer; }
+.hint { color: var(--muted); font-size: 0.85rem; margin: 0; }
+.error { color: var(--danger); margin: 0; }
+.success { color: var(--ok); margin: 0; }
+.progress progress { width: 100%; }
+.counters p { margin: 0.15rem 0; }
+.legend p { margin: 0 0 0.3rem; font-size: 0.85rem; color: var(--muted); }
+.legend-scale { display: flex; gap: 2px; }
+.legend-scale span { flex: 1; height: 10px; border-radius: 2px; }

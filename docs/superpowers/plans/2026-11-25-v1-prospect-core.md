@@ -267,11 +267,11 @@ Déroulé : zone → cercles → registre → exclure les SIRET de `Exclusion` �
 
 Fond de carte MapLibre : style vectoriel gratuit OpenFreeMap (`https://tiles.openfreemap.org/styles/liberty`). Couleur d'un point selon `tier` (6 niveaux), regroupements avec leur nombre. Compteurs « dans la vue / avec site / sans site » rafraîchis au déplacement de la carte.
 
-- [ ] **Step 1: Tests.** `test_shows_counters_from_stats`. `test_start_collection_posts_selected_naf_codes` (cocher deux métiers → corps de la requête avec leurs deux codes). `test_progress_bar_follows_job_until_done`. `test_error_message_shown_when_zone_too_large` (réponse 422).
-- [ ] **Step 2: Lancer** `cd frontend && npx vitest run src/pages/MapPage.test.tsx`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** (carte simulée dans les tests).
-- [ ] **Step 4: Relancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: page carte`.
+- [x] **Step 1: Tests.** `test_shows_counters_from_stats`. `test_start_collection_posts_selected_naf_codes` (cocher deux métiers → corps de la requête avec leurs deux codes). `test_progress_bar_follows_job_until_done`. `test_error_message_shown_when_zone_too_large` (réponse 422).
+- [x] **Step 2: Lancer** `cd frontend && npx vitest run src/pages/MapPage.test.tsx`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** (carte simulée dans les tests).
+- [x] **Step 4: Relancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: page carte`.
 
 ### Task 13: Page Liste des prospects
 
