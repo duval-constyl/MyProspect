@@ -96,6 +96,7 @@
 - **T15 – Pytest lancé depuis la racine** (commande du plan `pytest backend/tests`) : ajout de `pythonpath = ["."]` dans `backend/pyproject.toml` pour que `tests.conftest` soit importable d'où qu'on lance.
 - **T15 – Compose et Windows** : `VITE_USE_POLLING=true` pour le service `web` (sans cela, Vite dans le conteneur ne voit pas les fichiers modifiés depuis Windows). Le port 5173 tombait dans une plage réservée par Windows sur cette machine (5158-5257) : ton `.env` local utilise `WEB_PORT=5300` ; `.env.example` garde 5173 et le README explique le cas.
 - **T15 – Carte** : les nombres des regroupements utilisaient la police par défaut de MapLibre (Open Sans), absente d'OpenFreeMap (erreur 404) ; ils utilisent maintenant « Noto Sans Bold », servie par le style Liberty. Favicon ajouté (évitait un 404). `.playwright-mcp/` ignoré par git (captures de la vérification).
+- **Revue finale – Export CSV et formules** : les noms, adresses, coordonnées et notes viennent en partie de sources tierces (OSM, registre). Une cellule qui commence par `=`, `+`, `-`, `@`, une tabulation ou un retour chariot reçoit désormais une apostrophe devant (recommandation OWASP contre l'injection CSV). Effet visible : dans Excel, « +33 4 78 … » s'affiche enfin comme du texte (avant, Excel y voyait une formule cassée) ; dans d'autres logiciels, l'apostrophe peut apparaître.
 
 ## Questions ouvertes
 
