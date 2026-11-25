@@ -23,6 +23,7 @@ dependencies = [
     "jinja2>=3.1",
     "weasyprint>=62",
     "playwright>=1.50",
+    "apscheduler>=3.11,<4",
 ]
 
 [project.optional-dependencies]

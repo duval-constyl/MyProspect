@@ -51,6 +51,7 @@
 - **V3 – Tâche 2 (avis Google)** : **sautée** sur décision de Duval, car les conditions de Google pour l'EEE empêchent de stocker la note et de l'utiliser sur une carte. Voir « Questions ouvertes ».
 - **V3 – Tâche 3 (rapport d'audit PDF)** : `render_audit_html` (Jinja2, gabarit `app/templates/audit.html`) et `render_audit_pdf` (WeasyPrint) ; route `GET /prospects/{id}/audit.pdf?offer=` ; lien « Rapport d'audit (PDF) » sur la fiche, qui suit l'offre choisie. Contenu : nom, ville, note et palier, raisons avec une explication en clair, chiffres du site, signature et sources. **Jamais** : notes, statut, favori, priorité, coordonnées ni autres prospects. Vérifié en vrai : PDF généré depuis le conteneur Docker. 9 tests backend et 1 test interface ; total : 233 et 35.
 - **V3 – Tâche 4 (captures d'écran)** : `capture_site` (Chromium via Playwright, ordinateur 1280×800 et téléphone 390×844, ne lève jamais) ; le rapport intègre les captures en data URI, avec un texte de remplacement si une capture manque ; la route PDF fait la capture si `SCREENSHOTS_ENABLED`. Vérifié en vrai dans Docker : rapport de « SALON CONFORT » avec ses deux captures, en 10 s environ. 10 tests en plus, 243 au total.
+- V3 tâche 5 — zones suivies et alertes : `PATCH /zones/{id}` (`watch`, `watch_every_days` de 1 à 90 jours), veille `run_watch` lancée toutes les heures par APScheduler au démarrage de l'API (`WATCH_ENABLED`), alertes « Nouvelle entreprise » / « Entreprise fermée » (`GET /alerts?unseen=true`, `POST /alerts/{id}/seen`), page « Alertes » (alertes non vues, zones à suivre avec fréquence, doublons possibles de la tâche 1).
 
 ## Décisions et écarts par rapport au plan
 
@@ -184,6 +185,12 @@
 - **V3 T4 – Défauts vus sur le vrai rendu, corrigés** : les captures prises dès l'événement `load` étaient presque noires (fondu, image de fond pas encore chargée). Désormais, on attend que le réseau se calme (`networkidle`), 3 s au plus ; une page qui ne se calme jamais est photographiée quand même. La signature passait en page 2 : captures réduites (100 mm et 32 mm de large), section non coupée entre deux pages.
 - **V3 T4 – Robustesse** : délai de 15 s par page, plus un délai global de 45 s ; URL mal formée → aucun navigateur lancé ; navigateur absent ou en panne → pas d'image, et le rapport est généré quand même avec le texte « Capture … indisponible ». Pas de site connu → pas de section de captures. La route PDF devient asynchrone, et le PDF est rendu hors de la boucle d'événements (`run_in_threadpool`).
 - **V3 T4 – Docker** : l'image `api` installe Playwright et Chromium (`playwright install --with-deps chromium`) dans une couche placée **avant** la copie du code, pour ne pas re-télécharger le navigateur à chaque changement de code. L'image grossit d'environ 400 Mo.
+- V3 tâche 5 : migration nommée `0007_watch` (le plan disait `0006_watch`, mais `0006_job_started` existe depuis la tâche 1).
+- V3 tâche 5 : le « premier passage » d'une zone suivie est repéré par `Zone.last_watch_at` vide (colonne ajoutée) : il récolte et fixe le point de départ sans alerte.
+- V3 tâche 5 : une récolte de veille en échec ne crée aucune alerte et ne met pas à jour `last_watch_at` : la zone est retentée à la vérification suivante (une heure plus tard).
+- V3 tâche 5 : seules les entreprises géolocalisées et situées dans la zone donnent une alerte ; les SIRET de la liste « ne plus contacter » n'en donnent jamais. La recherche des fermetures (`mark_closed`) n'est lancée que par la veille, pas par les récoltes manuelles.
+- V3 tâche 5 : `GET /zones` renvoie aussi un libellé lisible (`label` : commune et département, cercle et rayon, ou « Dessin libre ») et les champs de veille ; la page « Alertes » regroupe les doublons de la tâche 1, qui n'avaient pas encore d'écran.
+- V3 tâche 5 : planificateur réglé sur le fuseau Europe/Paris, une seule exécution à la fois (`max_instances=1`, `coalesce=True`) ; il est désactivé pendant les tests (`WATCH_ENABLED=false` dans `conftest.py`).
 
 ## Questions ouvertes
 

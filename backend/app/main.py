@@ -11,8 +11,10 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.collect import fail_interrupted_jobs
+from app.config import get_settings
 from app.db import get_session, get_session_factory
-from app.routers import exports, followups, outreach, prospects, tracking, zones
+from app.routers import alerts, exports, followups, outreach, prospects, tracking, zones
+from app.watch import build_scheduler
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +26,14 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
             fail_interrupted_jobs(session)
     except SQLAlchemyError:
         logger.warning("Base indisponible au démarrage : récoltes interrompues non mises à jour.")
-    yield
+    scheduler = build_scheduler() if get_settings().watch_enabled else None
+    if scheduler is not None:
+        scheduler.start()
+    try:
+        yield
+    finally:
+        if scheduler is not None:
+            scheduler.shutdown(wait=False)
 
 
 app = FastAPI(title="MyProspect", lifespan=lifespan)
@@ -34,6 +43,7 @@ app.include_router(tracking.router)
 app.include_router(exports.router)
 app.include_router(outreach.router)
 app.include_router(followups.router)
+app.include_router(alerts.router)
 
 
 @app.exception_handler(RequestValidationError)

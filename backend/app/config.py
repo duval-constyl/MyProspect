@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     # V3 features, each can be switched off.
     audit_report_enabled: bool = True
     screenshots_enabled: bool = True
+    watch_enabled: bool = True
     # Windows outside Docker: folder holding the GTK DLLs WeasyPrint needs (e.g. Inkscape's bin).
     weasyprint_dll_directories: str | None = None
 

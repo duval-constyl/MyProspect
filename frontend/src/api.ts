@@ -1,9 +1,11 @@
 import type {
+  Alert,
   Bbox,
   Channel,
   Cluster,
   CollectBody,
   Draft,
+  DuplicatePair,
   FollowUp,
   HistoryData,
   Job,
@@ -15,6 +17,8 @@ import type {
   TodayData,
   Tracking,
   TrackingPatch,
+  ZoneInfo,
+  ZonePatch,
 } from "./types";
 
 // Vite forwards /api to the backend (see vite.config.ts).
@@ -92,4 +96,10 @@ export const api = {
   auditReportUrl: (id: number, offer: Offer) => `${BASE}/prospects/${id}/audit.pdf?offer=${offer}`,
   prepareDraft: (id: number, offer: Offer, channel: Channel) =>
     request<Draft>(`/prospects/${id}/outreach`, { method: "POST", body: JSON.stringify({ offer, channel }) }),
+  listZones: () => request<ZoneInfo[]>("/zones"),
+  patchZone: (id: number, patch: ZonePatch) =>
+    request<ZoneInfo>(`/zones/${id}`, { method: "PATCH", body: JSON.stringify(patch) }),
+  listAlerts: (unseen = true) => request<Alert[]>(`/alerts?unseen=${unseen}`),
+  markAlertSeen: (id: number) => request<Alert>(`/alerts/${id}/seen`, { method: "POST" }),
+  listDuplicates: () => request<DuplicatePair[]>("/prospects/duplicates"),
 };

@@ -34,6 +34,7 @@ Arrêt : `docker compose down`. Pour effacer aussi toutes les données : `docker
 | `SENDER_NAME`, `SENDER_BUSINESS` | Votre nom et votre activité, repris dans chaque brouillon d'approche (signature, présentation au téléphone). |
 | `ANTHROPIC_API_KEY` | Facultative. Clé de l'API Claude pour rédiger les brouillons ; sans elle, des modèles de texte fixes sont utilisés. |
 | `SCREENSHOTS_ENABLED` | `true` par défaut : captures de la page d'accueil (ordinateur 1280×800, téléphone 390×844) dans le rapport d'audit. Le navigateur Chromium est inclus dans l'image Docker ; hors Docker : `python -m playwright install chromium`. |
+| `WATCH_ENABLED` | `true` par défaut : toutes les heures, l'API récolte de nouveau les zones suivies arrivées à échéance et crée les alertes (page « Alertes »). La première veille d'une zone fixe le point de départ, sans alerte. |
 | `AUDIT_REPORT_ENABLED` | `true` par défaut : rapport d'audit PDF à joindre à un premier message (lien sur la fiche). |
 | `WEASYPRINT_DLL_DIRECTORIES` | Windows hors Docker uniquement : dossier des bibliothèques GTK dont le rapport PDF a besoin (par exemple `C:\Program Files\Inkscape\bin`). Inutile dans Docker. |
 | `FRANCETRAVAIL_CLIENT_ID`, `FRANCETRAVAIL_CLIENT_SECRET` | Facultatives. Application francetravail.io abonnée à « Offres d'emploi v2 » : repère les entreprises qui recrutent sur un poste technique (bonus du score Cloud). |

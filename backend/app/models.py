@@ -37,6 +37,7 @@ JOB_STATES = ("pending", "running", "done", "failed")
 CHANNELS = ("email", "call")
 DRAFT_SOURCES = ("llm", "template")
 EVENT_KINDS = ("status", "note", "followup")
+ALERT_KINDS = ("new_company", "closed")
 
 
 class Prospect(Base):
@@ -167,6 +168,10 @@ class Zone(Base):
     collected_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+    # V3: watched zones are collected again every `watch_every_days` days.
+    watch: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    watch_every_days: Mapped[int] = mapped_column(Integer, default=7, server_default="7")
+    last_watch_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class Job(Base):
@@ -236,3 +241,22 @@ class TrackingEvent(Base):
     at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     kind: Mapped[str] = mapped_column(String(16))
     text: Mapped[str] = mapped_column(Text)
+
+
+class Alert(Base):
+    """A new company or a closed company in a watched zone (V3 Task 5)."""
+
+    __tablename__ = "alerts"
+    __table_args__ = (
+        UniqueConstraint("zone_id", "prospect_id", "kind"),
+        CheckConstraint(_one_of("kind", ALERT_KINDS), name="alert_kind"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    zone_id: Mapped[int] = mapped_column(ForeignKey("zones.id", ondelete="CASCADE"), index=True)
+    prospect_id: Mapped[int] = mapped_column(ForeignKey("prospects.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[str] = mapped_column(String(16))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

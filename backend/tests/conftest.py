@@ -51,6 +51,8 @@ os.environ["PAGESPEED_API_KEY"] = ""
 os.environ["ANTHROPIC_API_KEY"] = ""
 os.environ["FRANCETRAVAIL_CLIENT_ID"] = ""
 os.environ["FRANCETRAVAIL_CLIENT_SECRET"] = ""
+# No background scheduler during the tests.
+os.environ["WATCH_ENABLED"] = "false"
 
 
 @pytest.fixture(scope="session")

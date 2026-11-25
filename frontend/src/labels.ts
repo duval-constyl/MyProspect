@@ -1,4 +1,4 @@
-import type { ContactKind, Offer, Status } from "./types";
+import type { AlertKind, ContactKind, Offer, Status } from "./types";
 
 /** Starting list of trades (V1 plan, Task 12). */
 export const TRADES = [
@@ -65,3 +65,16 @@ export function frenchDate(isoDate: string | null | undefined): string {
   const [year, month, day] = isoDate.slice(0, 10).split("-");
   return `${day}/${month}/${year}`;
 }
+
+export const ALERT_KIND_LABELS: Record<AlertKind, string> = {
+  new_company: "Nouvelle entreprise",
+  closed: "Entreprise fermée",
+};
+
+/** How often a watched zone is collected again (days). */
+export const WATCH_FREQUENCIES = [
+  { days: 1, label: "Chaque jour" },
+  { days: 7, label: "Chaque semaine" },
+  { days: 14, label: "Toutes les 2 semaines" },
+  { days: 30, label: "Chaque mois" },
+];

@@ -107,11 +107,11 @@ Avant de se lancer, relire la grille tarifaire en vigueur de l'API Places et la 
 **Interfaces:**
 - Produces: `async def run_watch(session_factory, now: datetime) -> int` (récolte les zones dont l'échéance est passée, crée les alertes, renvoie leur nombre) ; planificateur APScheduler lancé au démarrage de l'API, vérification toutes les heures ; `PATCH /zones/{id}` (`{watch, watch_every_days}`) ; `GET /alerts?unseen=true` ; `POST /alerts/{id}/seen`.
 
-- [ ] **Step 1: Tests.** `test_new_company_in_watched_zone_creates_one_alert`. `test_run_twice_without_change_creates_no_new_alert`. `test_zone_not_due_is_skipped`. `test_closed_company_creates_closed_alert`. `test_excluded_company_never_alerts`. `test_failed_collection_creates_no_alert_and_does_not_crash_scheduler`.
-- [ ] **Step 2: Lancer** `pytest tests/test_watch.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.** Le premier passage d'une zone nouvellement suivie fixe l'état de départ sans alerte.
-- [ ] **Step 4: Lancer** les tests et `npx vitest run`. Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: zones suivies et alertes`.
+- [x] **Step 1: Tests.** `test_new_company_in_watched_zone_creates_one_alert`. `test_run_twice_without_change_creates_no_new_alert`. `test_zone_not_due_is_skipped`. `test_closed_company_creates_closed_alert`. `test_excluded_company_never_alerts`. `test_failed_collection_creates_no_alert_and_does_not_crash_scheduler`.
+- [x] **Step 2: Lancer** `pytest tests/test_watch.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.** Le premier passage d'une zone nouvellement suivie fixe l'état de départ sans alerte.
+- [x] **Step 4: Lancer** les tests et `npx vitest run`. Attendu : PASS.
+- [x] **Step 5: Commit** `feat: zones suivies et alertes`.
 
 ### Task 6: Statistiques de réponse
 

@@ -174,3 +174,35 @@ export type ProspectDetail = {
   priority_by_offer: Partial<Record<Offer, Priority>>;
   tracking: Tracking;
 };
+
+/** A collected zone; watched zones are collected again every `watch_every_days` days. */
+export type ZoneInfo = {
+  id: number;
+  kind: ZoneKind;
+  label: string;
+  geojson: unknown;
+  naf_codes: string[];
+  collected_at: string;
+  watch: boolean;
+  watch_every_days: number;
+  last_watch_at: string | null;
+};
+
+export type ZonePatch = Partial<Pick<ZoneInfo, "watch" | "watch_every_days">>;
+
+export type AlertKind = "new_company" | "closed";
+
+export type Alert = {
+  id: number;
+  kind: AlertKind;
+  zone_id: number;
+  zone_label: string;
+  prospect_id: number;
+  prospect_name: string;
+  created_at: string;
+  seen_at: string | null;
+};
+
+export type ProspectRef = { id: number; name: string };
+
+export type DuplicatePair = { first: ProspectRef; second: ProspectRef };
