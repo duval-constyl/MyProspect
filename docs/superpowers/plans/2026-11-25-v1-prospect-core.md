@@ -91,11 +91,11 @@ class Status(StrEnum): NEW="new"; TO_CONTACT="to_contact"; CONTACTED="contacted"
 **Interfaces:**
 - Produces (SQLAlchemy) : `Prospect(id, siret unique, name, naf, effectif_code, created_on, geom Point 4326, address, is_individual, closed, first_seen_at, last_collected_at)` ; `Contact(id, prospect_id, kind: "phone"|"email"|"website", value, source: "osm"|"registry"|"site", seen_on: date)` ; `SiteAnalysisRow(prospect_id unique, …champs de SiteAnalysis…)` ; `ScoreRow(prospect_id, offer, value, tier, reasons JSON, computed_at, unique(prospect_id, offer))` ; `Tracking(prospect_id unique, status, favorite, notes, updated_at)` ; `Exclusion(siret pk, reason, added_at)` ; `Zone(id, kind: "commune"|"circle"|"polygon", geojson, naf_codes, collected_at)` ; `Job(id, zone_id, state: "pending"|"running"|"done"|"failed", done, total, error)`.
 
-- [ ] **Step 1: Tests.** `test_prospect_roundtrip_with_geometry` : insérer un `Prospect` avec point (2.3522, 48.8566), le relire, vérifier `ST_X`. `test_siret_is_unique` : deux insertions du même SIRET lèvent `IntegrityError`. `test_score_unique_per_offer`.
-- [ ] **Step 2: Lancer** `pytest tests/test_models.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** les modèles et la migration `alembic revision --autogenerate`, avec `CREATE EXTENSION postgis` et un index GiST sur `Prospect.geom`.
-- [ ] **Step 4: Lancer** `alembic upgrade head && pytest tests/test_models.py -v`. Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: modèles et migration initiale`.
+- [x] **Step 1: Tests.** `test_prospect_roundtrip_with_geometry` : insérer un `Prospect` avec point (2.3522, 48.8566), le relire, vérifier `ST_X`. `test_siret_is_unique` : deux insertions du même SIRET lèvent `IntegrityError`. `test_score_unique_per_offer`.
+- [x] **Step 2: Lancer** `pytest tests/test_models.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** les modèles et la migration `alembic revision --autogenerate`, avec `CREATE EXTENSION postgis` et un index GiST sur `Prospect.geom`.
+- [x] **Step 4: Lancer** `alembic upgrade head && pytest tests/test_models.py -v`. Attendu : PASS.
+- [x] **Step 5: Commit** `feat: modèles et migration initiale`.
 
 ### Task 3: Client du registre officiel
 

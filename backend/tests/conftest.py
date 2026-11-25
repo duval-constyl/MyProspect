@@ -13,7 +13,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 
-ROOT_ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
+BACKEND_DIR = Path(__file__).resolve().parents[1]
+ROOT_ENV_FILE = BACKEND_DIR.parent / ".env"
 
 
 class _TestEnv(BaseSettings):
@@ -51,6 +52,35 @@ def test_database() -> str:
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
     engine.dispose()
     return TEST_DATABASE_URL
+
+
+@pytest.fixture(scope="session")
+def migrated_database(test_database) -> str:
+    """Bring the test database schema to the latest Alembic revision."""
+    from alembic import command
+    from alembic.config import Config
+
+    config = Config(str(BACKEND_DIR / "alembic.ini"))
+    config.attributes["configure_logger"] = False
+    command.upgrade(config, "head")
+    return test_database
+
+
+@pytest.fixture
+def db_session(migrated_database):
+    """A session on the test database; every table is emptied after the test."""
+    import app.models  # noqa: F401  (registers every table on Base.metadata)
+    from app.db import Base, get_engine, get_session_factory
+
+    session = get_session_factory()()
+    try:
+        yield session
+    finally:
+        session.rollback()
+        session.close()
+        tables = ", ".join(f'"{table.name}"' for table in Base.metadata.sorted_tables)
+        with get_engine().begin() as conn:
+            conn.execute(text(f"TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE"))
 
 
 @pytest.fixture
