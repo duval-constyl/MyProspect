@@ -75,11 +75,11 @@ Si `naf` n'est pas dans `BOOKING_NAF` : valeur 0, aucune raison. Sinon : pas de 
 
 Points : technologie obsolète **+30** (`outdated_tech` : jQuery < 3, WordPress < 6) ; entreprise créée depuis moins de 24 mois **+25** (`recent_company`) ; effectif dans `{"03","11","12","21"}` (6 à 99 salariés) **+20** (`mid_size`) ; offre d'emploi technique ouverte **+25** (`hiring_tech`). Plafond 100.
 
-- [ ] **Step 1: Tests.** `test_jquery_1_is_outdated_jquery_3_is_not`. `test_wordpress_5_outdated`. `test_recent_company_boundary` (23 mois oui, 25 mois non). `test_mid_size_codes`. `test_hiring_flag_adds_25`. `test_all_unknown_inputs_scores_0_no_error` (tous les paramètres à `None`).
-- [ ] **Step 2: Lancer** `pytest tests/test_scoring_cloud.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: score cloud`.
+- [x] **Step 1: Tests.** `test_jquery_1_is_outdated_jquery_3_is_not`. `test_wordpress_5_outdated`. `test_recent_company_boundary` (23 mois oui, 25 mois non). `test_mid_size_codes`. `test_hiring_flag_adds_25`. `test_all_unknown_inputs_scores_0_no_error` (tous les paramètres à `None`).
+- [x] **Step 2: Lancer** `pytest tests/test_scoring_cloud.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: score cloud`.
 
 ### Task 4: Offres d'emploi techniques (étude puis intégration facultative)
 

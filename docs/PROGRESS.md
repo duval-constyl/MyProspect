@@ -27,6 +27,7 @@
 - **V1 – Revue finale** : relecture faite par l'auteur du code, sans relecteur indépendant. Les 5 points sensibles du plan sont couverts par des tests. Un défaut corrigé : formules dans l'export CSV. Total : 130 tests backend et 25 tests interface, tous verts.
 - **V2 – Tâche 1 (signaux de réservation, versions)** : `detect_booking_signals` (liens et iframes de prestataires connus, ou mots « réserver », « prendre rendez-vous », « commander » dans le texte ou l'adresse d'un lien) ; `SiteAnalysis.has_booking` et `has_online_order` ; `tech` au format `nom@version` quand la version est lisible (WordPress via la balise generator, jQuery via le nom ou le paramètre `ver` du script). Migration `0003_site_signals`. 11 tests verts, 141 au total.
 - **V2 – Tâche 2 (score Mobile)** : `score_mobile` et les listes `BOOKING_NAF` / `ORDER_NAF` du plan ; réservation absente +50, commande absente +20 (restauration), pas de site +20, site sans viewport +10. 14 tests verts, 155 au total.
+- **V2 – Tâche 3 (score Cloud et logiciel)** : `score_cloud` ; technologie obsolète +30 (jQuery < 3, WordPress < 6), entreprise de moins de 24 mois +25, 6 à 99 salariés +20 (`03`, `11`, `12`, `21`), offre d'emploi technique +25 (paramètre `hiring_tech`, `False` par défaut). 15 tests verts, 170 au total.
 
 ## Décisions et écarts par rapport au plan
 
@@ -132,6 +133,7 @@
 - **V2 T1 – Compatibilité V1** : les deux nouveaux champs de `SiteAnalysis` valent `False` par défaut (le code V1 reste valable) ; colonnes à `false` pour les analyses déjà enregistrées. Le test V1 `test_good_site_all_flags_true` attend désormais `wordpress@6.6` (changement de format voulu par le plan). Tests en plus : iframe de prestataire, plateforme de livraison, mots dans l'adresse ou le texte d'un lien, page vide ou cassée, site inaccessible sans signal.
 - **V2 T2 – Site inaccessible ou pas encore analysé** : réservation et commande sont alors « non détectées » (comme sans site, le libellé dit bien « détectée ») ; en revanche « site non adapté au mobile » n'est ajouté que pour un site réellement lu, pour ne pas affirmer un défaut qu'on n'a pas pu voir.
 - **V2 T2 – Plafond jamais atteint** (comme en V1) : le maximum est 90 (restaurant sans site : 50 + 20 + 20), donc palier 6 ; `test_cap_100` vérifie ce maximum réel. Libellés : « Aucune réservation ni prise de rendez-vous en ligne détectée », « Aucune commande en ligne détectée », « Aucun site web connu : les clients ne peuvent ni réserver ni commander en ligne », « Site non adapté au mobile (pas de balise viewport) ».
+- **V2 T3 – Lecture des règles** : « technologie obsolète » compte une seule fois (30 points), et le libellé nomme chaque outil en cause (« Technologie vieillissante : jQuery 1.12.4 (avant la version 3) ») ; une version illisible ou un site inaccessible ne comptent pas. « Moins de 24 mois » = mois **pleins** écoulés < 24 (23 oui, 24 et 25 non). La date de création utilisée est celle de l'entreprise (unité légale), comme en V1. Ici le plafond est atteignable : 30 + 25 + 20 + 25 = 100.
 
 ## Questions ouvertes
 
