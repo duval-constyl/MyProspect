@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.collect import fail_interrupted_jobs
 from app.db import get_session, get_session_factory
-from app.routers import zones
+from app.routers import prospects, zones
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +27,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(title="MyProspect", lifespan=lifespan)
 app.include_router(zones.router)
+app.include_router(prospects.router)
 
 SessionDep = Annotated[Session, Depends(get_session)]
 

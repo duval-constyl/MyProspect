@@ -233,11 +233,11 @@ Déroulé : zone → cercles → registre → exclure les SIRET de `Exclusion` �
 - Produces : `GET /prospects?bbox=w,s,e,n&naf=&has_site=&offer=web&score_min=&status=&q=&favorite=&sort=priority|score|name&page=&per_page=` → `{items: ProspectListItem[], total}` ; `GET /prospects/clusters?bbox=…&zoom=…` → `{clusters: [{lat, long, count, max_score}]}` (regroupement `ST_SnapToGrid`) ; `GET /prospects/{id}` → `ProspectDetail` ; `GET /prospects/stats?bbox=…` → `{in_view, with_site, without_site}`.
 - `ProspectDetail` : identité, `contacts[{kind, value, source, seen_on}]`, `site_analysis | null`, `scores[{offer, value, tier, reasons}]`, `priority{value, reasons}`, `tracking`. Aucun champ obligatoire ne peut être `null` de façon trompeuse : un contact absent est simplement absent de la liste.
 
-- [ ] **Step 1: Tests.** `test_list_filters_by_has_site_and_score_min`. `test_list_sorted_by_priority_desc`. `test_search_by_name_and_siret`. `test_clusters_group_nearby_points_at_low_zoom`. `test_stats_counts_with_and_without_site`. `test_detail_for_prospect_without_contacts_or_site` (listes vides, `site_analysis` nul, 200). `test_detail_unknown_id_404`.
-- [ ] **Step 2: Lancer** `pytest tests/test_prospects_api.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.** La priorité est calculée à la lecture avec `contact_priority` et `Settings.home_lat/home_long`.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: api prospects`.
+- [x] **Step 1: Tests.** `test_list_filters_by_has_site_and_score_min`. `test_list_sorted_by_priority_desc`. `test_search_by_name_and_siret`. `test_clusters_group_nearby_points_at_low_zoom`. `test_stats_counts_with_and_without_site`. `test_detail_for_prospect_without_contacts_or_site` (listes vides, `site_analysis` nul, 200). `test_detail_unknown_id_404`.
+- [x] **Step 2: Lancer** `pytest tests/test_prospects_api.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.** La priorité est calculée à la lecture avec `contact_priority` et `Settings.home_lat/home_long`.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: api prospects`.
 
 ### Task 11: Suivi, exclusion, export CSV
 
