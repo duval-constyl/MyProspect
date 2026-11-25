@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import MapPage from "./pages/MapPage";
 import ProspectPage from "./pages/ProspectPage";
 import ProspectsPage from "./pages/ProspectsPage";
+import TodayPage from "./pages/TodayPage";
 
-/** Tiny hash router: #/ (carte), #/prospects (liste), #/prospects/{id} (fiche). */
+/** Tiny hash router: #/ (carte), #/aujourdhui, #/prospects (liste), #/prospects/{id} (fiche). */
 function useHashRoute(): string {
   const [hash, setHash] = useState(window.location.hash || "#/");
   useEffect(() => {
@@ -21,6 +22,7 @@ function isActive(route: string, href: string): boolean {
 
 const LINKS = [
   { href: "#/", label: "Carte" },
+  { href: "#/aujourdhui", label: "Aujourd'hui" },
   { href: "#/prospects", label: "Prospects" },
 ];
 
@@ -28,6 +30,7 @@ function Page({ route }: { route: string }) {
   const detail = route.match(/^#\/prospects\/(\d+)$/);
   if (detail) return <ProspectPage key={detail[1]} id={Number(detail[1])} />;
   if (route === "#/prospects") return <ProspectsPage />;
+  if (route === "#/aujourdhui") return <TodayPage />;
   return <MapPage />;
 }
 

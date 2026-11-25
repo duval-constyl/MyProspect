@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_session
 from app.domain import Status
+from app.history import STATUS_LABELS, record_event
 from app.models import Exclusion, Prospect, Tracking
 from app.schemas import TrackingOut
 
@@ -61,7 +62,12 @@ def update_tracking(prospect_id: int, body: TrackingPatch, session: SessionDep) 
     tracking = _tracking_of(session, prospect_id)
     changes = {key: value for key, value in body.model_dump(exclude_unset=True).items() if value is not None}
     for key, value in changes.items():
-        setattr(tracking, key, value.value if isinstance(value, Status) else value)
+        value = value.value if isinstance(value, Status) else value
+        if key == "status" and value != tracking.status:
+            record_event(session, prospect_id, "status", f"Statut : {STATUS_LABELS[value]}")
+        if key == "notes" and value != tracking.notes:
+            record_event(session, prospect_id, "note", value or "Notes effacées")
+        setattr(tracking, key, value)
     session.commit()
     session.refresh(tracking)
     return _out(tracking)
@@ -84,6 +90,7 @@ def do_not_contact(prospect_id: int, session: SessionDep) -> TrackingOut:
     prospect = _prospect_or_404(session, prospect_id)
     tracking = _tracking_of(session, prospect_id)
     tracking.status = Status.REFUSED.value
+    record_event(session, prospect_id, "status", f"Statut : {STATUS_LABELS['refused']} (ne plus contacter)")
     _exclude(session, prospect.siret, "do_not_contact")
     session.commit()
     session.refresh(tracking)

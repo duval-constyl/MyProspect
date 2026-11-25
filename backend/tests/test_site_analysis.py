@@ -36,7 +36,7 @@ async def test_good_site_all_flags_true():
     assert analysis.has_description is True
     assert analysis.has_h1 is True
     assert analysis.has_viewport is True
-    assert analysis.tech == ["wordpress", "jquery"]
+    assert analysis.tech == ["wordpress@6.6", "jquery"]  # V2: version when readable
     assert analysis.response_ms is not None and analysis.response_ms >= 0
     assert analysis.mobile_perf is None
     assert analysis.url == "https://garage-martin.fr/"

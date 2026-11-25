@@ -1,4 +1,5 @@
-"""Website analysis: reachability, HTTPS, basic SEO tags, viewport, technology.
+"""Website analysis: reachability, HTTPS, basic SEO tags, viewport, technology
+(with its version when readable), booking and online-order links.
 
 `analyze_site` never raises: anything that prevents reading an HTML page
 (malformed URL, timeout, too many redirects, error status, non-HTML content)
@@ -8,6 +9,7 @@ gives `reachable=False`.
 import asyncio
 import re
 import time
+import unicodedata
 from datetime import UTC, datetime
 
 import httpx
@@ -29,6 +31,19 @@ TECH_IN_ASSETS = {
     "shopify": ("cdn.shopify.com", "shopify"),
     "jquery": ("jquery",),
 }
+WORDPRESS_VERSION = re.compile(r"wordpress\s+(\d+(?:\.\d+)*)")
+JQUERY_VERSIONS = (
+    re.compile(r"jquery[-.]?(\d+\.\d+(?:\.\d+)?)(?:\.slim)?(?:\.min)?\.js"),  # jquery-1.12.4.min.js
+    re.compile(r"jquery/(\d+\.\d+(?:\.\d+)?)/"),  # cdnjs: /jquery/3.6.0/jquery.min.js
+    re.compile(r"jquery[^/?]*\.js\?ver=(\d+\.\d+(?:\.\d+)?)"),  # WordPress: jquery.min.js?ver=3.7.1
+)
+
+# Booking and ordering providers seen in links or iframes (V2 plan, Task 1).
+BOOKING_PROVIDERS = ("planity", "calendly", "zenchef", "thefork", "lafourchette", "doctolib", "resalib")
+ORDER_PROVIDERS = ("ubereats", "deliveroo", "foodles")
+# Words searched in a link's text or URL only; ordinary paragraphs never count.
+BOOKING_WORDS = re.compile(r"\b(reserver|prendre (un )?rendez vous)\b")
+ORDER_WORDS = re.compile(r"\bcommander\b")
 
 
 def new_site_client() -> httpx.AsyncClient:
@@ -102,6 +117,7 @@ async def _analyze(http: httpx.AsyncClient, url: str, analyzed_at: datetime) -> 
 
     tree = LexborHTMLParser(html)
     meta = _meta_by_name(tree)
+    booking, order = _booking_signals(tree)
     return SiteAnalysis(
         url=final_url,
         reachable=True,
@@ -114,6 +130,8 @@ async def _analyze(http: httpx.AsyncClient, url: str, analyzed_at: datetime) -> 
         tech=_detect_tech(tree, meta.get("generator", "")),
         mobile_perf=None,
         analyzed_at=analyzed_at,
+        has_booking=booking,
+        has_online_order=order,
     )
 
 
@@ -148,7 +166,9 @@ def _has_text(tree: LexborHTMLParser, tag: str) -> bool:
 
 
 def _detect_tech(tree: LexborHTMLParser, generator: str) -> list[str]:
-    found = {tech for tech, marker in TECH_IN_GENERATOR.items() if marker in generator.lower()}
+    """Technologies as "name@version" when the version is readable, else "name"."""
+    generator = generator.lower()
+    found = {tech for tech, marker in TECH_IN_GENERATOR.items() if marker in generator}
     assets = [
         (node.attributes.get("src") or node.attributes.get("href") or "").lower()
         for node in tree.css("script, link")
@@ -156,4 +176,39 @@ def _detect_tech(tree: LexborHTMLParser, generator: str) -> list[str]:
     for tech, markers in TECH_IN_ASSETS.items():
         if any(marker in asset for asset in assets for marker in markers):
             found.add(tech)
-    return [tech for tech in TECH_ORDER if tech in found]
+
+    versions: dict[str, str] = {}
+    if match := WORDPRESS_VERSION.search(generator):
+        versions["wordpress"] = match.group(1)
+    for asset in assets:
+        for pattern in JQUERY_VERSIONS:
+            if "jquery" not in versions and (match := pattern.search(asset)):
+                versions["jquery"] = match.group(1)
+    return [f"{tech}@{versions[tech]}" if tech in versions else tech for tech in TECH_ORDER if tech in found]
+
+
+def detect_booking_signals(html: str) -> tuple[bool, bool]:
+    """(online booking, online ordering) links found in the page."""
+    if not html:
+        return False, False
+    try:
+        return _booking_signals(LexborHTMLParser(html))
+    except Exception:  # noqa: BLE001 - a broken page simply has no signal
+        return False, False
+
+
+def _booking_signals(tree: LexborHTMLParser) -> tuple[bool, bool]:
+    booking = order = False
+    for node in tree.css("a, iframe"):
+        url = (node.attributes.get("href") or node.attributes.get("src") or "").lower()
+        text = node.text(strip=True) if node.tag == "a" else ""
+        words = f"{_plain(text)} {_plain(url)}"
+        booking = booking or any(p in url for p in BOOKING_PROVIDERS) or bool(BOOKING_WORDS.search(words))
+        order = order or any(p in url for p in ORDER_PROVIDERS) or bool(ORDER_WORDS.search(words))
+    return booking, order
+
+
+def _plain(text: str) -> str:
+    """Lowercase, no accents, separators (- _ / . ? = &) turned into spaces."""
+    ascii_text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode().lower()
+    return " ".join(re.sub(r"[^a-z0-9]+", " ", ascii_text).split())

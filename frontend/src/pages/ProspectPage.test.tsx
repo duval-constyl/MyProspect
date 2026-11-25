@@ -8,6 +8,16 @@ import { mockApi } from "../test/mockApi";
 import type { ProspectDetail } from "../types";
 import ProspectPage from "./ProspectPage";
 
+const WEB_PRIORITY = {
+  value: 51,
+  reasons: [
+    { code: "opportunity", label: "Opportunité 50/100, comptée pour moitié", points: 25 },
+    { code: "phone", label: "Téléphone connu", points: 12 },
+    { code: "small_structure", label: "Petite structure : décideur facile à joindre", points: 8 },
+    { code: "nearby", label: "À 4 km de chez vous", points: 6 },
+  ],
+};
+
 const DETAIL: ProspectDetail = {
   id: 1,
   siret: "11111111100011",
@@ -51,15 +61,37 @@ const DETAIL: ProspectDetail = {
         { code: "no_viewport", label: "Site non adapté au mobile (pas de balise viewport)", points: 15 },
       ],
     },
+    {
+      offer: "mobile",
+      value: 70,
+      tier: 5,
+      reasons: [
+        { code: "no_online_booking", label: "Aucune réservation ni prise de rendez-vous en ligne détectée", points: 50 },
+        { code: "no_online_order", label: "Aucune commande en ligne détectée", points: 20 },
+      ],
+    },
+    { offer: "cloud", value: 0, tier: 1, reasons: [] },
   ],
-  priority: {
-    value: 51,
-    reasons: [
-      { code: "opportunity", label: "Opportunité 50/100, comptée pour moitié", points: 25 },
-      { code: "phone", label: "Téléphone connu", points: 12 },
-      { code: "small_structure", label: "Petite structure : décideur facile à joindre", points: 8 },
-      { code: "nearby", label: "À 4 km de chez vous", points: 6 },
-    ],
+  priority: WEB_PRIORITY,
+  priority_by_offer: {
+    web: WEB_PRIORITY,
+    mobile: {
+      value: 61,
+      reasons: [
+        { code: "opportunity", label: "Opportunité 70/100, comptée pour moitié", points: 35 },
+        { code: "phone", label: "Téléphone connu", points: 12 },
+        { code: "small_structure", label: "Petite structure : décideur facile à joindre", points: 8 },
+        { code: "nearby", label: "À 4 km de chez vous", points: 6 },
+      ],
+    },
+    cloud: {
+      value: 26,
+      reasons: [
+        { code: "phone", label: "Téléphone connu", points: 12 },
+        { code: "small_structure", label: "Petite structure : décideur facile à joindre", points: 8 },
+        { code: "nearby", label: "À 4 km de chez vous", points: 6 },
+      ],
+    },
   },
   tracking: { status: "new", favorite: false, notes: "", updated_at: null },
 };
@@ -131,11 +163,27 @@ describe("ProspectPage", () => {
 
     expect(await screen.findByRole("heading", { name: "SALON ECLAT" })).toBeInTheDocument();
     expect(screen.getByText(/11111111100011/)).toBeInTheDocument();
-    expect(screen.getByText("Priorité de contact : 51")).toBeInTheDocument();
-    expect(screen.getByText("Téléphone connu")).toBeInTheDocument();
+    expect(screen.getByText("Priorité Web : 51")).toBeInTheDocument();
+    expect(screen.getAllByText("Téléphone connu").length).toBeGreaterThan(0);
     expect(screen.getByText("HTTPS : non")).toBeInTheDocument();
     expect(screen.getByText("Technologies : wordpress")).toBeInTheDocument();
     expect(screen.queryByText("Opposée à la prospection commerciale")).not.toBeInTheDocument();
+  });
+
+  it("test_profile_shows_three_score_cards", async () => {
+    mockApi({ "GET /prospects/1": { body: DETAIL } });
+
+    renderPage();
+
+    expect(await screen.findByRole("region", { name: "Score Web" })).toBeInTheDocument();
+    const mobile = screen.getByRole("region", { name: "Score Mobile" });
+    expect(within(mobile).getByText("70")).toBeInTheDocument();
+    expect(within(mobile).getByText("Aucune commande en ligne détectée")).toBeInTheDocument();
+    const cloud = screen.getByRole("region", { name: "Score Cloud et logiciel" });
+    expect(within(cloud).getByText("Aucun défaut relevé.")).toBeInTheDocument();
+    expect(screen.getByText("Priorité Web : 51")).toBeInTheDocument();
+    expect(screen.getByText("Priorité Mobile : 61")).toBeInTheDocument();
+    expect(screen.getByText("Priorité Cloud et logiciel : 26")).toBeInTheDocument();
   });
 
   it("test_opposed_company_shows_warning", async () => {
@@ -213,6 +261,87 @@ describe("ProspectPage", () => {
     await waitFor(() =>
       expect(requests.some((r) => r.method === "POST" && r.path === "/prospects/1/do-not-contact")).toBe(true),
     );
+  });
+
+  it("test_prepare_email_draft_posts_offer_and_channel_then_shows_it", async () => {
+    const user = userEvent.setup();
+    const draft = {
+      id: 5,
+      offer: "mobile",
+      channel: "email",
+      subject: "Réservations en ligne pour SALON ECLAT",
+      body: ["Bonjour,", "Je vous contacte au sujet de SALON ECLAT.", "Répondez « STOP » pour ne plus recevoir de message."].join("\n\n"),
+      source: "llm",
+      variant: "llm:claude-opus-5-5:v1",
+      created_at: "2026-11-25T10:00:00Z",
+    };
+    const { requests } = mockApi({
+      "GET /prospects/1": { body: DETAIL },
+      "GET /prospects/1/outreach": [{ body: [] }, { body: [draft] }],
+      "POST /prospects/1/outreach": { status: 201, body: draft },
+    });
+    renderPage();
+
+    await user.selectOptions(await screen.findByLabelText("Offre du brouillon"), "Mobile");
+    await user.click(screen.getByRole("button", { name: "Préparer un e-mail" }));
+
+    await waitFor(() => expect(requests.some((r) => r.method === "POST")).toBe(true));
+    expect(requests.find((r) => r.method === "POST")!.body).toEqual({ offer: "mobile", channel: "email" });
+    const card = (await screen.findByText("Objet : Réservations en ligne pour SALON ECLAT")).closest("article")!;
+    expect(within(card).getByText(/Rédigé par l'IA/)).toBeInTheDocument();
+    expect(within(card).getByText(/Répondez « STOP »/)).toBeInTheDocument();
+    expect(within(card).getByRole("button", { name: "Copier" })).toBeInTheDocument();
+    expect(screen.getByText(/L'outil n'envoie rien/)).toBeInTheDocument();
+  });
+
+  it("test_draft_refused_for_do_not_contact_shows_reason", async () => {
+    const user = userEvent.setup();
+    mockApi({
+      "GET /prospects/1": { body: DETAIL },
+      "GET /prospects/1/outreach": { body: [] },
+      "POST /prospects/1/outreach": {
+        status: 409,
+        body: { detail: "Ce prospect est sur la liste « ne plus contacter » : aucun brouillon." },
+      },
+    });
+    renderPage();
+
+    await user.click(await screen.findByRole("button", { name: "Préparer un script d'appel" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("ne plus contacter");
+  });
+
+  it("test_plan_followup_posts_date_and_note_and_shows_history", async () => {
+    const user = userEvent.setup();
+    const planned = { id: 3, prospect_id: 1, due_on: "2026-12-02", note: "Envoyer le devis", done_at: null };
+    const { requests } = mockApi({
+      "GET /prospects/1": { body: DETAIL },
+      "GET /prospects/1/outreach": { body: [] },
+      "GET /prospects/1/history": [
+        { body: { followups: [], events: [] } },
+        {
+          body: {
+            followups: [planned],
+            events: [{ at: "2026-11-25T10:00:00Z", kind: "followup", text: "Relance prévue le 02/12/2026 : Envoyer le devis" }],
+          },
+        },
+      ],
+      "POST /prospects/1/followups": { status: 201, body: planned },
+    });
+    renderPage();
+
+    await user.type(await screen.findByLabelText("Date de relance"), "2026-12-02");
+    await user.type(screen.getByLabelText("Note de relance"), "Envoyer le devis");
+    await user.click(screen.getByRole("button", { name: "Programmer la relance" }));
+
+    await waitFor(() => expect(requests.some((r) => r.path === "/prospects/1/followups")).toBe(true));
+    expect(requests.find((r) => r.path === "/prospects/1/followups")!.body).toEqual({
+      due_on: "2026-12-02",
+      note: "Envoyer le devis",
+    });
+    const panel = screen.getByRole("region", { name: "Relances et historique" });
+    expect(await within(panel).findByText("Relance prévue le 02/12/2026 : Envoyer le devis")).toBeInTheDocument();
+    expect(within(panel).getByText(/02\/12\/2026 · Envoyer le devis/)).toBeInTheDocument();
   });
 
   it("test_unknown_prospect_shows_message", async () => {

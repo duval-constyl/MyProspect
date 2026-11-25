@@ -1,4 +1,5 @@
-"""Collection orchestrator: zone -> registry -> exclusions -> OSM -> upsert -> sites -> scores.
+"""Collection orchestrator: zone -> registry -> exclusions -> OSM -> upsert -> sites ->
+scores (Web, Mobile, Cloud; job offers feed the Cloud score).
 
 A collection runs in the background; its progress lives in the `jobs` table.
 Results already obtained are kept when a source fails midway.
@@ -20,7 +21,10 @@ from app.domain import Circle, OsmBusiness, RegistryCompany, SiteAnalysis
 from app.geo import point_in_zone, zone_to_circles
 from app.http import new_http_client
 from app.models import Contact, Exclusion, Job, Prospect, ScoreRow, SiteAnalysisRow, Zone
+from app.scoring.cloud import score_cloud
+from app.scoring.mobile import score_mobile
 from app.scoring.web import score_web
+from app.sources.jobs import departement_of_address, fetch_tech_offers, match_offers_to_companies
 from app.sources.osm import fetch_osm_businesses, match_osm_to_registry
 from app.sources.pagespeed import mobile_perf
 from app.sources.registry import RegistryUnavailable, fetch_near_point
@@ -59,6 +63,7 @@ async def run_collection(
     registry=fetch_near_point,
     osm=fetch_osm_businesses,
     analyze=analyze_site,
+    tech_offers=fetch_tech_offers,
 ) -> None:
     with session_factory() as session:
         job = session.get(Job, job_id)
@@ -77,14 +82,17 @@ async def run_collection(
 
             places = await _fetch_places(osm, circles, api_client) if companies else []
             matches = match_osm_to_registry(list(companies.values()), places)
+            hiring = await _companies_hiring(tech_offers, companies, api_client)
             today = date.today()
-            prospect_ids = {
-                siret: _upsert_prospect(session, company, matches.get(siret), today)
+            to_score = {
+                _upsert_prospect(session, company, matches.get(siret), today): company
                 for siret, company in companies.items()
             }
             session.commit()
 
-            await _analyze_and_score(session, job_id, prospect_ids, analyze, api_client, site_client)
+            await _analyze_and_score(
+                session, job_id, to_score, hiring, today, analyze, api_client, site_client
+            )
         except Exception as exc:  # noqa: BLE001 - the job must always end with a state
             logger.exception("Récolte %s interrompue", job_id)
             session.rollback()
@@ -202,13 +210,34 @@ def _upsert_contact(
     )
 
 
+async def _companies_hiring(
+    tech_offers, companies: dict[str, RegistryCompany], client
+) -> set[str]:
+    """SIRETs with an open technical job offer (approximate matching, see sources/jobs.py)."""
+    if not companies:
+        return set()
+    settings = get_settings()
+    departements = {d for d in map(departement_of_address, (c.address for c in companies.values())) if d}
+    offers = await tech_offers(
+        departements, settings.francetravail_client_id, settings.francetravail_client_secret, client=client
+    )
+    return set(match_offers_to_companies(list(companies.values()), offers))
+
+
 async def _analyze_and_score(
-    session: Session, job_id: int, prospect_ids: dict[str, int], analyze, api_client, site_client
+    session: Session,
+    job_id: int,
+    to_score: dict[int, RegistryCompany],
+    hiring: set[str],
+    today: date,
+    analyze,
+    api_client,
+    site_client,
 ) -> None:
     api_key = get_settings().pagespeed_api_key
     slots = asyncio.Semaphore(PARALLEL_SITE_ANALYSES)
 
-    async def process(prospect_id: int) -> None:
+    async def process(prospect_id: int, company: RegistryCompany) -> None:
         website = _latest_website(session, prospect_id)
         analysis = None
         if website is not None:
@@ -220,14 +249,22 @@ async def _analyze_and_score(
         # No await below: this block runs alone even with parallel analyses.
         if analysis is not None:
             _upsert_site_analysis(session, prospect_id, analysis)
-        score = score_web(website is not None, analysis)
-        _upsert_score(session, prospect_id, score)
+        has_site = website is not None
+        for score in (
+            score_web(has_site, analysis),
+            score_mobile(company.naf, has_site, analysis),
+            score_cloud(
+                company.effectif_code, company.created_on, analysis, today,
+                hiring_tech=company.siret in hiring,
+            ),
+        ):
+            _upsert_score(session, prospect_id, score)
         session.execute(update(Job).where(Job.id == job_id).values(done=Job.done + 1))
         session.commit()
 
     async with asyncio.TaskGroup() as group:
-        for prospect_id in prospect_ids.values():
-            group.create_task(process(prospect_id))
+        for prospect_id, company in to_score.items():
+            group.create_task(process(prospect_id, company))
 
 
 def _latest_website(session: Session, prospect_id: int) -> str | None:

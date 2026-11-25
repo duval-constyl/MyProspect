@@ -3,9 +3,11 @@ import { useState } from "react";
 
 import { ApiError, api } from "../api";
 import ContactList from "../components/ContactList";
+import FollowUps from "../components/FollowUps";
+import OutreachDrafts from "../components/OutreachDrafts";
 import ScoreCard from "../components/ScoreCard";
 import TrackingForm from "../components/TrackingForm";
-import { MISSING, frenchDate, tradeLabel } from "../labels";
+import { MISSING, OFFERS, frenchDate, tradeLabel } from "../labels";
 import type { ProspectDetail, SiteAnalysis, TrackingPatch } from "../types";
 
 function yesNo(value: boolean): string {
@@ -111,19 +113,30 @@ export default function ProspectPage({ id }: { id: number }) {
           </section>
 
           <section className="card" aria-label="Priorité de contact">
-            <h3>Priorité de contact : {data.priority.value}</h3>
-            {data.priority.reasons.length === 0 ? (
-              <p className="hint">Aucun critère de priorité rempli.</p>
-            ) : (
-              <ul className="reasons">
-                {data.priority.reasons.map((reason) => (
-                  <li key={reason.code}>
-                    <span>{reason.label}</span>
-                    <span className="points">+{reason.points}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <h3>Priorité de contact</h3>
+            {OFFERS.map(({ value, label }) => {
+              const priority = data.priority_by_offer?.[value] ?? (value === "web" ? data.priority : undefined);
+              if (!priority) return null;
+              return (
+                <div key={value} className="priority-block">
+                  <h4>
+                    Priorité {label} : {priority.value}
+                  </h4>
+                  {priority.reasons.length === 0 ? (
+                    <p className="hint">Aucun critère de priorité rempli.</p>
+                  ) : (
+                    <ul className="reasons">
+                      {priority.reasons.map((reason) => (
+                        <li key={reason.code}>
+                          <span>{reason.label}</span>
+                          <span className="points">+{reason.points}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
           </section>
 
           {data.scores.map((score) => (
@@ -142,6 +155,8 @@ export default function ProspectPage({ id }: { id: number }) {
 
         <div className="detail-side">
           <TrackingForm tracking={data.tracking} onChange={(patch) => tracking.mutate(patch)} saving={tracking.isPending} />
+          <OutreachDrafts prospectId={data.id} opposed={data.opposed_to_prospecting} />
+          <FollowUps prospectId={data.id} />
           <section className="card actions" aria-label="Actions">
             <button type="button" className="secondary" onClick={() => doNotContact.mutate()} disabled={doNotContact.isPending}>
               Ne plus contacter

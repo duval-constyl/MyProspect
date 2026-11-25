@@ -4,8 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import { ApiError, api } from "../api";
 import MapView, { type ViewState } from "../components/MapView";
 import ZoneControls from "../components/ZoneControls";
+import { OFFERS, offerLabel } from "../labels";
 import { TIER_COLORS } from "../tiers";
-import type { CollectBody, LatLong, ZoneKind } from "../types";
+import type { CollectBody, LatLong, Offer, ZoneKind } from "../types";
 
 type Props = {
   /** Interval between two job checks while a collection runs. */
@@ -17,6 +18,7 @@ const FINISHED = ["done", "failed"];
 export default function MapPage({ pollMs = 1000 }: Props) {
   const queryClient = useQueryClient();
   const [view, setView] = useState<ViewState | null>(null);
+  const [offer, setOffer] = useState<Offer>("web");
   const [zoneKind, setZoneKind] = useState<ZoneKind>("commune");
   const [drawing, setDrawing] = useState<[number, number][]>([]);
   const [jobId, setJobId] = useState<number | null>(null);
@@ -32,8 +34,8 @@ export default function MapPage({ pollMs = 1000 }: Props) {
     enabled: !!bbox,
   });
   const clusters = useQuery({
-    queryKey: ["clusters", bbox?.join(","), zoom],
-    queryFn: () => api.getClusters(bbox!, zoom),
+    queryKey: ["clusters", bbox?.join(","), zoom, offer],
+    queryFn: () => api.getClusters(bbox!, zoom, offer),
     enabled: !!bbox,
   });
   const job = useQuery({
@@ -115,7 +117,17 @@ export default function MapPage({ pollMs = 1000 }: Props) {
         </section>
 
         <section className="legend" aria-label="Légende des couleurs">
-          <p>Opportunité Web, du palier 1 au palier 6 :</p>
+          <label className="field">
+            Offre affichée
+            <select value={offer} onChange={(e) => setOffer(e.target.value as Offer)}>
+              {OFFERS.map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p>Opportunité {offerLabel(offer)}, du palier 1 au palier 6 :</p>
           <div className="legend-scale">
             {TIER_COLORS.map((color, index) => (
               <span key={color} style={{ background: color }} title={`Palier ${index + 1}`} />

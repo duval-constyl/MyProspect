@@ -37,6 +37,8 @@ export type Stats = {
   without_site: number;
 };
 
+export type Offer = "web" | "mobile" | "cloud";
+
 export type Status = "new" | "to_contact" | "contacted" | "replied" | "refused";
 
 export type ProspectListItem = {
@@ -48,6 +50,7 @@ export type ProspectListItem = {
   city: string | null;
   lat: number | null;
   long: number | null;
+  score: number | null; // score of the selected offer
   score_web: number | null;
   tier: number | null;
   priority: number;
@@ -67,6 +70,7 @@ export type SortOrder = "asc" | "desc";
 
 /** Filters of GET /prospects, shared with the CSV export. */
 export type ProspectFilters = {
+  offer: Offer;
   naf?: string;
   has_site?: boolean;
   score_min?: number;
@@ -79,6 +83,8 @@ export type ProspectFilters = {
 };
 
 export type Reason = { code: string; label: string; points: number };
+
+export type Priority = { value: number; reasons: Reason[] };
 
 export type Score = { offer: string; value: number; tier: number; reasons: Reason[] };
 
@@ -102,7 +108,49 @@ export type SiteAnalysis = {
 
 export type Tracking = { status: Status; favorite: boolean; notes: string; updated_at: string | null };
 
-export type TrackingPatch = Partial<Pick<Tracking, "status" | "favorite" | "notes">>;
+export type FollowUp = { id: number; prospect_id: number; due_on: string; note: string; done_at: string | null };
+
+export type FollowUpDue = {
+  id: number;
+  prospect_id: number;
+  prospect_name: string;
+  phone: string | null;
+  due_on: string;
+  note: string;
+};
+
+export type TopProspect = {
+  id: number;
+  name: string;
+  city: string | null;
+  phone: string | null;
+  best_offer: Offer;
+  score: number | null;
+  priority: number;
+  status: Status;
+};
+
+export type TodayData = { followups_due: FollowUpDue[]; top_priority: TopProspect[] };
+
+export type TrackingEvent = { at: string; kind: "status" | "note" | "followup"; text: string };
+
+export type HistoryData = { followups: FollowUp[]; events: TrackingEvent[] };
+
+export type Channel = "email" | "call";
+
+/** An outreach draft: never sent by the tool. */
+export type Draft = {
+  id: number;
+  offer: Offer;
+  channel: Channel;
+  subject: string | null;
+  body: string;
+  source: "llm" | "template";
+  variant: string;
+  created_at: string;
+};
+
+export type TrackingPatch =Partial<Pick<Tracking, "status" | "favorite" | "notes">>;
 
 export type ProspectDetail = {
   id: number;
@@ -122,6 +170,7 @@ export type ProspectDetail = {
   contacts: Contact[];
   site_analysis: SiteAnalysis | null;
   scores: Score[];
-  priority: { value: number; reasons: Reason[] };
+  priority: Priority;
+  priority_by_offer: Partial<Record<Offer, Priority>>;
   tracking: Tracking;
 };

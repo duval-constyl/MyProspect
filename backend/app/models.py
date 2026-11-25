@@ -34,6 +34,9 @@ STATUSES = ("new", "to_contact", "contacted", "replied", "refused")
 EXCLUSION_REASONS = ("deleted", "do_not_contact")
 ZONE_KINDS = ("commune", "circle", "polygon")
 JOB_STATES = ("pending", "running", "done", "failed")
+CHANNELS = ("email", "call")
+DRAFT_SOURCES = ("llm", "template")
+EVENT_KINDS = ("status", "note", "followup")
 
 
 class Prospect(Base):
@@ -100,6 +103,8 @@ class SiteAnalysisRow(Base):
     tech: Mapped[list[str]] = mapped_column(ARRAY(String(32)), default=list)
     mobile_perf: Mapped[int | None] = mapped_column(Integer)
     analyzed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    has_booking: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    has_online_order: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
 
 
 class ScoreRow(Base):
@@ -174,3 +179,58 @@ class Job(Base):
     done: Mapped[int] = mapped_column(Integer, default=0)
     total: Mapped[int] = mapped_column(Integer, default=0)
     error: Mapped[str | None] = mapped_column(Text)
+
+
+class OutreachDraft(Base):
+    """A draft e-mail or call script, never sent by the tool (V2 Task 6)."""
+
+    __tablename__ = "outreach_drafts"
+    __table_args__ = (
+        CheckConstraint(_one_of("offer", OFFERS), name="draft_offer"),
+        CheckConstraint(_one_of("channel", CHANNELS), name="draft_channel"),
+        CheckConstraint(_one_of("source", DRAFT_SOURCES), name="draft_source"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    prospect_id: Mapped[int] = mapped_column(
+        ForeignKey("prospects.id", ondelete="CASCADE"), index=True
+    )
+    offer: Mapped[str] = mapped_column(String(16))
+    channel: Mapped[str] = mapped_column(String(16))
+    subject: Mapped[str | None] = mapped_column(String(255))
+    body: Mapped[str] = mapped_column(Text)
+    source: Mapped[str] = mapped_column(String(16))
+    # Which prompt or template produced it, for the reply statistics (V3).
+    variant: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class FollowUp(Base):
+    """A reminder to contact a prospect again on a given day (V2 Task 7)."""
+
+    __tablename__ = "followups"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    prospect_id: Mapped[int] = mapped_column(
+        ForeignKey("prospects.id", ondelete="CASCADE"), index=True
+    )
+    due_on: Mapped[date] = mapped_column(Date, index=True)
+    note: Mapped[str] = mapped_column(Text, default="")
+    done_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class TrackingEvent(Base):
+    """History of a prospect's follow-up: status, notes, reminders (V2 Task 7)."""
+
+    __tablename__ = "tracking_events"
+    __table_args__ = (CheckConstraint(_one_of("kind", EVENT_KINDS), name="event_kind"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    prospect_id: Mapped[int] = mapped_column(
+        ForeignKey("prospects.id", ondelete="CASCADE"), index=True
+    )
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    kind: Mapped[str] = mapped_column(String(16))
+    text: Mapped[str] = mapped_column(Text)

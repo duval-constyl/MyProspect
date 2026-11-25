@@ -31,6 +31,9 @@ Arrêt : `docker compose down`. Pour effacer aussi toutes les données : `docker
 |---|---|
 | `POSTGRES_PASSWORD` | **Obligatoire.** Mot de passe de la base locale : choisissez-le long et aléatoire, et reportez-le dans `DATABASE_URL` et `TEST_DATABASE_URL`. Aucun mot de passe par défaut n'existe dans le dépôt. |
 | `HOME_LAT`, `HOME_LONG` | **Obligatoires.** Votre position en degrés décimaux. Elle sert au bonus « proche » (≤ 20 km) de la priorité de contact. |
+| `SENDER_NAME`, `SENDER_BUSINESS` | Votre nom et votre activité, repris dans chaque brouillon d'approche (signature, présentation au téléphone). |
+| `ANTHROPIC_API_KEY` | Facultative. Clé de l'API Claude pour rédiger les brouillons ; sans elle, des modèles de texte fixes sont utilisés. |
+| `FRANCETRAVAIL_CLIENT_ID`, `FRANCETRAVAIL_CLIENT_SECRET` | Facultatives. Application francetravail.io abonnée à « Offres d'emploi v2 » : repère les entreprises qui recrutent sur un poste technique (bonus du score Cloud). |
 | `PAGESPEED_API_KEY` | Facultative. Clé Google PageSpeed Insights pour mesurer la vitesse mobile des sites. Sans clé, cette mesure est simplement absente. |
 | `POSTGRES_USER`, `POSTGRES_DB` | Utilisateur et nom de la base locale. |
 | `DB_PORT`, `API_PORT`, `WEB_PORT` | Ports publiés **sur votre machine uniquement** (`127.0.0.1`), par défaut 5433, 8000, 5173 : rien n'est accessible depuis le réseau. |

@@ -1,12 +1,18 @@
 import type {
   Bbox,
+  Channel,
   Cluster,
   CollectBody,
+  Draft,
+  FollowUp,
+  HistoryData,
   Job,
+  Offer,
   ProspectDetail,
   ProspectFilters,
   ProspectList,
   Stats,
+  TodayData,
   Tracking,
   TrackingPatch,
 } from "./types";
@@ -62,9 +68,9 @@ export const api = {
   collectZone: (body: CollectBody) =>
     request<{ job_id: number }>("/zones/collect", { method: "POST", body: JSON.stringify(body) }),
   getJob: (id: number) => request<Job>(`/jobs/${id}`),
-  getClusters: (bbox: Bbox, zoom: number) =>
+  getClusters: (bbox: Bbox, zoom: number, offer: Offer = "web") =>
     request<{ clusters: Cluster[] }>(
-      `/prospects/clusters?bbox=${bbox.join(",")}&zoom=${Math.max(0, Math.floor(zoom))}`,
+      `/prospects/clusters?bbox=${bbox.join(",")}&zoom=${Math.max(0, Math.floor(zoom))}&offer=${offer}`,
     ),
   getStats: (bbox: Bbox) => request<Stats>(`/prospects/stats?bbox=${bbox.join(",")}`),
   listProspects: (filters: ProspectFilters, page: number, perPage: number) =>
@@ -76,4 +82,12 @@ export const api = {
     request<Tracking>(`/prospects/${id}/tracking`, { method: "PATCH", body: JSON.stringify(patch) }),
   deleteProspect: (id: number) => request<void>(`/prospects/${id}`, { method: "DELETE" }),
   doNotContact: (id: number) => request<Tracking>(`/prospects/${id}/do-not-contact`, { method: "POST" }),
+  getToday: () => request<TodayData>("/today"),
+  getHistory: (id: number) => request<HistoryData>(`/prospects/${id}/history`),
+  planFollowup: (id: number, dueOn: string, note: string) =>
+    request<FollowUp>(`/prospects/${id}/followups`, { method: "POST", body: JSON.stringify({ due_on: dueOn, note }) }),
+  completeFollowup: (followupId: number) => request<FollowUp>(`/followups/${followupId}/done`, { method: "POST" }),
+  listDrafts: (id: number) => request<Draft[]>(`/prospects/${id}/outreach`),
+  prepareDraft: (id: number, offer: Offer, channel: Channel) =>
+    request<Draft>(`/prospects/${id}/outreach`, { method: "POST", body: JSON.stringify({ offer, channel }) }),
 };

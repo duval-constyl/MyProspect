@@ -15,8 +15,21 @@ class Settings(BaseSettings):
     home_lat: float
     home_long: float
     pagespeed_api_key: str | None = None
+    # France Travail « Offres d'emploi v2 » application (optional, V2 Task 4).
+    francetravail_client_id: str | None = None
+    francetravail_client_secret: str | None = None
+    # Outreach drafts (V2 Task 6): language model key (optional) and sender identity.
+    anthropic_api_key: str | None = None
+    sender_name: str = ""
+    sender_business: str = ""
 
-    @field_validator("pagespeed_api_key", mode="before")
+    @field_validator(
+        "pagespeed_api_key",
+        "francetravail_client_id",
+        "francetravail_client_secret",
+        "anthropic_api_key",
+        mode="before",
+    )
     @classmethod
     def _blank_key_is_none(cls, value: str | None) -> str | None:
         return value or None
