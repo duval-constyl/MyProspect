@@ -66,6 +66,7 @@ API : http://localhost:8000 (santé : `/health`, documentation : `/docs`). Inter
 - Tâches de la V1 exécutées **dans l'ordre**, une à la fois. Chaque tâche : écrire les tests, les lancer et constater l'échec, implémenter, relancer et constater le succès, commit.
 - On ne passe à la tâche suivante que si **toute la suite de tests passe**. Les cases du plan sont cochées au fur et à mesure.
 - Un commit par tâche, avec le message indiqué dans le plan.
+- Messages de commit et descriptions de PR **sans** ligne `Co-Authored-By: Claude` ni mention de Claude (demande de Duval, 25/11/2026).
 - Après chaque tâche : compte rendu de 3 lignes maximum (ce qui marche, ce qui a changé par rapport au plan, la suite), mise à jour de `docs/PROGRESS.md`.
 - Signatures, noms et valeurs des plans respectés strictement ; tout écart est noté dans `docs/PROGRESS.md` avec sa raison.
 - Quand un plan dit « à vérifier » : consulter la documentation actuelle (Context7 ou web) et noter le constat.
