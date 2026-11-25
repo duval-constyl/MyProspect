@@ -181,11 +181,11 @@ Un cercle reste un cercle (≤ 50 km). Un polygone est recouvert par des cercles
 
 Points (cumulés, plafonnés à 100) : pas de site connu **75** (`no_site`) ; site inaccessible **70** (`site_unreachable`) ; pas de HTTPS **+20** (`no_https`) ; titre, description ou H1 manquant **+15** (`missing_seo_tags`) ; pas de balise viewport **+15** (`no_viewport`) ; performance mobile < 50 **+20**, entre 50 et 89 **+10** (`slow_mobile`). Chaque règle déclenchée ajoute une `Reason` avec un libellé en français.
 
-- [ ] **Step 1: Tests.** `test_no_site_scores_75_with_one_reason`. `test_unreachable_site_scores_70`. `test_all_defects_caps_at_100`. `test_healthy_site_scores_0_with_no_reasons`. `test_slow_mobile_tiers` (perf 40 → 20, perf 70 → 10, perf 95 → 0). `test_tier_boundaries` (0→1, 16→1, 17→2, 100→6). `test_reasons_sum_matches_value_before_cap`.
-- [ ] **Step 2: Lancer** `pytest tests/test_scoring_web.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: score web`.
+- [x] **Step 1: Tests.** `test_no_site_scores_75_with_one_reason`. `test_unreachable_site_scores_70`. `test_all_defects_caps_at_100`. `test_healthy_site_scores_0_with_no_reasons`. `test_slow_mobile_tiers` (perf 40 → 20, perf 70 → 10, perf 95 → 0). `test_tier_boundaries` (0→1, 16→1, 17→2, 100→6). `test_reasons_sum_matches_value_before_cap`.
+- [x] **Step 2: Lancer** `pytest tests/test_scoring_web.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: score web`.
 
 ### Task 8: Priorité de contact
 
