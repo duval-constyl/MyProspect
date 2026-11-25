@@ -36,6 +36,7 @@ ZONE_KINDS = ("commune", "circle", "polygon")
 JOB_STATES = ("pending", "running", "done", "failed")
 CHANNELS = ("email", "call")
 DRAFT_SOURCES = ("llm", "template")
+EVENT_KINDS = ("status", "note", "followup")
 
 
 class Prospect(Base):
@@ -204,3 +205,32 @@ class OutreachDraft(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+
+
+class FollowUp(Base):
+    """A reminder to contact a prospect again on a given day (V2 Task 7)."""
+
+    __tablename__ = "followups"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    prospect_id: Mapped[int] = mapped_column(
+        ForeignKey("prospects.id", ondelete="CASCADE"), index=True
+    )
+    due_on: Mapped[date] = mapped_column(Date, index=True)
+    note: Mapped[str] = mapped_column(Text, default="")
+    done_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class TrackingEvent(Base):
+    """History of a prospect's follow-up: status, notes, reminders (V2 Task 7)."""
+
+    __tablename__ = "tracking_events"
+    __table_args__ = (CheckConstraint(_one_of("kind", EVENT_KINDS), name="event_kind"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    prospect_id: Mapped[int] = mapped_column(
+        ForeignKey("prospects.id", ondelete="CASCADE"), index=True
+    )
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    kind: Mapped[str] = mapped_column(String(16))
+    text: Mapped[str] = mapped_column(Text)

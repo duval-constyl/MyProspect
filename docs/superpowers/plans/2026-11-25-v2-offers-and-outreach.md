@@ -140,11 +140,11 @@ Points : technologie obsolète **+30** (`outdated_tech` : jQuery < 3, WordPress 
 **Interfaces:**
 - Produces: `FollowUp(id, prospect_id, due_on: date, note, done_at)` ; `TrackingEvent(id, prospect_id, at, kind: "status"|"note"|"followup", text)` écrit à chaque changement de suivi ; `POST /prospects/{id}/followups` (`{due_on, note}`) ; `POST /followups/{id}/done` ; `GET /today` → `{followups_due: [...], top_priority: [...20 prospects]}` ; `top_priority` exclut les statuts `contacted`, `replied`, `refused`.
 
-- [ ] **Step 1: Tests.** `test_followup_due_today_appears_once`. `test_past_due_followup_appears_in_today`. `test_done_followup_disappears`. `test_due_date_uses_paris_calendar_day` (21 h 30 UTC le 24 novembre = 25 novembre à Paris). `test_status_change_writes_event`. `test_top_priority_excludes_contacted_and_refused`. Front : `test_today_page_lists_followups_and_top_prospects`.
-- [ ] **Step 2: Lancer** `pytest backend/tests/test_followups.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer** les tests Python et `npx vitest run`. Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: relances et page aujourd'hui`.
+- [x] **Step 1: Tests.** `test_followup_due_today_appears_once`. `test_past_due_followup_appears_in_today`. `test_done_followup_disappears`. `test_due_date_uses_paris_calendar_day` (21 h 30 UTC le 24 novembre = 25 novembre à Paris). `test_status_change_writes_event`. `test_top_priority_excludes_contacted_and_refused`. Front : `test_today_page_lists_followups_and_top_prospects`.
+- [x] **Step 2: Lancer** `pytest backend/tests/test_followups.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer** les tests Python et `npx vitest run`. Attendu : PASS.
+- [x] **Step 5: Commit** `feat: relances et page aujourd'hui`.
 
 ---
 

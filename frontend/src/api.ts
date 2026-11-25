@@ -4,12 +4,15 @@ import type {
   Cluster,
   CollectBody,
   Draft,
+  FollowUp,
+  HistoryData,
   Job,
   Offer,
   ProspectDetail,
   ProspectFilters,
   ProspectList,
   Stats,
+  TodayData,
   Tracking,
   TrackingPatch,
 } from "./types";
@@ -79,6 +82,11 @@ export const api = {
     request<Tracking>(`/prospects/${id}/tracking`, { method: "PATCH", body: JSON.stringify(patch) }),
   deleteProspect: (id: number) => request<void>(`/prospects/${id}`, { method: "DELETE" }),
   doNotContact: (id: number) => request<Tracking>(`/prospects/${id}/do-not-contact`, { method: "POST" }),
+  getToday: () => request<TodayData>("/today"),
+  getHistory: (id: number) => request<HistoryData>(`/prospects/${id}/history`),
+  planFollowup: (id: number, dueOn: string, note: string) =>
+    request<FollowUp>(`/prospects/${id}/followups`, { method: "POST", body: JSON.stringify({ due_on: dueOn, note }) }),
+  completeFollowup: (followupId: number) => request<FollowUp>(`/followups/${followupId}/done`, { method: "POST" }),
   listDrafts: (id: number) => request<Draft[]>(`/prospects/${id}/outreach`),
   prepareDraft: (id: number, offer: Offer, channel: Channel) =>
     request<Draft>(`/prospects/${id}/outreach`, { method: "POST", body: JSON.stringify({ offer, channel }) }),

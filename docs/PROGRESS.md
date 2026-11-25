@@ -36,6 +36,12 @@
   - section « Brouillons d'approche » sur la fiche (offre, e-mail ou script, source affichée, bouton Copier) ;
   - migration `0004_outreach` ;
   - 17 tests backend et 2 tests interface ; total : 203 et 30, tous verts.
+- **V2 – Tâche 7 (relances et « Aujourd'hui »)** :
+  - tables `followups` et `tracking_events` (migration `0005`) ;
+  - un événement est écrit à chaque changement de statut, de notes, à chaque relance prévue ou faite, et au passage en « ne plus contacter » ;
+  - routes `POST /prospects/{id}/followups`, `POST /followups/{id}/done`, `GET /today`, `GET /prospects/{id}/history` ;
+  - page « Aujourd'hui » (relances dues, bouton « Fait », 20 prospects à contacter en priorité) et panneau « Relances et historique » sur la fiche ;
+  - 11 tests backend et 4 tests interface ; total : 214 et 34, tous verts.
 
 ## Décisions et écarts par rapport au plan
 
@@ -156,6 +162,10 @@
 - **V2 T6 – Règles des routes** : 409 si le SIRET est sur la liste « ne plus contacter » ; 404 si le prospect est inconnu ; **422 « Aucun point relevé pour cette offre »** si le score de l'offre n'a aucune raison (ajout : sans constat, un brouillon n'aurait rien de vrai à dire). Une entreprise opposée à la prospection reçoit quand même un brouillon (décision du 25/11 : c'est toi qui décides), avec un rappel sur la fiche. `variant` = `llm:claude-opus-5-5:v1` ou `template:v1` pour les statistiques de la V3.
 - **V2 T6 – Sécurité des tests** : `conftest.py` force `ANTHROPIC_API_KEY`, `FRANCETRAVAIL_CLIENT_ID` et `FRANCETRAVAIL_CLIENT_SECRET` à vide, pour qu'aucun test n'appelle une vraie API, même si `.env` contient des clés. Le client Anthropic est simulé dans les tests. L'installation d'`anthropic` a ajouté `httpx2`, que le client de test de Starlette utilise désormais : l'avertissement de dépréciation a disparu (question ouverte de la V1 réglée).
 - **V2 T6 – Nouvelles variables** : `SENDER_NAME`, `SENDER_BUSINESS` et `ANTHROPIC_API_KEY` dans `.env.example` et le README (avec `FRANCETRAVAIL_CLIENT_ID` / `_SECRET`). Sans nom d'expéditeur, le brouillon porte « [votre nom], [votre activité] » à compléter.
+- **V2 T7 – Erreur dans le plan corrigée** : l'exemple « 21 h 30 UTC le 24 novembre = 25 novembre à Paris » est faux. En novembre, Paris est à UTC+1, donc 21 h 30 UTC = 22 h 30 le **24**. Le test utilise 23 h 30 UTC (0 h 30 le 25 à Paris) et un test en plus vérifie le changement d'heure de mars et l'heure d'été. Le jour vient de `Europe/Paris` (`zoneinfo`), et `tzdata` est déclaré en dépendance pour l'image Docker.
+- **V2 T7 – Ajouts pour rendre la fonction utilisable** : le plan crée la route de relance et l'historique sans écran pour les saisir ni les voir. Ajoutés : `GET /prospects/{id}/history` (relances et événements, du plus récent au plus ancien) et, sur la fiche, le panneau « Relances et historique » (date, note, « Programmer la relance », « Fait »). Lien « Aujourd'hui » dans la barre (`#/aujourdhui`).
+- **V2 T7 – « À contacter en priorité »** : chaque prospect compte avec sa **meilleure offre** (la priorité la plus haute parmi Web, Mobile et Cloud ; à égalité, l'ordre Web, Mobile, Cloud), affichée dans la colonne « Meilleure offre ». Statuts exclus : contacté, a répondu, refusé. 20 prospects au plus. Pas d'événement pour un simple changement de favori.
+- **V2 T7 – Horloge** : `GET /today` et `POST /followups/{id}/done` lisent l'heure par la dépendance `get_now` (remplacée dans les tests). Dans l'interface, les horodatages (fait le…, historique) sont affichés au jour de Paris (`parisDate`), les dates de relance telles quelles.
 
 ## Questions ouvertes
 

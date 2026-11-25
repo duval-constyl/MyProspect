@@ -108,6 +108,34 @@ export type SiteAnalysis = {
 
 export type Tracking = { status: Status; favorite: boolean; notes: string; updated_at: string | null };
 
+export type FollowUp = { id: number; prospect_id: number; due_on: string; note: string; done_at: string | null };
+
+export type FollowUpDue = {
+  id: number;
+  prospect_id: number;
+  prospect_name: string;
+  phone: string | null;
+  due_on: string;
+  note: string;
+};
+
+export type TopProspect = {
+  id: number;
+  name: string;
+  city: string | null;
+  phone: string | null;
+  best_offer: Offer;
+  score: number | null;
+  priority: number;
+  status: Status;
+};
+
+export type TodayData = { followups_due: FollowUpDue[]; top_priority: TopProspect[] };
+
+export type TrackingEvent = { at: string; kind: "status" | "note" | "followup"; text: string };
+
+export type HistoryData = { followups: FollowUp[]; events: TrackingEvent[] };
+
 export type Channel = "email" | "call";
 
 /** An outreach draft: never sent by the tool. */

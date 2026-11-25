@@ -53,6 +53,12 @@ export const OFFER_LABELS: Record<string, string> = {
   cloud: "Score Cloud et logiciel",
 };
 
+/** Timestamp (UTC ISO) -> its Paris calendar day, "25/11/2026". */
+export function parisDate(isoDateTime: string | null | undefined): string {
+  if (!isoDateTime) return MISSING;
+  return new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris" }).format(new Date(isoDateTime));
+}
+
 /** "2026-11-20" -> "20/11/2026" (no time zone shift). */
 export function frenchDate(isoDate: string | null | undefined): string {
   if (!isoDate) return MISSING;

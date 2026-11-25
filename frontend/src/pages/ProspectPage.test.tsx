@@ -311,6 +311,39 @@ describe("ProspectPage", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("ne plus contacter");
   });
 
+  it("test_plan_followup_posts_date_and_note_and_shows_history", async () => {
+    const user = userEvent.setup();
+    const planned = { id: 3, prospect_id: 1, due_on: "2026-12-02", note: "Envoyer le devis", done_at: null };
+    const { requests } = mockApi({
+      "GET /prospects/1": { body: DETAIL },
+      "GET /prospects/1/outreach": { body: [] },
+      "GET /prospects/1/history": [
+        { body: { followups: [], events: [] } },
+        {
+          body: {
+            followups: [planned],
+            events: [{ at: "2026-11-25T10:00:00Z", kind: "followup", text: "Relance prévue le 02/12/2026 : Envoyer le devis" }],
+          },
+        },
+      ],
+      "POST /prospects/1/followups": { status: 201, body: planned },
+    });
+    renderPage();
+
+    await user.type(await screen.findByLabelText("Date de relance"), "2026-12-02");
+    await user.type(screen.getByLabelText("Note de relance"), "Envoyer le devis");
+    await user.click(screen.getByRole("button", { name: "Programmer la relance" }));
+
+    await waitFor(() => expect(requests.some((r) => r.path === "/prospects/1/followups")).toBe(true));
+    expect(requests.find((r) => r.path === "/prospects/1/followups")!.body).toEqual({
+      due_on: "2026-12-02",
+      note: "Envoyer le devis",
+    });
+    const panel = screen.getByRole("region", { name: "Relances et historique" });
+    expect(await within(panel).findByText("Relance prévue le 02/12/2026 : Envoyer le devis")).toBeInTheDocument();
+    expect(within(panel).getByText(/02\/12\/2026 · Envoyer le devis/)).toBeInTheDocument();
+  });
+
   it("test_unknown_prospect_shows_message", async () => {
     mockApi({ "GET /prospects/9": { status: 404, body: { detail: "Prospect introuvable." } } });
 
