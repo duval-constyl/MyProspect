@@ -88,6 +88,10 @@
 - **T13 – Tri** : cliquer une autre colonne la trie dans son sens naturel (priorité et score décroissants, nom croissant) ; cliquer la colonne active inverse le sens. Tout changement de filtre ou de tri ramène à la page 1. Le lien d'export reprend filtres, tri et sens, sans la pagination (tout est exporté).
 - **T13 – Libellés partagés** : `src/labels.ts` (métiers, statuts en français, « — »). La liste des métiers y est déplacée depuis `ZoneControls`.
 - **T13 – Tests en plus** : affichage d'une ligne complète (métier, ville, score, priorité, statut, mention d'opposition, lien vers la fiche), liste vide.
+- **T14 – Aucun envoi depuis la fiche** : téléphone et e-mail sont affichés en texte avec un bouton « Copier », sans lien `tel:` ni `mailto:`. C'est toi qui appelles ou écris, avec tes propres outils. Seul le site web est un lien (ouverture dans un nouvel onglet).
+- **T14 – Affichage** : bandeau « Opposée à la prospection commerciale (déclaration au registre officiel). À vous de décider avant tout contact. » si l'entreprise est marquée ; dates au format jj/mm/aaaa (« vu le 20/11/2026 ») ; source en clair (« OpenStreetMap », « Registre officiel », « Site web de l'entreprise ») ; raisons avec leurs points (« +20 ») ; « Aucun défaut relevé. » pour un score sans raison ; « Aucune analyse de site : pas de site connu. » sans analyse.
+- **T14 – Suivi** : un changement de statut ou de favori est envoyé tout de suite (`PATCH` avec ce seul champ) ; les notes s'envoient avec « Enregistrer les notes ». « Supprimer définitivement » demande confirmation (`window.confirm`, qui rappelle que l'entreprise ne sera plus récoltée), puis ramène à la liste.
+- **T14 – Tests en plus** : score sans raison, bouton Copier, identité + priorité + analyse affichées, bandeau d'opposition, enregistrement des notes et du favori, prospect introuvable.
 
 ## Questions ouvertes
 

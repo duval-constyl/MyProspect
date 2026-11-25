@@ -299,11 +299,11 @@ Fond de carte MapLibre : style vectoriel gratuit OpenFreeMap (`https://tiles.ope
 - Consumes: `GET /prospects/{id}`, `PATCH /prospects/{id}/tracking`, `DELETE /prospects/{id}`, `POST /prospects/{id}/do-not-contact`.
 - Produces : `ScoreCard({score})` (cercle de score, palier sur 6, liste des raisons) ; `ContactList({contacts})` (chaque ligne affiche la valeur, la source et la date, bouton copier) ; `TrackingForm({tracking, onChange})`.
 
-- [ ] **Step 1: Tests.** `test_score_card_lists_every_reason`. `test_contact_shows_source_and_date`. `test_no_contacts_shows_message_instead_of_empty_block`. `test_status_change_sends_patch`. `test_delete_asks_confirmation_before_calling_api`. `test_do_not_contact_button_calls_api`.
-- [ ] **Step 2: Lancer** `npx vitest run src/pages/ProspectPage.test.tsx`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Relancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: fiche prospect`.
+- [x] **Step 1: Tests.** `test_score_card_lists_every_reason`. `test_contact_shows_source_and_date`. `test_no_contacts_shows_message_instead_of_empty_block`. `test_status_change_sends_patch`. `test_delete_asks_confirmation_before_calling_api`. `test_do_not_contact_button_calls_api`.
+- [x] **Step 2: Lancer** `npx vitest run src/pages/ProspectPage.test.tsx`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Relancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: fiche prospect`.
 
 ### Task 15: Bout en bout et documentation
 

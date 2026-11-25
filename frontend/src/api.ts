@@ -1,4 +1,15 @@
-import type { Bbox, Cluster, CollectBody, Job, ProspectFilters, ProspectList, Stats } from "./types";
+import type {
+  Bbox,
+  Cluster,
+  CollectBody,
+  Job,
+  ProspectDetail,
+  ProspectFilters,
+  ProspectList,
+  Stats,
+  Tracking,
+  TrackingPatch,
+} from "./types";
 
 // Vite forwards /api to the backend (see vite.config.ts).
 const BASE = "/api";
@@ -60,4 +71,9 @@ export const api = {
     request<ProspectList>(`/prospects?${filtersQuery(filters, { page, per_page: perPage })}`),
   /** Plain link (the browser downloads the file), same filters as the list. */
   exportUrl: (filters: ProspectFilters) => `${BASE}/exports/prospects.csv?${filtersQuery(filters)}`,
+  getProspect: (id: number) => request<ProspectDetail>(`/prospects/${id}`),
+  patchTracking: (id: number, patch: TrackingPatch) =>
+    request<Tracking>(`/prospects/${id}/tracking`, { method: "PATCH", body: JSON.stringify(patch) }),
+  deleteProspect: (id: number) => request<void>(`/prospects/${id}`, { method: "DELETE" }),
+  doNotContact: (id: number) => request<Tracking>(`/prospects/${id}/do-not-contact`, { method: "POST" }),
 };

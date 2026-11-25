@@ -1,4 +1,4 @@
-import type { Status } from "./types";
+import type { ContactKind, Status } from "./types";
 
 /** Starting list of trades (V1 plan, Task 12). */
 export const TRADES = [
@@ -23,3 +23,28 @@ export const STATUS_LABELS: Record<Status, string> = {
 
 /** What is shown for an absent value: never empty, never "null". */
 export const MISSING = "—";
+
+export const CONTACT_KIND_LABELS: Record<ContactKind, string> = {
+  phone: "Téléphone",
+  email: "E-mail",
+  website: "Site web",
+};
+
+export const SOURCE_LABELS: Record<string, string> = {
+  osm: "OpenStreetMap",
+  registry: "Registre officiel",
+  site: "Site web de l'entreprise",
+};
+
+export const OFFER_LABELS: Record<string, string> = {
+  web: "Score Web",
+  mobile: "Score Mobile",
+  cloud: "Score Cloud et logiciel",
+};
+
+/** "2026-11-20" -> "20/11/2026" (no time zone shift). */
+export function frenchDate(isoDate: string | null | undefined): string {
+  if (!isoDate) return MISSING;
+  const [year, month, day] = isoDate.slice(0, 10).split("-");
+  return `${day}/${month}/${year}`;
+}

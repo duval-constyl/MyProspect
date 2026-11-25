@@ -77,3 +77,51 @@ export type ProspectFilters = {
   sort: SortKey;
   order: SortOrder;
 };
+
+export type Reason = { code: string; label: string; points: number };
+
+export type Score = { offer: string; value: number; tier: number; reasons: Reason[] };
+
+export type ContactKind = "phone" | "email" | "website";
+
+export type Contact = { kind: ContactKind; value: string; source: string; seen_on: string };
+
+export type SiteAnalysis = {
+  url: string;
+  reachable: boolean;
+  https: boolean;
+  has_title: boolean;
+  has_description: boolean;
+  has_h1: boolean;
+  has_viewport: boolean;
+  response_ms: number | null;
+  tech: string[];
+  mobile_perf: number | null;
+  analyzed_at: string;
+};
+
+export type Tracking = { status: Status; favorite: boolean; notes: string; updated_at: string | null };
+
+export type TrackingPatch = Partial<Pick<Tracking, "status" | "favorite" | "notes">>;
+
+export type ProspectDetail = {
+  id: number;
+  siret: string;
+  name: string;
+  naf: string;
+  effectif_code: string | null;
+  created_on: string | null;
+  address: string;
+  city: string | null;
+  lat: number | null;
+  long: number | null;
+  is_individual: boolean;
+  opposed_to_prospecting: boolean;
+  first_seen_at: string;
+  last_collected_at: string;
+  contacts: Contact[];
+  site_analysis: SiteAnalysis | null;
+  scores: Score[];
+  priority: { value: number; reasons: Reason[] };
+  tracking: Tracking;
+};
