@@ -163,11 +163,11 @@ Un cercle reste un cercle (≤ 50 km). Un polygone est recouvert par des cercles
 
 `analyze_site` normalise l'URL (ajoute `https://` si absent), suit jusqu'à 5 redirections, délai maximal 10 s, ne lit que du HTML (autre type de contenu → `reachable=False`). `https` vaut `True` si l'URL finale est en HTTPS. `tech` détecte `wordpress`, `wix`, `shopify`, `jquery` par balise generator ou scripts.
 
-- [ ] **Step 1: Tests (respx).** `test_good_site_all_flags_true`. `test_missing_title_description_h1_viewport_flags`. `test_http_only_site_has_https_false`. `test_redirect_http_to_https_counts_as_https`. `test_malformed_url_returns_unreachable_not_exception` (`"http//bad url"`). `test_timeout_returns_unreachable`. `test_pdf_response_is_unreachable`. `test_mobile_perf_none_without_key`.
-- [ ] **Step 2: Lancer** `pytest tests/test_site_analysis.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** avec `httpx` et `selectolax`.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: analyse des sites`.
+- [x] **Step 1: Tests (respx).** `test_good_site_all_flags_true`. `test_missing_title_description_h1_viewport_flags`. `test_http_only_site_has_https_false`. `test_redirect_http_to_https_counts_as_https`. `test_malformed_url_returns_unreachable_not_exception` (`"http//bad url"`). `test_timeout_returns_unreachable`. `test_pdf_response_is_unreachable`. `test_mobile_perf_none_without_key`.
+- [x] **Step 2: Lancer** `pytest tests/test_site_analysis.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** avec `httpx` et `selectolax`.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: analyse des sites`.
 
 ### Task 7: Score Web
 
