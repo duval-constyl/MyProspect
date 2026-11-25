@@ -133,6 +133,21 @@ def test_csv_escapes_commas_quotes_and_newlines_in_notes(client, add, db_session
     assert dict(zip(HEADER, rows[1]))["notes"] == tricky
 
 
+def test_csv_neutralises_formulas_from_third_party_data(client, add):
+    # OSM and registry values are third-party data: a spreadsheet must never run them,
+    # and Excel reads « +33 4 78 … » as a (broken) formula.
+    prospect = add("11111111100011", "=HYPERLINK(\"http://x\")", phone="+33 4 78 00 00 01")
+    client.patch(f"/prospects/{prospect.id}/tracking", json={"notes": "@SUM(A1:A2)"})
+
+    rows = read_csv(client.get("/exports/prospects.csv"))
+
+    row = dict(zip(HEADER, rows[1]))
+    assert row["nom"] == "'=HYPERLINK(\"http://x\")"
+    assert row["telephone"] == "'+33 4 78 00 00 01"
+    assert row["notes"] == "'@SUM(A1:A2)"
+    assert row["siret"] == "11111111100011"
+
+
 def test_csv_uses_the_list_filters(client, add):
     add("11111111100011", "SALON A", website="https://a.fr")
     add("22222222200022", "SALON B")

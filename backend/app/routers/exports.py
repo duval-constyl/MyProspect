@@ -32,9 +32,20 @@ def _yes_no(value: bool) -> str:
     return "oui" if value else "non"
 
 
+FORMULA_STARTS = ("=", "+", "-", "@", "\t", "\r")
+
+
 def _cell(value: object) -> str:
-    """Absent value -> empty cell, never "None"."""
-    return "" if value is None else str(value)
+    """Absent value -> empty cell, never "None".
+
+    A value starting like a formula gets a leading apostrophe (OWASP advice against
+    CSV injection): names, notes and contact details partly come from third parties,
+    and Excel would otherwise read « +33 4 78 … » as a formula.
+    """
+    if value is None:
+        return ""
+    text = str(value)
+    return f"'{text}" if text.startswith(FORMULA_STARTS) else text
 
 
 @router.get("/exports/prospects.csv")
@@ -49,9 +60,9 @@ def export_prospects(
         writer.writerow(
             [
                 prospect.siret,
-                prospect.name,
+                _cell(prospect.name),
                 prospect.naf,
-                prospect.address,
+                _cell(prospect.address),
                 _cell(row.phone),
                 _cell(row.email),
                 _cell(row.website),
@@ -59,7 +70,7 @@ def export_prospects(
                 row.priority,
                 STATUS_LABELS.get(row.status, row.status),
                 _yes_no(row.favorite),
-                row.notes,
+                _cell(row.notes),
                 _yes_no(prospect.opposed_to_prospecting),
             ]
         )
