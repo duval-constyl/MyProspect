@@ -249,11 +249,11 @@ Déroulé : zone → cercles → registre → exclure les SIRET de `Exclusion` �
 - Produces : `PATCH /prospects/{id}/tracking` (`{status?, favorite?, notes?}`) ; `DELETE /prospects/{id}` (suppression définitive des données du prospect et ajout du SIRET à `Exclusion`, motif `"deleted"`) ; `POST /prospects/{id}/do-not-contact` (statut `refused` + `Exclusion` motif `"do_not_contact"`, données conservées) ; `GET /exports/prospects.csv?…mêmes filtres que la liste`.
 - Colonnes CSV : `siret, nom, naf, ville_adresse, telephone, email, site, score_web, priorite, statut, favori, notes`. Cellules vides pour les valeurs absentes.
 
-- [ ] **Step 1: Tests.** `test_patch_tracking_updates_only_given_fields`. `test_invalid_status_422`. `test_delete_removes_prospect_contacts_scores_and_adds_exclusion`. `test_do_not_contact_keeps_data_and_excludes_from_next_collect`. `test_csv_has_header_and_one_row_per_prospect`. `test_csv_empty_cells_for_missing_phone_email_site`. `test_csv_escapes_commas_quotes_and_newlines_in_notes`.
-- [ ] **Step 2: Lancer** `pytest tests/test_tracking_export.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** avec le module `csv` standard.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: suivi, exclusion, export`.
+- [x] **Step 1: Tests.** `test_patch_tracking_updates_only_given_fields`. `test_invalid_status_422`. `test_delete_removes_prospect_contacts_scores_and_adds_exclusion`. `test_do_not_contact_keeps_data_and_excludes_from_next_collect`. `test_csv_has_header_and_one_row_per_prospect`. `test_csv_empty_cells_for_missing_phone_email_site`. `test_csv_escapes_commas_quotes_and_newlines_in_notes`.
+- [x] **Step 2: Lancer** `pytest tests/test_tracking_export.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** avec le module `csv` standard.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: suivi, exclusion, export`.
 
 ### Task 12: Frontend, socle et page Carte
 

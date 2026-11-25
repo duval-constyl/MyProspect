@@ -1,66 +1,12 @@
-from datetime import UTC, date, datetime
+from datetime import UTC, datetime
 
 import pytest
-from geoalchemy2 import WKTElement
 
-from app.models import Contact, Prospect, ScoreRow, SiteAnalysisRow, Tracking
-
-PARIS = (48.8566, 2.3522)  # tests set HOME_LAT/HOME_LONG to Paris
+from app.models import SiteAnalysisRow
+from tests.conftest import PARIS
 LYON = (45.764, 4.8357)
 FRANCE_BBOX = "-5,41,10,52"
 PARIS_BBOX = "2.2,48.8,2.5,48.95"
-
-
-@pytest.fixture
-def add(db_session):
-    def add_prospect(
-        siret: str,
-        name: str,
-        position: tuple[float, float] | None = PARIS,
-        *,
-        score: int | None = None,
-        phone: str | None = None,
-        email: str | None = None,
-        website: str | None = None,
-        status: str | None = None,
-        favorite: bool | None = None,
-        naf: str = "96.02A",
-        effectif_code: str | None = "11",
-        opposed: bool = False,
-        address: str = "12 RUE DE RIVOLI 75004 PARIS 04",
-    ) -> Prospect:
-        prospect = Prospect(
-            siret=siret,
-            name=name,
-            naf=naf,
-            effectif_code=effectif_code,
-            created_on=date(2015, 3, 1),
-            geom=WKTElement(f"POINT({position[1]} {position[0]})", srid=4326) if position else None,
-            address=address,
-            is_individual=False,
-            closed=False,
-            opposed_to_prospecting=opposed,
-        )
-        db_session.add(prospect)
-        db_session.flush()
-        for kind, value in (("phone", phone), ("email", email), ("website", website)):
-            if value:
-                db_session.add(
-                    Contact(prospect_id=prospect.id, kind=kind, value=value, source="osm", seen_on=date(2026, 11, 20))
-                )
-        if score is not None:
-            reasons = [{"code": "no_site", "label": "Aucun site web connu", "points": score}]
-            db_session.add(
-                ScoreRow(prospect_id=prospect.id, offer="web", value=score, tier=min(6, score // 17 + 1), reasons=reasons)
-            )
-        if status is not None or favorite is not None:
-            db_session.add(
-                Tracking(prospect_id=prospect.id, status=status or "new", favorite=bool(favorite), notes="")
-            )
-        db_session.commit()
-        return prospect
-
-    return add_prospect
 
 
 def names(response) -> list[str]:

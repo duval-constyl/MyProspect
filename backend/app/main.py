@@ -3,14 +3,16 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Annotated
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.collect import fail_interrupted_jobs
 from app.db import get_session, get_session_factory
-from app.routers import prospects, zones
+from app.routers import exports, prospects, tracking, zones
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +30,16 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(title="MyProspect", lifespan=lifespan)
 app.include_router(zones.router)
 app.include_router(prospects.router)
+app.include_router(tracking.router)
+app.include_router(exports.router)
+
+
+@app.exception_handler(RequestValidationError)
+async def french_validation_error(_: Request, exc: RequestValidationError) -> JSONResponse:
+    """Validation errors in French, naming the faulty fields."""
+    fields = sorted({str(error["loc"][-1]) for error in exc.errors() if error.get("loc")})
+    detail = f"Valeur invalide pour : {', '.join(fields)}." if fields else "Requête invalide."
+    return JSONResponse(status_code=422, content={"detail": detail})
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
