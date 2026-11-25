@@ -40,6 +40,7 @@ router = APIRouter()
 SessionDep = Annotated[Session, Depends(get_session)]
 CITY = re.compile(r"\b\d{5}\s+(.+)$")
 CLUSTER_CELLS_PER_TILE = 4  # about 64 px per cluster cell on 256 px tiles
+OFFER_ORDER = [Offer.WEB.value, Offer.MOBILE.value, Offer.CLOUD.value]
 
 
 @dataclass(frozen=True)
@@ -107,8 +108,9 @@ class ProspectRow:
     prospect: Prospect
     lat: float | None
     long: float | None
-    score: int | None
+    score: int | None  # score of the selected offer
     tier: int | None
+    score_web: int | None
     phone: str | None
     email: str | None
     website: str | None
@@ -139,6 +141,7 @@ def _has_site():
 
 def _rows_query(filters: ProspectFilters) -> Select:
     score = aliased(ScoreRow)
+    web = aliased(ScoreRow)
     status = func.coalesce(Tracking.status, Status.NEW.value)
     favorite = func.coalesce(Tracking.favorite, False)
     query = (
@@ -148,6 +151,7 @@ def _rows_query(filters: ProspectFilters) -> Select:
             func.ST_X(Prospect.geom).label("long"),
             score.value.label("score"),
             score.tier.label("tier"),
+            web.value.label("score_web"),
             _latest_contact("phone").label("phone"),
             _latest_contact("email").label("email"),
             _latest_contact("website").label("website"),
@@ -156,6 +160,7 @@ def _rows_query(filters: ProspectFilters) -> Select:
             func.coalesce(Tracking.notes, "").label("notes"),
         )
         .outerjoin(score, and_(score.prospect_id == Prospect.id, score.offer == filters.offer))
+        .outerjoin(web, and_(web.prospect_id == Prospect.id, web.offer == Offer.WEB.value))
         .outerjoin(Tracking, Tracking.prospect_id == Prospect.id)
     )
     if filters.bbox:
@@ -207,6 +212,7 @@ def query_rows(session: Session, filters: ProspectFilters) -> list[ProspectRow]:
                 long=record.long,
                 score=record.score,
                 tier=record.tier,
+                score_web=record.score_web,
                 phone=record.phone,
                 email=record.email,
                 website=record.website,
@@ -251,7 +257,8 @@ def list_prospects(
             city=city_of(row.prospect.address),
             lat=row.lat,
             long=row.long,
-            score_web=row.score,
+            score=row.score,
+            score_web=row.score_web,
             tier=row.tier,
             priority=row.priority,
             status=row.status,
@@ -272,6 +279,7 @@ def prospect_clusters(
     session: SessionDep,
     bbox: str,
     zoom: Annotated[int, Query(ge=0, le=22)],
+    offer: Literal["web", "mobile", "cloud"] = "web",
 ) -> Clusters:
     envelope = _envelope(parse_bbox(bbox))
     cell = 360 / (2**zoom) / CLUSTER_CELLS_PER_TILE
@@ -285,7 +293,7 @@ def prospect_clusters(
             func.max(score.value).label("max_score"),
             func.min(Prospect.id).label("first_id"),
         )
-        .outerjoin(score, and_(score.prospect_id == Prospect.id, score.offer == Offer.WEB.value))
+        .outerjoin(score, and_(score.prospect_id == Prospect.id, score.offer == offer))
         .where(Prospect.geom.is_not(None), func.ST_Intersects(Prospect.geom, envelope))
         .group_by(func.ST_SnapToGrid(Prospect.geom, cell))
     )
@@ -335,14 +343,20 @@ def prospect_detail(prospect_id: int, session: SessionDep) -> ProspectDetail:
     )
     analysis = session.scalar(select(SiteAnalysisRow).where(SiteAnalysisRow.prospect_id == prospect.id))
     scores = list(
-        session.scalars(select(ScoreRow).where(ScoreRow.prospect_id == prospect.id).order_by(ScoreRow.offer))
+        session.scalars(select(ScoreRow).where(ScoreRow.prospect_id == prospect.id))
     )
+    scores.sort(key=lambda s: OFFER_ORDER.index(s.offer) if s.offer in OFFER_ORDER else len(OFFER_ORDER))
     tracking = session.scalar(select(Tracking).where(Tracking.prospect_id == prospect.id))
 
-    web_score = next((s.value for s in scores if s.offer == Offer.WEB.value), None)
     phone = next((c.value for c in contacts if c.kind == "phone"), None)
     email = next((c.value for c in contacts if c.kind == "email"), None)
-    priority, priority_reasons = _priority(prospect, lat, long, web_score, phone, email)
+    priority_by_offer = {}
+    for offer in OFFER_ORDER:
+        offer_score = next((s.value for s in scores if s.offer == offer), None)
+        value, reasons = _priority(prospect, lat, long, offer_score, phone, email)
+        priority_by_offer[offer] = PriorityOut(
+            value=value, reasons=[ReasonOut(**dataclasses.asdict(r)) for r in reasons]
+        )
 
     return ProspectDetail(
         id=prospect.id,
@@ -367,9 +381,8 @@ def prospect_detail(prospect_id: int, session: SessionDep) -> ProspectDetail:
             ScoreOut(offer=s.offer, value=s.value, tier=s.tier, reasons=[ReasonOut(**r) for r in s.reasons])
             for s in scores
         ],
-        priority=PriorityOut(
-            value=priority, reasons=[ReasonOut(**dataclasses.asdict(r)) for r in priority_reasons]
-        ),
+        priority=priority_by_offer[Offer.WEB.value],
+        priority_by_offer=priority_by_offer,
         tracking=TrackingOut(
             status=tracking.status if tracking else Status.NEW.value,
             favorite=tracking.favorite if tracking else False,

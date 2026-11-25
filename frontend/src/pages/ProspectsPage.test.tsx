@@ -17,6 +17,7 @@ function item(overrides: Partial<ProspectListItem>): ProspectListItem {
     city: "LYON",
     lat: 45.76,
     long: 4.83,
+    score: 75,
     score_web: 75,
     tier: 5,
     priority: 56,
@@ -40,6 +41,7 @@ const LIST = {
       name: "GARAGE MARTIN",
       naf: "45.20A",
       city: "VILLEURBANNE",
+      score: 20,
       score_web: 20,
       tier: 2,
       priority: 36,
@@ -128,6 +130,23 @@ describe("ProspectsPage", () => {
       expect(lastListQuery(requests).get("sort")).toBe("name");
       expect(lastListQuery(requests).get("order")).toBe("asc");
     });
+  });
+
+  it("test_offer_selector_changes_query_param", async () => {
+    const user = userEvent.setup();
+    const { requests } = mockApi({ "GET /prospects": { body: LIST } });
+    renderPage();
+    await screen.findByText("SALON ECLAT");
+    expect(lastListQuery(requests).get("offer")).toBe("web");
+    expect(screen.getByRole("button", { name: /Score Web/ })).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText("Offre"), "Mobile");
+
+    await waitFor(() => expect(lastListQuery(requests).get("offer")).toBe("mobile"));
+    expect(lastListQuery(requests).get("page")).toBe("1");
+    expect(screen.getByRole("button", { name: /Score Mobile/ })).toBeInTheDocument();
+    const href = screen.getByRole("link", { name: "Exporter en CSV" }).getAttribute("href")!;
+    expect(new URLSearchParams(href.split("?")[1]).get("offer")).toBe("mobile");
   });
 
   it("test_export_link_contains_active_filters", async () => {

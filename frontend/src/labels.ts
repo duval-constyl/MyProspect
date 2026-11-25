@@ -1,4 +1,4 @@
-import type { ContactKind, Status } from "./types";
+import type { ContactKind, Offer, Status } from "./types";
 
 /** Starting list of trades (V1 plan, Task 12). */
 export const TRADES = [
@@ -35,6 +35,17 @@ export const SOURCE_LABELS: Record<string, string> = {
   registry: "Registre officiel",
   site: "Site web de l'entreprise",
 };
+
+/** The three offers, in display order. */
+export const OFFERS: { value: Offer; label: string }[] = [
+  { value: "web", label: "Web" },
+  { value: "mobile", label: "Mobile" },
+  { value: "cloud", label: "Cloud et logiciel" },
+];
+
+export function offerLabel(offer: string): string {
+  return OFFERS.find((o) => o.value === offer)?.label ?? offer;
+}
 
 export const OFFER_LABELS: Record<string, string> = {
   web: "Score Web",

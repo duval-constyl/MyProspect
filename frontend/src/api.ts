@@ -3,6 +3,7 @@ import type {
   Cluster,
   CollectBody,
   Job,
+  Offer,
   ProspectDetail,
   ProspectFilters,
   ProspectList,
@@ -62,9 +63,9 @@ export const api = {
   collectZone: (body: CollectBody) =>
     request<{ job_id: number }>("/zones/collect", { method: "POST", body: JSON.stringify(body) }),
   getJob: (id: number) => request<Job>(`/jobs/${id}`),
-  getClusters: (bbox: Bbox, zoom: number) =>
+  getClusters: (bbox: Bbox, zoom: number, offer: Offer = "web") =>
     request<{ clusters: Cluster[] }>(
-      `/prospects/clusters?bbox=${bbox.join(",")}&zoom=${Math.max(0, Math.floor(zoom))}`,
+      `/prospects/clusters?bbox=${bbox.join(",")}&zoom=${Math.max(0, Math.floor(zoom))}&offer=${offer}`,
     ),
   getStats: (bbox: Bbox) => request<Stats>(`/prospects/stats?bbox=${bbox.join(",")}`),
   listProspects: (filters: ProspectFilters, page: number, perPage: number) =>

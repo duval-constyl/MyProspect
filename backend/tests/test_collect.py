@@ -160,7 +160,7 @@ async def test_recollect_same_zone_creates_no_duplicates(db_session):
     db_session.expire_all()
     assert db_session.scalar(select(func.count()).select_from(Prospect)) == 2
     assert db_session.scalar(select(func.count()).select_from(Contact)) == 2
-    assert db_session.scalar(select(func.count()).select_from(ScoreRow)) == 2
+    assert db_session.scalar(select(func.count()).select_from(ScoreRow)) == 2 * 3  # V2: web, mobile, cloud
     assert db_session.scalar(select(func.count()).select_from(SiteAnalysisRow)) == 1
 
 

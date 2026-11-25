@@ -8,6 +8,16 @@ import { mockApi } from "../test/mockApi";
 import type { ProspectDetail } from "../types";
 import ProspectPage from "./ProspectPage";
 
+const WEB_PRIORITY = {
+  value: 51,
+  reasons: [
+    { code: "opportunity", label: "Opportunité 50/100, comptée pour moitié", points: 25 },
+    { code: "phone", label: "Téléphone connu", points: 12 },
+    { code: "small_structure", label: "Petite structure : décideur facile à joindre", points: 8 },
+    { code: "nearby", label: "À 4 km de chez vous", points: 6 },
+  ],
+};
+
 const DETAIL: ProspectDetail = {
   id: 1,
   siret: "11111111100011",
@@ -51,15 +61,37 @@ const DETAIL: ProspectDetail = {
         { code: "no_viewport", label: "Site non adapté au mobile (pas de balise viewport)", points: 15 },
       ],
     },
+    {
+      offer: "mobile",
+      value: 70,
+      tier: 5,
+      reasons: [
+        { code: "no_online_booking", label: "Aucune réservation ni prise de rendez-vous en ligne détectée", points: 50 },
+        { code: "no_online_order", label: "Aucune commande en ligne détectée", points: 20 },
+      ],
+    },
+    { offer: "cloud", value: 0, tier: 1, reasons: [] },
   ],
-  priority: {
-    value: 51,
-    reasons: [
-      { code: "opportunity", label: "Opportunité 50/100, comptée pour moitié", points: 25 },
-      { code: "phone", label: "Téléphone connu", points: 12 },
-      { code: "small_structure", label: "Petite structure : décideur facile à joindre", points: 8 },
-      { code: "nearby", label: "À 4 km de chez vous", points: 6 },
-    ],
+  priority: WEB_PRIORITY,
+  priority_by_offer: {
+    web: WEB_PRIORITY,
+    mobile: {
+      value: 61,
+      reasons: [
+        { code: "opportunity", label: "Opportunité 70/100, comptée pour moitié", points: 35 },
+        { code: "phone", label: "Téléphone connu", points: 12 },
+        { code: "small_structure", label: "Petite structure : décideur facile à joindre", points: 8 },
+        { code: "nearby", label: "À 4 km de chez vous", points: 6 },
+      ],
+    },
+    cloud: {
+      value: 26,
+      reasons: [
+        { code: "phone", label: "Téléphone connu", points: 12 },
+        { code: "small_structure", label: "Petite structure : décideur facile à joindre", points: 8 },
+        { code: "nearby", label: "À 4 km de chez vous", points: 6 },
+      ],
+    },
   },
   tracking: { status: "new", favorite: false, notes: "", updated_at: null },
 };
@@ -131,11 +163,27 @@ describe("ProspectPage", () => {
 
     expect(await screen.findByRole("heading", { name: "SALON ECLAT" })).toBeInTheDocument();
     expect(screen.getByText(/11111111100011/)).toBeInTheDocument();
-    expect(screen.getByText("Priorité de contact : 51")).toBeInTheDocument();
-    expect(screen.getByText("Téléphone connu")).toBeInTheDocument();
+    expect(screen.getByText("Priorité Web : 51")).toBeInTheDocument();
+    expect(screen.getAllByText("Téléphone connu").length).toBeGreaterThan(0);
     expect(screen.getByText("HTTPS : non")).toBeInTheDocument();
     expect(screen.getByText("Technologies : wordpress")).toBeInTheDocument();
     expect(screen.queryByText("Opposée à la prospection commerciale")).not.toBeInTheDocument();
+  });
+
+  it("test_profile_shows_three_score_cards", async () => {
+    mockApi({ "GET /prospects/1": { body: DETAIL } });
+
+    renderPage();
+
+    expect(await screen.findByRole("region", { name: "Score Web" })).toBeInTheDocument();
+    const mobile = screen.getByRole("region", { name: "Score Mobile" });
+    expect(within(mobile).getByText("70")).toBeInTheDocument();
+    expect(within(mobile).getByText("Aucune commande en ligne détectée")).toBeInTheDocument();
+    const cloud = screen.getByRole("region", { name: "Score Cloud et logiciel" });
+    expect(within(cloud).getByText("Aucun défaut relevé.")).toBeInTheDocument();
+    expect(screen.getByText("Priorité Web : 51")).toBeInTheDocument();
+    expect(screen.getByText("Priorité Mobile : 61")).toBeInTheDocument();
+    expect(screen.getByText("Priorité Cloud et logiciel : 26")).toBeInTheDocument();
   });
 
   it("test_opposed_company_shows_warning", async () => {

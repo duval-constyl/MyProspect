@@ -143,7 +143,7 @@ def match_offers_to_companies(
     """SIRET -> one technical offer whose employer looks like the company, in its département."""
     matches: dict[str, JobOffer] = {}
     for company in companies:
-        departement = _departement_of_address(company.address)
+        departement = departement_of_address(company.address)
         names = [n for n in {normalize_name(company.name), normalize_name(company.legal_name)} if len(n) >= MIN_NAME_LENGTH]
         if not departement or not names:
             continue
@@ -166,7 +166,7 @@ def _departement_of_postal_code(postal_code: str | None) -> str | None:
     return postal_code[:3] if postal_code.startswith("97") else postal_code[:2]
 
 
-def _departement_of_address(address: str) -> str | None:
+def departement_of_address(address: str) -> str | None:
     match = POSTAL_CODE.search(address or "")
     return _departement_of_postal_code(match.group(1)) if match else None
 

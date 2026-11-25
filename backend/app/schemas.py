@@ -20,6 +20,7 @@ class ProspectListItem(BaseModel):
     city: str | None
     lat: float | None
     long: float | None
+    score: int | None  # score of the offer chosen with ?offer= (web by default)
     score_web: int | None
     tier: int | None
     priority: int
@@ -114,5 +115,6 @@ class ProspectDetail(BaseModel):
     contacts: list[ContactOut]
     site_analysis: SiteAnalysisOut | None
     scores: list[ScoreOut]
-    priority: PriorityOut
+    priority: PriorityOut  # web offer, kept for compatibility
+    priority_by_offer: dict[str, PriorityOut]
     tracking: TrackingOut

@@ -106,11 +106,11 @@ Points : technologie obsolète **+30** (`outdated_tech` : jQuery < 3, WordPress 
 - Consumes: `score_web`, `score_mobile`, `score_cloud`, `contact_priority`.
 - Produces: la récolte enregistre une `ScoreRow` par offre ; `GET /prospects?offer=web|mobile|cloud` filtre et trie sur cette offre ; `ProspectDetail.priority_by_offer: dict[Offer, {value, reasons}]` ; sélecteur d'offre dans la carte et la liste ; la fiche affiche les trois `ScoreCard`.
 
-- [ ] **Step 1: Tests.** `test_collect_stores_three_scores_per_prospect`. `test_list_sorted_by_mobile_priority_when_offer_is_mobile`. `test_recollect_updates_scores_without_duplicates`. Front : `test_offer_selector_changes_query_param`, `test_profile_shows_three_score_cards`.
-- [ ] **Step 2: Lancer** `pytest backend/tests/test_multi_offer.py -v` et `npx vitest run`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: trois scores par prospect`.
+- [x] **Step 1: Tests.** `test_collect_stores_three_scores_per_prospect`. `test_list_sorted_by_mobile_priority_when_offer_is_mobile`. `test_recollect_updates_scores_without_duplicates`. Front : `test_offer_selector_changes_query_param`, `test_profile_shows_three_score_cards`.
+- [x] **Step 2: Lancer** `pytest backend/tests/test_multi_offer.py -v` et `npx vitest run`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: trois scores par prospect`.
 
 ### Task 6: Brouillons d'approche
 

@@ -66,7 +66,7 @@ def export_prospects(
                 _cell(row.phone),
                 _cell(row.email),
                 _cell(row.website),
-                _cell(row.score),
+                _cell(row.score_web),
                 row.priority,
                 STATUS_LABELS.get(row.status, row.status),
                 _yes_no(row.favorite),

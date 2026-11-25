@@ -47,6 +47,23 @@ describe("MapPage", () => {
     expect(clusters.query.get("zoom")).toBe("12");
   });
 
+  it("test_offer_selector_changes_cluster_query", async () => {
+    const user = userEvent.setup();
+    const { requests } = mockApi({
+      "GET /prospects/stats": { body: STATS },
+      "GET /prospects/clusters": { body: { clusters: [] } },
+    });
+    renderPage();
+    await screen.findByText("Dans la vue : 12");
+    expect(requests.find((r) => r.path === "/prospects/clusters")!.query.get("offer")).toBe("web");
+
+    await user.selectOptions(screen.getByLabelText("Offre affichée"), "Mobile");
+
+    await waitFor(() =>
+      expect([...requests].reverse().find((r) => r.path === "/prospects/clusters")!.query.get("offer")).toBe("mobile"),
+    );
+  });
+
   it("test_start_collection_posts_selected_naf_codes", async () => {
     const user = userEvent.setup();
     const { requests } = mockApi({
