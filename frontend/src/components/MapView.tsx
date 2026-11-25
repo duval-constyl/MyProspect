@@ -96,7 +96,8 @@ export default function MapView({ clusters, drawing = [], onViewChange, onMapCli
         type: "symbol",
         source: "prospects",
         filter: [">", ["get", "count"], 1],
-        layout: { "text-field": ["to-string", ["get", "count"]], "text-size": 12 },
+        // OpenFreeMap serves Noto Sans only (the MapLibre default font gives a 404).
+        layout: { "text-field": ["to-string", ["get", "count"]], "text-size": 12, "text-font": ["Noto Sans Bold"] },
         paint: { "text-color": "#ffffff" },
       });
       map.addSource("drawing", { type: "geojson", data: drawingToGeojson(data.current.drawing) as never });

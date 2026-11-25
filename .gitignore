@@ -17,3 +17,4 @@ coverage/
 .superpowers/
 .vscode/
 .idea/
+.playwright-mcp/

@@ -34,6 +34,21 @@ LEGAL_FORMS = {
     "selarl", "selas", "ei", "eirl", "earl", "gie", "sca", "scs",
 }
 
+# Public facilities tagged `amenity` that are not businesses. Without this filter a
+# bike-sharing station named « Pêcherie » gave JCDecaux's phone and e-mail to a hair
+# salon called « RB PECHERIE » (real collection, Lyon, 2026-11-25).
+NON_BUSINESS_AMENITIES = (
+    "atm", "bbq", "bench", "bicycle_parking", "bicycle_rental", "bicycle_repair_station",
+    "bus_station", "car_sharing", "charging_station", "clock", "compressed_air",
+    "device_charging_station", "drinking_water", "fountain", "give_box", "grit_bin",
+    "hunting_stand", "letter_box", "loading_dock", "motorcycle_parking", "parcel_locker",
+    "parking", "parking_entrance", "parking_space", "payment_terminal", "photo_booth",
+    "post_box", "public_bookcase", "recycling", "shelter", "taxi", "telephone",
+    "ticket_validator", "toilets", "vending_machine", "waste_basket", "waste_disposal",
+    "water_point",
+)
+_NON_BUSINESS_PATTERN = "^(" + "|".join(NON_BUSINESS_AMENITIES) + ")$"
+
 # Indirections so tests can replace time without waiting.
 _sleep = asyncio.sleep
 _monotonic = time.monotonic
@@ -42,8 +57,14 @@ _blocked_until = 0.0
 
 def build_query(circle: Circle) -> str:
     around = f"(around:{round(circle.radius_km * 1000)},{circle.lat},{circle.long})"
-    selectors = "".join(f'nwr["{key}"]["name"]{around};' for key in ELEMENT_KEYS)
+    selectors = "".join(
+        f'nwr["{key}"]["name"]{_exclusion(key)}{around};' for key in ELEMENT_KEYS
+    )
     return f"[out:json][timeout:{QUERY_TIMEOUT_S}];({selectors});out center tags;"
+
+
+def _exclusion(key: str) -> str:
+    return f'["amenity"!~"{_NON_BUSINESS_PATTERN}"]' if key == "amenity" else ""
 
 
 async def fetch_osm_businesses(
@@ -89,6 +110,8 @@ def _to_business(element: dict) -> OsmBusiness | None:
     name = tags.get("name")
     if not name or "lat" not in position or "lon" not in position:
         return None
+    if _is_public_facility(tags):
+        return None
     return OsmBusiness(
         osm_id=f"{element.get('type')}/{element.get('id')}",
         name=name,
@@ -98,6 +121,11 @@ def _to_business(element: dict) -> OsmBusiness | None:
         email=_first(tags, "email", "contact:email"),
         website=_first(tags, "website", "contact:website"),
     )
+
+
+def _is_public_facility(tags: dict) -> bool:
+    is_business = any(key in tags for key in ("shop", "craft", "office"))
+    return not is_business and tags.get("amenity") in NON_BUSINESS_AMENITIES
 
 
 def _first(tags: dict, *keys: str) -> str | None:

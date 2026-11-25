@@ -311,11 +311,11 @@ Fond de carte MapLibre : style vectoriel gratuit OpenFreeMap (`https://tiles.ope
 - Create: `README.md`, `backend/tests/test_e2e_smoke.py`
 - Modify: `docker-compose.yml`
 
-- [ ] **Step 1: Test.** `test_smoke_collect_list_detail_export` : avec registre, OSM et sites simulés, récolter une zone de 3 entreprises, lister, ouvrir une fiche, exporter le CSV et vérifier 3 lignes de données.
-- [ ] **Step 2: Lancer** `pytest backend/tests -v`. Attendu : tout PASS.
-- [ ] **Step 3: README** : `cp .env.example .env`, `docker compose up`, adresse de l'interface, variables (`HOME_LAT`, `HOME_LONG`, `PAGESPEED_API_KEY` facultative), rappel du cadre légal (B2B, source indiquée, désinscription, suppression sur demande).
+- [x] **Step 1: Test.** `test_smoke_collect_list_detail_export` : avec registre, OSM et sites simulés, récolter une zone de 3 entreprises, lister, ouvrir une fiche, exporter le CSV et vérifier 3 lignes de données.
+- [x] **Step 2: Lancer** `pytest backend/tests -v`. Attendu : tout PASS.
+- [x] **Step 3: README** : `cp .env.example .env`, `docker compose up`, adresse de l'interface, variables (`HOME_LAT`, `HOME_LONG`, `PAGESPEED_API_KEY` facultative), rappel du cadre légal (B2B, source indiquée, désinscription, suppression sur demande).
 - [ ] **Step 4: Vérifier à la main** : récolter une commune réelle, vérifier que la carte, la liste, une fiche et l'export CSV fonctionnent.
-- [ ] **Step 5: Commit** `docs: readme et test bout en bout`.
+- [x] **Step 5: Commit** `docs: readme et test bout en bout`.
 
 ---
 

@@ -102,8 +102,10 @@ async def test_parses_phone_email_website_tags():
     ]
     request = route.calls[0].request
     query = httpx.QueryParams(request.content.decode())["data"]
-    for key in ("shop", "amenity", "craft", "office"):
+    for key in ("shop", "craft", "office"):
         assert f'["{key}"]["name"](around:2000,45.764,4.8357)' in query
+    assert '["amenity"]["name"]["amenity"!~' in query
+    assert query.count("(around:2000,45.764,4.8357)") == 4
     assert request.headers["User-Agent"].startswith("MyProspect/")
 
 
@@ -146,6 +148,42 @@ def test_one_osm_business_matches_one_company_only():
     businesses = [business("node/1", "Salon Eclat")]
 
     assert match_osm_to_registry(companies, businesses) == {"11111111100011": businesses[0]}
+
+
+@respx.mock
+async def test_public_amenities_are_not_businesses():
+    # Found on a real collection (Lyon, 2026-11-25): a bike-sharing station named
+    # « Pêcherie » gave the JCDecaux phone and e-mail to the hair salon « RB PECHERIE ».
+    route = respx.post(OVERPASS_URL).mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "elements": [
+                    {
+                        "type": "node", "id": 1, "lat": 45.7665, "lon": 4.8322,
+                        "tags": {
+                            "name": "Pêcherie", "amenity": "bicycle_rental",
+                            "phone": "+33 1 30 79 33 40", "email": "contact.velov@jcdecaux.com",
+                        },
+                    },
+                    {
+                        "type": "node", "id": 2, "lat": 45.7666, "lon": 4.8323,
+                        "tags": {"name": "Parking Saint-Antoine", "amenity": "parking"},
+                    },
+                    {
+                        "type": "node", "id": 3, "lat": 45.7667, "lon": 4.8324,
+                        "tags": {"name": "Le Bouchon", "amenity": "restaurant", "phone": "04 78 00 00 09"},
+                    },
+                ]
+            },
+        )
+    )
+
+    businesses = await fetch_osm_businesses(LYON)
+
+    assert [b.name for b in businesses] == ["Le Bouchon"]
+    query = httpx.QueryParams(route.calls[0].request.content.decode())["data"]
+    assert '["amenity"!~"^(' in query and "bicycle_rental" in query
 
 
 @respx.mock
