@@ -53,6 +53,8 @@ class RegistryCompany:
     address: str
     is_individual: bool
     closed: bool
+    # Not in the V1 plan: decided by Duval on 2026-11-25 (see docs/PROGRESS.md).
+    opposed_to_prospecting: bool = False
 
 
 @dataclass(frozen=True)

@@ -109,11 +109,11 @@ class Status(StrEnum): NEW="new"; TO_CONTACT="to_contact"; CONTACTED="contacted"
 
 Appelle `GET https://recherche-entreprises.api.gouv.fr/near_point` avec `lat`, `long`, `radius` (km, 50 max), `activite_principale` (codes NAF séparés par des virgules), `page`, `per_page`. Vérifier au démarrage dans la spécification OpenAPI de l'API le `per_page` maximum et le nom exact des champs d'un établissement.
 
-- [ ] **Step 1: Tests (respx).** `test_paginates_until_empty` : 2 pages de résultats simulées, 3 entreprises renvoyées. `test_skips_closed_and_non_diffusible` : un établissement fermé et un non diffusible sont absents ; `closed` n'est jamais `True` dans la sortie. `test_retries_on_429` : une réponse 429 puis 200 → résultat obtenu, une pause appliquée. `test_keeps_items_already_yielded_when_api_fails` : 200 puis 500 répété → les éléments de la première page sont déjà produits et l'erreur `RegistryUnavailable` est levée ensuite. `test_radius_over_50km_rejected` : `ValueError`.
-- [ ] **Step 2: Lancer** `pytest tests/test_registry.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** `fetch_near_point` avec `RateLimiter(5)` partagé, 3 nouvelles tentatives avec attente croissante sur 429/5xx.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: client registre officiel`.
+- [x] **Step 1: Tests (respx).** `test_paginates_until_empty` : 2 pages de résultats simulées, 3 entreprises renvoyées. `test_skips_closed_and_non_diffusible` : un établissement fermé et un non diffusible sont absents ; `closed` n'est jamais `True` dans la sortie. `test_retries_on_429` : une réponse 429 puis 200 → résultat obtenu, une pause appliquée. `test_keeps_items_already_yielded_when_api_fails` : 200 puis 500 répété → les éléments de la première page sont déjà produits et l'erreur `RegistryUnavailable` est levée ensuite. `test_radius_over_50km_rejected` : `ValueError`.
+- [x] **Step 2: Lancer** `pytest tests/test_registry.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** `fetch_near_point` avec `RateLimiter(5)` partagé, 3 nouvelles tentatives avec attente croissante sur 429/5xx.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: client registre officiel`.
 
 ### Task 4: Client OpenStreetMap et rapprochement
 
