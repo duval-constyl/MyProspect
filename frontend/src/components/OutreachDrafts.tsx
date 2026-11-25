@@ -52,6 +52,9 @@ export default function OutreachDrafts({ prospectId, opposed }: Props) {
         <button type="button" className="secondary" disabled={prepare.isPending} onClick={() => prepare.mutate("call")}>
           Préparer un script d'appel
         </button>
+        <a className="secondary export" href={api.auditReportUrl(prospectId, offer)} download>
+          Rapport d'audit (PDF)
+        </a>
       </div>
       {prepare.isPending && <p className="hint">Préparation du brouillon…</p>}
       {problem && (

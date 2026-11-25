@@ -88,6 +88,8 @@ export const api = {
     request<FollowUp>(`/prospects/${id}/followups`, { method: "POST", body: JSON.stringify({ due_on: dueOn, note }) }),
   completeFollowup: (followupId: number) => request<FollowUp>(`/followups/${followupId}/done`, { method: "POST" }),
   listDrafts: (id: number) => request<Draft[]>(`/prospects/${id}/outreach`),
+  /** Plain link: the browser downloads the PDF. */
+  auditReportUrl: (id: number, offer: Offer) => `${BASE}/prospects/${id}/audit.pdf?offer=${offer}`,
   prepareDraft: (id: number, offer: Offer, channel: Channel) =>
     request<Draft>(`/prospects/${id}/outreach`, { method: "POST", body: JSON.stringify({ offer, channel }) }),
 };

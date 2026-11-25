@@ -344,6 +344,18 @@ describe("ProspectPage", () => {
     expect(within(panel).getByText(/02\/12\/2026 · Envoyer le devis/)).toBeInTheDocument();
   });
 
+  it("test_audit_report_link_follows_selected_offer", async () => {
+    const user = userEvent.setup();
+    mockApi({ "GET /prospects/1": { body: DETAIL }, "GET /prospects/1/outreach": { body: [] } });
+    renderPage();
+
+    const link = await screen.findByRole("link", { name: "Rapport d'audit (PDF)" });
+    expect(link).toHaveAttribute("href", "/api/prospects/1/audit.pdf?offer=web");
+
+    await user.selectOptions(screen.getByLabelText("Offre du brouillon"), "Mobile");
+    expect(link).toHaveAttribute("href", "/api/prospects/1/audit.pdf?offer=mobile");
+  });
+
   it("test_unknown_prospect_shows_message", async () => {
     mockApi({ "GET /prospects/9": { status: 404, body: { detail: "Prospect introuvable." } } });
 

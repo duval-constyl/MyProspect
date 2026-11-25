@@ -74,9 +74,9 @@ Avant de se lancer, relire la grille tarifaire en vigueur de l'API Places et la 
 - Produces: `def render_audit_html(detail: ProspectDetail, offer: Offer) -> str` ; `def render_audit_pdf(detail: ProspectDetail, offer: Offer) -> bytes` ; `GET /prospects/{id}/audit.pdf?offer=web`.
 - Contenu : nom de l'entreprise, score et palier, raisons en langage clair, chiffres clés du site (HTTPS, mobile, temps de réponse), signature de l'expéditeur. **Exclus** : notes, statut, priorité interne, autres prospects.
 
-- [ ] **Step 1: Tests.** `test_html_contains_score_and_every_reason`. `test_html_never_contains_private_notes_or_status`. `test_prospect_without_site_renders`. `test_long_company_name_renders`. `test_pdf_starts_with_pdf_header_and_is_not_empty`. `test_unknown_prospect_404`.
-- [ ] **Step 2: Lancer** `pytest tests/test_report.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** avec Jinja2 et WeasyPrint.
+- [x] **Step 1: Tests.** `test_html_contains_score_and_every_reason`. `test_html_never_contains_private_notes_or_status`. `test_prospect_without_site_renders`. `test_long_company_name_renders`. `test_pdf_starts_with_pdf_header_and_is_not_empty`. `test_unknown_prospect_404`.
+- [x] **Step 2: Lancer** `pytest tests/test_report.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** avec Jinja2 et WeasyPrint.
 - [ ] **Step 4: Lancer.** Attendu : PASS.
 - [ ] **Step 5: Commit** `feat: rapport d'audit pdf`.
 

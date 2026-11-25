@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = None
     sender_name: str = ""
     sender_business: str = ""
+    # V3 features, each can be switched off.
+    audit_report_enabled: bool = True
+    # Windows outside Docker: folder holding the GTK DLLs WeasyPrint needs (e.g. Inkscape's bin).
+    weasyprint_dll_directories: str | None = None
 
     @field_validator(
         "pagespeed_api_key",

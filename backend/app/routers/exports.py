@@ -4,11 +4,16 @@ import csv
 import io
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Response
+from typing import Literal
+
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.db import get_session
-from app.routers.prospects import ProspectFilters, prospect_filters, query_rows
+from app.domain import Offer
+from app.report import render_audit_pdf
+from app.routers.prospects import ProspectFilters, prospect_detail, prospect_filters, query_rows
 
 router = APIRouter()
 
@@ -79,4 +84,20 @@ def export_prospects(
         content=buffer.getvalue().encode("utf-8-sig"),
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": 'attachment; filename="prospects.csv"'},
+    )
+
+
+@router.get("/prospects/{prospect_id}/audit.pdf")
+def audit_report(
+    prospect_id: int, session: SessionDep, offer: Literal["web", "mobile", "cloud"] = "web"
+) -> Response:
+    """Audit report to attach to a first message (no private notes, no status)."""
+    if not get_settings().audit_report_enabled:
+        raise HTTPException(404, "Rapport d'audit désactivé dans les réglages.")
+    detail = prospect_detail(prospect_id, session)  # 404 if unknown
+    pdf = render_audit_pdf(detail, Offer(offer))
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="audit-{detail.siret}-{offer}.pdf"'},
     )
