@@ -5,6 +5,7 @@ and reasons, the site's key figures and the sender's signature. Never the privat
 notes, the status, the favourite flag, the internal priority or other prospects.
 """
 
+import base64
 import os
 from datetime import date
 
@@ -46,6 +47,10 @@ def _response_time(ms: int | None) -> str:
     return "non mesuré" if ms is None else f"{ms / 1000:.1f} s".replace(".", ",")
 
 
+def _data_uri(png: bytes | None) -> str | None:
+    return f"data:image/png;base64,{base64.b64encode(png).decode()}" if png else None
+
+
 def audit_context(detail: ProspectDetail, offer: Offer, screenshots=None) -> dict:
     settings = get_settings()
     score = next((s for s in detail.scores if s.offer == offer.value), None)
@@ -73,17 +78,20 @@ def audit_context(detail: ProspectDetail, offer: Offer, screenshots=None) -> dic
         }
         if site
         else None,
-        "screenshots": screenshots,
+        "screenshots": {"desktop": _data_uri(screenshots.desktop_png), "mobile": _data_uri(screenshots.mobile_png)}
+        if screenshots is not None
+        else None,
         "sender": sender,
     }
 
 
-def render_audit_html(detail: ProspectDetail, offer: Offer) -> str:
-    return _templates.get_template("audit.html").render(**audit_context(detail, Offer(offer)))
+def render_audit_html(detail: ProspectDetail, offer: Offer, screenshots=None) -> str:
+    """`screenshots`: Screenshots of the home page, or None for no screenshot section."""
+    return _templates.get_template("audit.html").render(**audit_context(detail, Offer(offer), screenshots))
 
 
-def render_audit_pdf(detail: ProspectDetail, offer: Offer) -> bytes:
-    return _html_to_pdf(render_audit_html(detail, offer))
+def render_audit_pdf(detail: ProspectDetail, offer: Offer, screenshots=None) -> bytes:
+    return _html_to_pdf(render_audit_html(detail, offer, screenshots))
 
 
 def _html_to_pdf(html: str) -> bytes:

@@ -22,6 +22,7 @@ dependencies = [
     "tzdata>=2024.1",  # Europe/Paris everywhere, including slim Docker images
     "jinja2>=3.1",
     "weasyprint>=62",
+    "playwright>=1.50",
 ]
 
 [project.optional-dependencies]

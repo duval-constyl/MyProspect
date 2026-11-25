@@ -10,6 +10,10 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 
+# Chromium for the audit report screenshots; installed before the code so it stays cached.
+RUN pip install --no-cache-dir "playwright>=1.50" \
+    && python -m playwright install --with-deps chromium
+
 COPY pyproject.toml ./
 COPY app ./app
 RUN pip install --no-cache-dir .

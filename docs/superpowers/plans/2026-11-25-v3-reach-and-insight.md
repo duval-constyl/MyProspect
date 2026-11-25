@@ -91,11 +91,11 @@ Avant de se lancer, relire la grille tarifaire en vigueur de l'API Places et la 
 - Produces: `@dataclass Screenshots(desktop_png: bytes | None, mobile_png: bytes | None)` ; `async def capture_site(url: str, timeout_s: int = 15) -> Screenshots` (ne lève jamais ; `None` en cas d'échec) ; `render_audit_html(detail, offer, screenshots: Screenshots | None = None)`.
 - Tailles : bureau 1280×800, mobile 390×844.
 
-- [ ] **Step 1: Tests (navigateur simulé).** `test_returns_both_images_on_success`. `test_returns_none_images_on_timeout`. `test_malformed_url_returns_none_images`. `test_report_shows_placeholder_text_when_screenshot_missing`. `test_report_embeds_images_as_data_uri_when_present`.
-- [ ] **Step 2: Lancer** `pytest tests/test_screenshot.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** avec Playwright (Chromium) ; l'image Docker `api` installe le navigateur.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: captures d'écran du site`.
+- [x] **Step 1: Tests (navigateur simulé).** `test_returns_both_images_on_success`. `test_returns_none_images_on_timeout`. `test_malformed_url_returns_none_images`. `test_report_shows_placeholder_text_when_screenshot_missing`. `test_report_embeds_images_as_data_uri_when_present`.
+- [x] **Step 2: Lancer** `pytest tests/test_screenshot.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** avec Playwright (Chromium) ; l'image Docker `api` installe le navigateur.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: captures d'écran du site`.
 
 ### Task 5: Zones suivies et alertes
 

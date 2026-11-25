@@ -7,8 +7,10 @@ from typing import Annotated
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Response
+from starlette.concurrency import run_in_threadpool
 from sqlalchemy.orm import Session
 
+from app.analysis.screenshot import capture_site
 from app.config import get_settings
 from app.db import get_session
 from app.domain import Offer
@@ -88,14 +90,19 @@ def export_prospects(
 
 
 @router.get("/prospects/{prospect_id}/audit.pdf")
-def audit_report(
+async def audit_report(
     prospect_id: int, session: SessionDep, offer: Literal["web", "mobile", "cloud"] = "web"
 ) -> Response:
     """Audit report to attach to a first message (no private notes, no status)."""
-    if not get_settings().audit_report_enabled:
+    if not get_settings().audit_report_enabled:  # read before anything else
         raise HTTPException(404, "Rapport d'audit désactivé dans les réglages.")
+    settings = get_settings()
     detail = prospect_detail(prospect_id, session)  # 404 if unknown
-    pdf = render_audit_pdf(detail, Offer(offer))
+    screenshots = None
+    if settings.screenshots_enabled and detail.site_analysis is not None:
+        # A site that cannot be loaded gives placeholder text instead of images.
+        screenshots = await capture_site(detail.site_analysis.url)
+    pdf = await run_in_threadpool(render_audit_pdf, detail, Offer(offer), screenshots)
     return Response(
         content=pdf,
         media_type="application/pdf",
