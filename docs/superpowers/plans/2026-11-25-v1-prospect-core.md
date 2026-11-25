@@ -76,11 +76,11 @@ class Status(StrEnum): NEW="new"; TO_CONTACT="to_contact"; CONTACTED="contacted"
 **Interfaces:**
 - Produces: `app.main.app` (FastAPI) ; `app.config.Settings` (`database_url: str`, `home_lat: float`, `home_long: float`, `pagespeed_api_key: str | None`) ; `app.db.get_session() -> Iterator[Session]` ; les types de `domain.py` ci-dessus.
 
-- [ ] **Step 1: Test.** `test_health_reports_db_ok` : `GET /health` renvoie 200 et `{"status": "ok", "postgis": true}`.
-- [ ] **Step 2: Lancer** `docker compose up -d db && cd backend && pytest tests/test_health.py -v`. Attendu : FAIL (route absente).
-- [ ] **Step 3: Implémenter.** Services Compose : `db` (image `postgis/postgis:16-3.4`), `api`, `web`. `/health` exécute `SELECT postgis_version()`.
-- [ ] **Step 4: Relancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `chore: socle docker, fastapi, postgis`.
+- [x] **Step 1: Test.** `test_health_reports_db_ok` : `GET /health` renvoie 200 et `{"status": "ok", "postgis": true}`.
+- [x] **Step 2: Lancer** `docker compose up -d db && cd backend && pytest tests/test_health.py -v`. Attendu : FAIL (route absente).
+- [x] **Step 3: Implémenter.** Services Compose : `db` (image `postgis/postgis:16-3.4`), `api`, `web`. `/health` exécute `SELECT postgis_version()`.
+- [x] **Step 4: Relancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `chore: socle docker, fastapi, postgis`.
 
 ### Task 2: Modèles de données et migration
 
@@ -91,11 +91,11 @@ class Status(StrEnum): NEW="new"; TO_CONTACT="to_contact"; CONTACTED="contacted"
 **Interfaces:**
 - Produces (SQLAlchemy) : `Prospect(id, siret unique, name, naf, effectif_code, created_on, geom Point 4326, address, is_individual, closed, first_seen_at, last_collected_at)` ; `Contact(id, prospect_id, kind: "phone"|"email"|"website", value, source: "osm"|"registry"|"site", seen_on: date)` ; `SiteAnalysisRow(prospect_id unique, …champs de SiteAnalysis…)` ; `ScoreRow(prospect_id, offer, value, tier, reasons JSON, computed_at, unique(prospect_id, offer))` ; `Tracking(prospect_id unique, status, favorite, notes, updated_at)` ; `Exclusion(siret pk, reason, added_at)` ; `Zone(id, kind: "commune"|"circle"|"polygon", geojson, naf_codes, collected_at)` ; `Job(id, zone_id, state: "pending"|"running"|"done"|"failed", done, total, error)`.
 
-- [ ] **Step 1: Tests.** `test_prospect_roundtrip_with_geometry` : insérer un `Prospect` avec point (2.3522, 48.8566), le relire, vérifier `ST_X`. `test_siret_is_unique` : deux insertions du même SIRET lèvent `IntegrityError`. `test_score_unique_per_offer`.
-- [ ] **Step 2: Lancer** `pytest tests/test_models.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** les modèles et la migration `alembic revision --autogenerate`, avec `CREATE EXTENSION postgis` et un index GiST sur `Prospect.geom`.
-- [ ] **Step 4: Lancer** `alembic upgrade head && pytest tests/test_models.py -v`. Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: modèles et migration initiale`.
+- [x] **Step 1: Tests.** `test_prospect_roundtrip_with_geometry` : insérer un `Prospect` avec point (2.3522, 48.8566), le relire, vérifier `ST_X`. `test_siret_is_unique` : deux insertions du même SIRET lèvent `IntegrityError`. `test_score_unique_per_offer`.
+- [x] **Step 2: Lancer** `pytest tests/test_models.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** les modèles et la migration `alembic revision --autogenerate`, avec `CREATE EXTENSION postgis` et un index GiST sur `Prospect.geom`.
+- [x] **Step 4: Lancer** `alembic upgrade head && pytest tests/test_models.py -v`. Attendu : PASS.
+- [x] **Step 5: Commit** `feat: modèles et migration initiale`.
 
 ### Task 3: Client du registre officiel
 
@@ -109,11 +109,11 @@ class Status(StrEnum): NEW="new"; TO_CONTACT="to_contact"; CONTACTED="contacted"
 
 Appelle `GET https://recherche-entreprises.api.gouv.fr/near_point` avec `lat`, `long`, `radius` (km, 50 max), `activite_principale` (codes NAF séparés par des virgules), `page`, `per_page`. Vérifier au démarrage dans la spécification OpenAPI de l'API le `per_page` maximum et le nom exact des champs d'un établissement.
 
-- [ ] **Step 1: Tests (respx).** `test_paginates_until_empty` : 2 pages de résultats simulées, 3 entreprises renvoyées. `test_skips_closed_and_non_diffusible` : un établissement fermé et un non diffusible sont absents ; `closed` n'est jamais `True` dans la sortie. `test_retries_on_429` : une réponse 429 puis 200 → résultat obtenu, une pause appliquée. `test_keeps_items_already_yielded_when_api_fails` : 200 puis 500 répété → les éléments de la première page sont déjà produits et l'erreur `RegistryUnavailable` est levée ensuite. `test_radius_over_50km_rejected` : `ValueError`.
-- [ ] **Step 2: Lancer** `pytest tests/test_registry.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** `fetch_near_point` avec `RateLimiter(5)` partagé, 3 nouvelles tentatives avec attente croissante sur 429/5xx.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: client registre officiel`.
+- [x] **Step 1: Tests (respx).** `test_paginates_until_empty` : 2 pages de résultats simulées, 3 entreprises renvoyées. `test_skips_closed_and_non_diffusible` : un établissement fermé et un non diffusible sont absents ; `closed` n'est jamais `True` dans la sortie. `test_retries_on_429` : une réponse 429 puis 200 → résultat obtenu, une pause appliquée. `test_keeps_items_already_yielded_when_api_fails` : 200 puis 500 répété → les éléments de la première page sont déjà produits et l'erreur `RegistryUnavailable` est levée ensuite. `test_radius_over_50km_rejected` : `ValueError`.
+- [x] **Step 2: Lancer** `pytest tests/test_registry.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** `fetch_near_point` avec `RateLimiter(5)` partagé, 3 nouvelles tentatives avec attente croissante sur 429/5xx.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: client registre officiel`.
 
 ### Task 4: Client OpenStreetMap et rapprochement
 
@@ -127,11 +127,11 @@ Appelle `GET https://recherche-entreprises.api.gouv.fr/near_point` avec `lat`, `
 
 Requête Overpass sur les éléments `shop`, `amenity`, `craft`, `office` ayant un nom, dans le cercle. Le rapprochement exige une distance ≤ 80 m **et** des noms normalisés (minuscules, sans accents ni forme juridique) dont la similarité (`difflib.SequenceMatcher`) est ≥ 0,6.
 
-- [ ] **Step 1: Tests.** `test_parses_phone_email_website_tags` (tags `phone`, `contact:phone`, `website`, `contact:email`). `test_match_requires_distance_and_name` : bon nom à 500 m → pas d'appariement ; nom proche à 20 m → apparié. `test_no_match_returns_empty` . `test_overpass_timeout_returns_empty_list_not_exception`.
-- [ ] **Step 2: Lancer** `pytest tests/test_osm.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: client osm et rapprochement`.
+- [x] **Step 1: Tests.** `test_parses_phone_email_website_tags` (tags `phone`, `contact:phone`, `website`, `contact:email`). `test_match_requires_distance_and_name` : bon nom à 500 m → pas d'appariement ; nom proche à 20 m → apparié. `test_no_match_returns_empty` . `test_overpass_timeout_returns_empty_list_not_exception`.
+- [x] **Step 2: Lancer** `pytest tests/test_osm.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: client osm et rapprochement`.
 
 ### Task 5: Géométrie des zones
 
@@ -145,11 +145,11 @@ Requête Overpass sur les éléments `shop`, `amenity`, `craft`, `office` ayant 
 
 Un cercle reste un cercle (≤ 50 km). Un polygone est recouvert par des cercles de 2 km de rayon placés sur une grille, puis filtré par `point_in_zone`. Largeur maximale : 50 km, sinon `ZoneTooLarge`.
 
-- [ ] **Step 1: Tests.** `test_circle_zone_returns_itself`. `test_polygon_is_covered_by_circles` : un carré de 3 km de côté produit ≥ 1 cercle et chaque coin est à moins de 2 km d'un centre. `test_polygon_wider_than_50km_raises_zone_too_large`. `test_point_in_zone_for_polygon_and_circle`. `test_commune_zone_returns_polygon` (HTTP simulé).
-- [ ] **Step 2: Lancer** `pytest tests/test_geo.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** avec `shapely`.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: géométrie des zones`.
+- [x] **Step 1: Tests.** `test_circle_zone_returns_itself`. `test_polygon_is_covered_by_circles` : un carré de 3 km de côté produit ≥ 1 cercle et chaque coin est à moins de 2 km d'un centre. `test_polygon_wider_than_50km_raises_zone_too_large`. `test_point_in_zone_for_polygon_and_circle`. `test_commune_zone_returns_polygon` (HTTP simulé).
+- [x] **Step 2: Lancer** `pytest tests/test_geo.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** avec `shapely`.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: géométrie des zones`.
 
 ### Task 6: Analyse d'un site
 
@@ -163,11 +163,11 @@ Un cercle reste un cercle (≤ 50 km). Un polygone est recouvert par des cercles
 
 `analyze_site` normalise l'URL (ajoute `https://` si absent), suit jusqu'à 5 redirections, délai maximal 10 s, ne lit que du HTML (autre type de contenu → `reachable=False`). `https` vaut `True` si l'URL finale est en HTTPS. `tech` détecte `wordpress`, `wix`, `shopify`, `jquery` par balise generator ou scripts.
 
-- [ ] **Step 1: Tests (respx).** `test_good_site_all_flags_true`. `test_missing_title_description_h1_viewport_flags`. `test_http_only_site_has_https_false`. `test_redirect_http_to_https_counts_as_https`. `test_malformed_url_returns_unreachable_not_exception` (`"http//bad url"`). `test_timeout_returns_unreachable`. `test_pdf_response_is_unreachable`. `test_mobile_perf_none_without_key`.
-- [ ] **Step 2: Lancer** `pytest tests/test_site_analysis.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** avec `httpx` et `selectolax`.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: analyse des sites`.
+- [x] **Step 1: Tests (respx).** `test_good_site_all_flags_true`. `test_missing_title_description_h1_viewport_flags`. `test_http_only_site_has_https_false`. `test_redirect_http_to_https_counts_as_https`. `test_malformed_url_returns_unreachable_not_exception` (`"http//bad url"`). `test_timeout_returns_unreachable`. `test_pdf_response_is_unreachable`. `test_mobile_perf_none_without_key`.
+- [x] **Step 2: Lancer** `pytest tests/test_site_analysis.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** avec `httpx` et `selectolax`.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: analyse des sites`.
 
 ### Task 7: Score Web
 
@@ -181,11 +181,11 @@ Un cercle reste un cercle (≤ 50 km). Un polygone est recouvert par des cercles
 
 Points (cumulés, plafonnés à 100) : pas de site connu **75** (`no_site`) ; site inaccessible **70** (`site_unreachable`) ; pas de HTTPS **+20** (`no_https`) ; titre, description ou H1 manquant **+15** (`missing_seo_tags`) ; pas de balise viewport **+15** (`no_viewport`) ; performance mobile < 50 **+20**, entre 50 et 89 **+10** (`slow_mobile`). Chaque règle déclenchée ajoute une `Reason` avec un libellé en français.
 
-- [ ] **Step 1: Tests.** `test_no_site_scores_75_with_one_reason`. `test_unreachable_site_scores_70`. `test_all_defects_caps_at_100`. `test_healthy_site_scores_0_with_no_reasons`. `test_slow_mobile_tiers` (perf 40 → 20, perf 70 → 10, perf 95 → 0). `test_tier_boundaries` (0→1, 16→1, 17→2, 100→6). `test_reasons_sum_matches_value_before_cap`.
-- [ ] **Step 2: Lancer** `pytest tests/test_scoring_web.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: score web`.
+- [x] **Step 1: Tests.** `test_no_site_scores_75_with_one_reason`. `test_unreachable_site_scores_70`. `test_all_defects_caps_at_100`. `test_healthy_site_scores_0_with_no_reasons`. `test_slow_mobile_tiers` (perf 40 → 20, perf 70 → 10, perf 95 → 0). `test_tier_boundaries` (0→1, 16→1, 17→2, 100→6). `test_reasons_sum_matches_value_before_cap`.
+- [x] **Step 2: Lancer** `pytest tests/test_scoring_web.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: score web`.
 
 ### Task 8: Priorité de contact
 
@@ -199,11 +199,11 @@ Points (cumulés, plafonnés à 100) : pas de site connu **75** (`no_site`) ; si
 
 Valeur = `round(0,5 × opportunité)` + points, plafonnée à 100 : téléphone **+12** (`phone`), e-mail **+8** (`email`), petite structure (`effectif_code` vide, `"NN"`, `"00"`, `"01"` ou `"02"`) **+8** (`small_structure`), distance ≤ 20 km **+6** (`nearby`).
 
-- [ ] **Step 1: Tests.** `test_base_is_half_of_opportunity`. `test_each_bonus_adds_its_points` (un test par bonus). `test_cap_at_100`. `test_unknown_distance_gives_no_bonus`.
-- [ ] **Step 2: Lancer** `pytest tests/test_priority.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: priorité de contact`.
+- [x] **Step 1: Tests.** `test_base_is_half_of_opportunity`. `test_each_bonus_adds_its_points` (un test par bonus). `test_cap_at_100`. `test_unknown_distance_gives_no_bonus`.
+- [x] **Step 2: Lancer** `pytest tests/test_priority.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: priorité de contact`.
 
 ### Task 9: Orchestrateur de récolte et jobs
 
@@ -217,11 +217,11 @@ Valeur = `round(0,5 × opportunité)` + points, plafonnée à 100 : téléphone 
 
 Déroulé : zone → cercles → registre → exclure les SIRET de `Exclusion` → OSM → rapprochement → upsert des `Prospect` et `Contact` (une ligne par valeur, `source`, `seen_on`) → analyse des sites (5 en parallèle) → scores → `done/total` mis à jour après chaque entreprise. Un upsert ne touche jamais à `Tracking`.
 
-- [ ] **Step 1: Tests (sources simulées).** `test_collect_creates_prospects_contacts_scores`. `test_recollect_same_zone_creates_no_duplicates`. `test_recollect_keeps_notes_favorite_status` (le `Tracking` d'un prospect est identique avant et après). `test_excluded_siret_is_never_created`. `test_registry_failure_midway_keeps_prior_results_and_marks_job_failed_with_message`. `test_progress_counts_done_and_total`. `test_company_without_coordinates_is_stored_but_not_mapped` (le prospect existe, `geom` vide, aucune erreur). `test_zone_too_large_returns_422_before_any_call`.
-- [ ] **Step 2: Lancer** `pytest tests/test_collect.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** avec `BackgroundTasks` de FastAPI. Un job `running` au redémarrage de l'API passe à `failed` avec le message « interrompu ».
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: récolte et jobs`.
+- [x] **Step 1: Tests (sources simulées).** `test_collect_creates_prospects_contacts_scores`. `test_recollect_same_zone_creates_no_duplicates`. `test_recollect_keeps_notes_favorite_status` (le `Tracking` d'un prospect est identique avant et après). `test_excluded_siret_is_never_created`. `test_registry_failure_midway_keeps_prior_results_and_marks_job_failed_with_message`. `test_progress_counts_done_and_total`. `test_company_without_coordinates_is_stored_but_not_mapped` (le prospect existe, `geom` vide, aucune erreur). `test_zone_too_large_returns_422_before_any_call`.
+- [x] **Step 2: Lancer** `pytest tests/test_collect.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** avec `BackgroundTasks` de FastAPI. Un job `running` au redémarrage de l'API passe à `failed` avec le message « interrompu ».
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: récolte et jobs`.
 
 ### Task 10: API des prospects (liste, carte, fiche)
 
@@ -233,11 +233,11 @@ Déroulé : zone → cercles → registre → exclure les SIRET de `Exclusion` �
 - Produces : `GET /prospects?bbox=w,s,e,n&naf=&has_site=&offer=web&score_min=&status=&q=&favorite=&sort=priority|score|name&page=&per_page=` → `{items: ProspectListItem[], total}` ; `GET /prospects/clusters?bbox=…&zoom=…` → `{clusters: [{lat, long, count, max_score}]}` (regroupement `ST_SnapToGrid`) ; `GET /prospects/{id}` → `ProspectDetail` ; `GET /prospects/stats?bbox=…` → `{in_view, with_site, without_site}`.
 - `ProspectDetail` : identité, `contacts[{kind, value, source, seen_on}]`, `site_analysis | null`, `scores[{offer, value, tier, reasons}]`, `priority{value, reasons}`, `tracking`. Aucun champ obligatoire ne peut être `null` de façon trompeuse : un contact absent est simplement absent de la liste.
 
-- [ ] **Step 1: Tests.** `test_list_filters_by_has_site_and_score_min`. `test_list_sorted_by_priority_desc`. `test_search_by_name_and_siret`. `test_clusters_group_nearby_points_at_low_zoom`. `test_stats_counts_with_and_without_site`. `test_detail_for_prospect_without_contacts_or_site` (listes vides, `site_analysis` nul, 200). `test_detail_unknown_id_404`.
-- [ ] **Step 2: Lancer** `pytest tests/test_prospects_api.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.** La priorité est calculée à la lecture avec `contact_priority` et `Settings.home_lat/home_long`.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: api prospects`.
+- [x] **Step 1: Tests.** `test_list_filters_by_has_site_and_score_min`. `test_list_sorted_by_priority_desc`. `test_search_by_name_and_siret`. `test_clusters_group_nearby_points_at_low_zoom`. `test_stats_counts_with_and_without_site`. `test_detail_for_prospect_without_contacts_or_site` (listes vides, `site_analysis` nul, 200). `test_detail_unknown_id_404`.
+- [x] **Step 2: Lancer** `pytest tests/test_prospects_api.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.** La priorité est calculée à la lecture avec `contact_priority` et `Settings.home_lat/home_long`.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: api prospects`.
 
 ### Task 11: Suivi, exclusion, export CSV
 
@@ -249,11 +249,11 @@ Déroulé : zone → cercles → registre → exclure les SIRET de `Exclusion` �
 - Produces : `PATCH /prospects/{id}/tracking` (`{status?, favorite?, notes?}`) ; `DELETE /prospects/{id}` (suppression définitive des données du prospect et ajout du SIRET à `Exclusion`, motif `"deleted"`) ; `POST /prospects/{id}/do-not-contact` (statut `refused` + `Exclusion` motif `"do_not_contact"`, données conservées) ; `GET /exports/prospects.csv?…mêmes filtres que la liste`.
 - Colonnes CSV : `siret, nom, naf, ville_adresse, telephone, email, site, score_web, priorite, statut, favori, notes`. Cellules vides pour les valeurs absentes.
 
-- [ ] **Step 1: Tests.** `test_patch_tracking_updates_only_given_fields`. `test_invalid_status_422`. `test_delete_removes_prospect_contacts_scores_and_adds_exclusion`. `test_do_not_contact_keeps_data_and_excludes_from_next_collect`. `test_csv_has_header_and_one_row_per_prospect`. `test_csv_empty_cells_for_missing_phone_email_site`. `test_csv_escapes_commas_quotes_and_newlines_in_notes`.
-- [ ] **Step 2: Lancer** `pytest tests/test_tracking_export.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** avec le module `csv` standard.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: suivi, exclusion, export`.
+- [x] **Step 1: Tests.** `test_patch_tracking_updates_only_given_fields`. `test_invalid_status_422`. `test_delete_removes_prospect_contacts_scores_and_adds_exclusion`. `test_do_not_contact_keeps_data_and_excludes_from_next_collect`. `test_csv_has_header_and_one_row_per_prospect`. `test_csv_empty_cells_for_missing_phone_email_site`. `test_csv_escapes_commas_quotes_and_newlines_in_notes`.
+- [x] **Step 2: Lancer** `pytest tests/test_tracking_export.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** avec le module `csv` standard.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: suivi, exclusion, export`.
 
 ### Task 12: Frontend, socle et page Carte
 
@@ -267,11 +267,11 @@ Déroulé : zone → cercles → registre → exclure les SIRET de `Exclusion` �
 
 Fond de carte MapLibre : style vectoriel gratuit OpenFreeMap (`https://tiles.openfreemap.org/styles/liberty`). Couleur d'un point selon `tier` (6 niveaux), regroupements avec leur nombre. Compteurs « dans la vue / avec site / sans site » rafraîchis au déplacement de la carte.
 
-- [ ] **Step 1: Tests.** `test_shows_counters_from_stats`. `test_start_collection_posts_selected_naf_codes` (cocher deux métiers → corps de la requête avec leurs deux codes). `test_progress_bar_follows_job_until_done`. `test_error_message_shown_when_zone_too_large` (réponse 422).
-- [ ] **Step 2: Lancer** `cd frontend && npx vitest run src/pages/MapPage.test.tsx`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** (carte simulée dans les tests).
-- [ ] **Step 4: Relancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: page carte`.
+- [x] **Step 1: Tests.** `test_shows_counters_from_stats`. `test_start_collection_posts_selected_naf_codes` (cocher deux métiers → corps de la requête avec leurs deux codes). `test_progress_bar_follows_job_until_done`. `test_error_message_shown_when_zone_too_large` (réponse 422).
+- [x] **Step 2: Lancer** `cd frontend && npx vitest run src/pages/MapPage.test.tsx`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** (carte simulée dans les tests).
+- [x] **Step 4: Relancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: page carte`.
 
 ### Task 13: Page Liste des prospects
 
@@ -283,11 +283,11 @@ Fond de carte MapLibre : style vectoriel gratuit OpenFreeMap (`https://tiles.ope
 - Consumes: `GET /prospects` et `GET /exports/prospects.csv`.
 - Produces : tableau triable (nom, métier, ville, score Web, priorité, statut) avec filtres métier, site connu, score minimum, statut, favoris et recherche texte ; bouton « Exporter en CSV » qui reprend les filtres actifs.
 
-- [ ] **Step 1: Tests.** `test_changing_filter_refetches_with_params`. `test_sort_by_priority_toggles_direction`. `test_export_link_contains_active_filters`. `test_row_without_phone_shows_dash_not_empty_or_null`.
-- [ ] **Step 2: Lancer** `npx vitest run src/pages/ProspectsPage.test.tsx`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Relancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: page liste`.
+- [x] **Step 1: Tests.** `test_changing_filter_refetches_with_params`. `test_sort_by_priority_toggles_direction`. `test_export_link_contains_active_filters`. `test_row_without_phone_shows_dash_not_empty_or_null`.
+- [x] **Step 2: Lancer** `npx vitest run src/pages/ProspectsPage.test.tsx`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Relancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: page liste`.
 
 ### Task 14: Fiche prospect
 
@@ -299,11 +299,11 @@ Fond de carte MapLibre : style vectoriel gratuit OpenFreeMap (`https://tiles.ope
 - Consumes: `GET /prospects/{id}`, `PATCH /prospects/{id}/tracking`, `DELETE /prospects/{id}`, `POST /prospects/{id}/do-not-contact`.
 - Produces : `ScoreCard({score})` (cercle de score, palier sur 6, liste des raisons) ; `ContactList({contacts})` (chaque ligne affiche la valeur, la source et la date, bouton copier) ; `TrackingForm({tracking, onChange})`.
 
-- [ ] **Step 1: Tests.** `test_score_card_lists_every_reason`. `test_contact_shows_source_and_date`. `test_no_contacts_shows_message_instead_of_empty_block`. `test_status_change_sends_patch`. `test_delete_asks_confirmation_before_calling_api`. `test_do_not_contact_button_calls_api`.
-- [ ] **Step 2: Lancer** `npx vitest run src/pages/ProspectPage.test.tsx`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Relancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: fiche prospect`.
+- [x] **Step 1: Tests.** `test_score_card_lists_every_reason`. `test_contact_shows_source_and_date`. `test_no_contacts_shows_message_instead_of_empty_block`. `test_status_change_sends_patch`. `test_delete_asks_confirmation_before_calling_api`. `test_do_not_contact_button_calls_api`.
+- [x] **Step 2: Lancer** `npx vitest run src/pages/ProspectPage.test.tsx`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Relancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: fiche prospect`.
 
 ### Task 15: Bout en bout et documentation
 
@@ -311,11 +311,11 @@ Fond de carte MapLibre : style vectoriel gratuit OpenFreeMap (`https://tiles.ope
 - Create: `README.md`, `backend/tests/test_e2e_smoke.py`
 - Modify: `docker-compose.yml`
 
-- [ ] **Step 1: Test.** `test_smoke_collect_list_detail_export` : avec registre, OSM et sites simulés, récolter une zone de 3 entreprises, lister, ouvrir une fiche, exporter le CSV et vérifier 3 lignes de données.
-- [ ] **Step 2: Lancer** `pytest backend/tests -v`. Attendu : tout PASS.
-- [ ] **Step 3: README** : `cp .env.example .env`, `docker compose up`, adresse de l'interface, variables (`HOME_LAT`, `HOME_LONG`, `PAGESPEED_API_KEY` facultative), rappel du cadre légal (B2B, source indiquée, désinscription, suppression sur demande).
+- [x] **Step 1: Test.** `test_smoke_collect_list_detail_export` : avec registre, OSM et sites simulés, récolter une zone de 3 entreprises, lister, ouvrir une fiche, exporter le CSV et vérifier 3 lignes de données.
+- [x] **Step 2: Lancer** `pytest backend/tests -v`. Attendu : tout PASS.
+- [x] **Step 3: README** : `cp .env.example .env`, `docker compose up`, adresse de l'interface, variables (`HOME_LAT`, `HOME_LONG`, `PAGESPEED_API_KEY` facultative), rappel du cadre légal (B2B, source indiquée, désinscription, suppression sur demande).
 - [ ] **Step 4: Vérifier à la main** : récolter une commune réelle, vérifier que la carte, la liste, une fiche et l'export CSV fonctionnent.
-- [ ] **Step 5: Commit** `docs: readme et test bout en bout`.
+- [x] **Step 5: Commit** `docs: readme et test bout en bout`.
 
 ---
 

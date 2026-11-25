@@ -38,7 +38,7 @@ Préparer l'environnement backend (une fois) :
 cp .env.example .env
 cd backend && python -m venv .venv && .venv/Scripts/python -m pip install -e ".[dev]"
 ```
-Base de données seule (port hôte 5433 par défaut, variable `DB_PORT`) :
+Base de données seule (port hôte 5433 par défaut, variable `DB_PORT`) ; sur cette machine, `WEB_PORT=5300` (5173 est dans une plage réservée par Windows) :
 ```bash
 docker compose up -d db
 ```
@@ -50,11 +50,17 @@ Migrations :
 ```bash
 cd backend && .venv/Scripts/python -m alembic upgrade head
 ```
+Frontend (une fois : `cd frontend && npm install`) :
+```bash
+cd frontend && npx vitest run      # tests
+cd frontend && npx tsc --noEmit     # types
+cd frontend && npm run dev          # http://localhost:5173 (proxy /api -> localhost:8000)
+```
 Tout lancer :
 ```bash
 docker compose up
 ```
-API : http://localhost:8000 (santé : `/health`). Interface : http://localhost:5173 (à partir de la tâche 12).
+API : http://localhost:8000 (santé : `/health`, documentation : `/docs`). Interface : http://localhost:5173 (le navigateur appelle `/api/...`, Vite relaie vers l'API).
 
 ## Règle de travail
 - Tâches de la V1 exécutées **dans l'ordre**, une à la fois. Chaque tâche : écrire les tests, les lancer et constater l'échec, implémenter, relancer et constater le succès, commit.
