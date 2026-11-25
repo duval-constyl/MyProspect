@@ -125,11 +125,11 @@ Avant de se lancer, relire la grille tarifaire en vigueur de l'API Places et la 
 
 Un prospect compte comme « contacté » dès qu'il a le statut `contacted`, `replied` ou `refused`.
 
-- [ ] **Step 1: Tests.** `test_reply_rate_by_offer`. `test_group_by_variant`. `test_zero_contacted_gives_rate_0_not_division_error`. `test_prospect_without_draft_counted_under_variant_none`. Front : `test_stats_page_renders_rows_and_percentages`.
-- [ ] **Step 2: Lancer** `pytest tests/test_stats.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: statistiques de réponse`.
+- [x] **Step 1: Tests.** `test_reply_rate_by_offer`. `test_group_by_variant`. `test_zero_contacted_gives_rate_0_not_division_error`. `test_prospect_without_draft_counted_under_variant_none`. Front : `test_stats_page_renders_rows_and_percentages`.
+- [x] **Step 2: Lancer** `pytest tests/test_stats.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: statistiques de réponse`.
 
 ### Task 7: Envoi assisté (brouillon `.eml`)
 

@@ -10,10 +10,12 @@ import type {
   HistoryData,
   Job,
   Offer,
+  OutreachStat,
   ProspectDetail,
   ProspectFilters,
   ProspectList,
   Stats,
+  StatsGroupBy,
   TodayData,
   Tracking,
   TrackingPatch,
@@ -102,4 +104,5 @@ export const api = {
   listAlerts: (unseen = true) => request<Alert[]>(`/alerts?unseen=${unseen}`),
   markAlertSeen: (id: number) => request<Alert>(`/alerts/${id}/seen`, { method: "POST" }),
   listDuplicates: () => request<DuplicatePair[]>("/prospects/duplicates"),
+  getOutreachStats: (groupBy: StatsGroupBy) => request<OutreachStat[]>(`/stats/outreach?group_by=${groupBy}`),
 };

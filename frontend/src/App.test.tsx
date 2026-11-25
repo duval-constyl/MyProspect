@@ -31,4 +31,18 @@ describe("App", () => {
     expect(screen.getByRole("link", { name: "Alertes", current: "page" })).toHaveAttribute("href", "#/alertes");
     expect(nav).toContainElement(screen.getByRole("link", { name: "Alertes" }));
   });
+
+  it("test_stats_route_shows_stats_page_and_nav_link", async () => {
+    mockApi({ "GET /stats/outreach": { body: [] }, "GET /zones": { body: [] } });
+    window.location.hash = "#/statistiques";
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={client}>
+        <App />
+      </QueryClientProvider>,
+    );
+
+    expect(await screen.findByRole("heading", { name: "Statistiques de réponse" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Statistiques", current: "page" })).toHaveAttribute("href", "#/statistiques");
+  });
 });

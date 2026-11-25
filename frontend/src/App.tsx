@@ -4,9 +4,10 @@ import AlertsPage from "./pages/AlertsPage";
 import MapPage from "./pages/MapPage";
 import ProspectPage from "./pages/ProspectPage";
 import ProspectsPage from "./pages/ProspectsPage";
+import StatsPage from "./pages/StatsPage";
 import TodayPage from "./pages/TodayPage";
 
-/** Tiny hash router: #/ (carte), #/aujourdhui, #/prospects (liste), #/prospects/{id} (fiche), #/alertes. */
+/** Tiny hash router: #/ (carte), #/aujourdhui, #/prospects (liste), #/prospects/{id} (fiche), #/alertes, #/statistiques. */
 function useHashRoute(): string {
   const [hash, setHash] = useState(window.location.hash || "#/");
   useEffect(() => {
@@ -26,6 +27,7 @@ const LINKS = [
   { href: "#/aujourdhui", label: "Aujourd'hui" },
   { href: "#/prospects", label: "Prospects" },
   { href: "#/alertes", label: "Alertes" },
+  { href: "#/statistiques", label: "Statistiques" },
 ];
 
 function Page({ route }: { route: string }) {
@@ -34,6 +36,7 @@ function Page({ route }: { route: string }) {
   if (route === "#/prospects") return <ProspectsPage />;
   if (route === "#/aujourdhui") return <TodayPage />;
   if (route === "#/alertes") return <AlertsPage />;
+  if (route === "#/statistiques") return <StatsPage />;
   return <MapPage />;
 }
 

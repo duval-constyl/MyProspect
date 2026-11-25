@@ -206,3 +206,8 @@ export type Alert = {
 export type ProspectRef = { id: number; name: string };
 
 export type DuplicatePair = { first: ProspectRef; second: ProspectRef };
+
+export type StatsGroupBy = "offer" | "variant" | "zone";
+
+/** Reply statistics of one group: reply_rate = replied / contacted (0 without contact). */
+export type OutreachStat = { key: string; contacted: number; replied: number; refused: number; reply_rate: number };

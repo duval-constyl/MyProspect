@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from app.collect import fail_interrupted_jobs
 from app.config import get_settings
 from app.db import get_session, get_session_factory
-from app.routers import alerts, exports, followups, outreach, prospects, tracking, zones
+from app.routers import alerts, exports, followups, outreach, prospects, stats, tracking, zones
 from app.watch import build_scheduler
 
 logger = logging.getLogger(__name__)
@@ -44,6 +44,7 @@ app.include_router(exports.router)
 app.include_router(outreach.router)
 app.include_router(followups.router)
 app.include_router(alerts.router)
+app.include_router(stats.router)
 
 
 @app.exception_handler(RequestValidationError)

@@ -52,6 +52,7 @@
 - **V3 – Tâche 3 (rapport d'audit PDF)** : `render_audit_html` (Jinja2, gabarit `app/templates/audit.html`) et `render_audit_pdf` (WeasyPrint) ; route `GET /prospects/{id}/audit.pdf?offer=` ; lien « Rapport d'audit (PDF) » sur la fiche, qui suit l'offre choisie. Contenu : nom, ville, note et palier, raisons avec une explication en clair, chiffres du site, signature et sources. **Jamais** : notes, statut, favori, priorité, coordonnées ni autres prospects. Vérifié en vrai : PDF généré depuis le conteneur Docker. 9 tests backend et 1 test interface ; total : 233 et 35.
 - **V3 – Tâche 4 (captures d'écran)** : `capture_site` (Chromium via Playwright, ordinateur 1280×800 et téléphone 390×844, ne lève jamais) ; le rapport intègre les captures en data URI, avec un texte de remplacement si une capture manque ; la route PDF fait la capture si `SCREENSHOTS_ENABLED`. Vérifié en vrai dans Docker : rapport de « SALON CONFORT » avec ses deux captures, en 10 s environ. 10 tests en plus, 243 au total.
 - V3 tâche 5 — zones suivies et alertes : `PATCH /zones/{id}` (`watch`, `watch_every_days` de 1 à 90 jours), veille `run_watch` lancée toutes les heures par APScheduler au démarrage de l'API (`WATCH_ENABLED`), alertes « Nouvelle entreprise » / « Entreprise fermée » (`GET /alerts?unseen=true`, `POST /alerts/{id}/seen`), page « Alertes » (alertes non vues, zones à suivre avec fréquence, doublons possibles de la tâche 1).
+- V3 tâche 6 — statistiques de réponse : `GET /stats/outreach?group_by=offer|variant|zone` (contactés, réponses, refus, taux de réponse) et page « Statistiques » avec choix du regroupement.
 
 ## Décisions et écarts par rapport au plan
 
@@ -191,6 +192,9 @@
 - V3 tâche 5 : seules les entreprises géolocalisées et situées dans la zone donnent une alerte ; les SIRET de la liste « ne plus contacter » n'en donnent jamais. La recherche des fermetures (`mark_closed`) n'est lancée que par la veille, pas par les récoltes manuelles.
 - V3 tâche 5 : `GET /zones` renvoie aussi un libellé lisible (`label` : commune et département, cercle et rayon, ou « Dessin libre ») et les champs de veille ; la page « Alertes » regroupe les doublons de la tâche 1, qui n'avaient pas encore d'écran.
 - V3 tâche 5 : planificateur réglé sur le fuseau Europe/Paris, une seule exécution à la fois (`max_instances=1`, `coalesce=True`) ; il est désactivé pendant les tests (`WATCH_ENABLED=false` dans `conftest.py`).
+- V3 tâche 6 : chaque prospect est compté une fois, dans le groupe de son **dernier** brouillon (offre et variante), celui qui a le plus de chances d'avoir été envoyé ; un prospect contacté sans brouillon va sous `none` (« Sans brouillon »). Les prospects sans brouillon et pas encore contactés ne sont pas comptés.
+- V3 tâche 6 : par zone, la clé est l'identifiant de la zone (texte) et la page affiche son libellé grâce à `GET /zones` ; toutes les zones ont une ligne, un prospect compte dans chaque zone qui le contient, et les prospects contactés hors de toute zone (ou sans position) vont sous `none` (« Hors zone »). Test `test_group_by_zone` ajouté (non listé par le plan).
+- V3 tâche 6 : `reply_rate` est renvoyé sans arrondi (la page affiche un pourcentage entier, format français).
 
 ## Questions ouvertes
 

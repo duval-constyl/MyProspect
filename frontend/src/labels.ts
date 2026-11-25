@@ -78,3 +78,18 @@ export const WATCH_FREQUENCIES = [
   { days: 14, label: "Toutes les 2 semaines" },
   { days: 30, label: "Chaque mois" },
 ];
+
+/** "template:v1" -> "Modèle de texte fixe (v1)", "llm:<modèle>:v1" -> "Rédigé par l'IA (<modèle>, v1)". */
+export function variantLabel(variant: string): string {
+  const [kind, ...rest] = variant.split(":");
+  if (kind === "template") return `Modèle de texte fixe (${rest.join(":") || "v1"})`;
+  if (kind === "llm") return `Rédigé par l'IA (${rest.join(", ")})`;
+  return variant;
+}
+
+const PERCENT = new Intl.NumberFormat("fr-FR", { style: "percent", maximumFractionDigits: 0 });
+
+/** 0.25 -> "25 %". */
+export function percent(rate: number): string {
+  return PERCENT.format(rate);
+}
