@@ -4,6 +4,27 @@
 
 - Mise en place : `CLAUDE.md`, ce journal, `.gitignore`, commit initial des documents de conception et des plans.
 - **V1 – Tâche 1 (socle)** : Docker Compose (`db` PostGIS 16-3.4, `api`, `web`), `.env.example`, FastAPI avec `GET /health` (exécute `SELECT postgis_version()`), `Settings`, `get_session()`, types partagés de `domain.py`, Alembic prêt. Test `test_health_reports_db_ok` vert ; conteneur `api` vérifié à la main (`/health` → `{"status":"ok","postgis":true}`).
+- **V1 – Tâche 2 (modèles et migration)** : 8 tables (`prospects`, `contacts`, `site_analyses`, `scores`, `trackings`, `exclusions`, `zones`, `jobs`) et migration `0001_initial` (extension PostGIS, index GiST `idx_prospects_geom`). La migration s'applique et se défait, et `alembic check` ne trouve aucun écart. 3 tests verts.
+- **V1 – Tâche 3 (client du registre)** : `fetch_near_point` lit 25 résultats par page, écarte les établissements fermés et non diffusibles, et marque les entreprises opposées à la prospection. Il fait 3 nouvelles tentatives avec une attente croissante et garde les résultats déjà reçus en cas d'erreur. `RateLimiter(5)` est partagé. 8 tests verts, sans appel réseau.
+- **V1 – Tâche 4 (OpenStreetMap)** : `fetch_osm_businesses` interroge Overpass sur les éléments `shop`, `amenity`, `craft` et `office` nommés ; toute panne donne une liste vide. `match_osm_to_registry` exige une distance ≤ 80 m **et** une similarité des noms ≥ 0,6. 8 tests verts.
+- **V1 – Tâche 5 (géométrie des zones)** : `zone_to_circles` garde un cercle tel quel (≤ 50 km) et recouvre polygone et commune de cercles de 2 km, sans trou. Autres fonctions : `point_in_zone`, `commune_zone`, et `ZoneTooLarge` au-delà de 50 km. 9 tests verts.
+- **V1 – Tâche 6 (analyse des sites)** : `analyze_site` ne lève jamais d'erreur. Les cas difficiles donnent « inaccessible » : URL mal formée, délai dépassé, plus de 5 redirections, code d'erreur, contenu non HTML. Il relève HTTPS, titre, description, H1, viewport et technologies. `mobile_perf` interroge PageSpeed. 15 tests verts.
+- **V1 – Tâche 7 (score Web)** : `score_web` et `tier_of`, avec les points du plan et des raisons en français. 25 tests verts.
+- **V1 – Tâche 8 (priorité de contact)** : `contact_priority` additionne la moitié de l'opportunité, téléphone (12), e-mail (8), petite structure (8) et distance ≤ 20 km (6). Le total est plafonné à 100 et garde ses raisons. 21 tests verts.
+- **V1 – Tâche 9 (récolte et jobs)** :
+  - `run_collection` enchaîne zone, cercles, registre, filtre dans la zone, exclusions, OSM, enregistrement (coordonnées avec source et date), analyse des sites (5 en parallèle), score Web et progression.
+  - Routes : `POST /zones/collect`, `GET /jobs/{id}`, `GET /zones`.
+  - Au démarrage, les récoltes restées en cours passent à « interrompu ».
+  - 16 tests verts.
+- **V1 – Tâche 10 (API des prospects)** : liste filtrée, triée et paginée ; regroupements pour la carte ; compteurs ; fiche complète. La priorité est calculée à la lecture. 12 tests verts.
+- **V1 – Tâche 11 (suivi, exclusion, export)** : modification du suivi champ par champ ; suppression définitive avec exclusion ; « ne plus contacter » ; export CSV avec les filtres et l'ordre de la liste. 9 tests verts.
+- **V1 – Tâche 12 (frontend, page Carte)** : Vite, React et TypeScript ; carte MapLibre avec fond OpenFreeMap ; regroupements colorés selon le palier ; compteurs ; récolte par commune, cercle ou dessin libre, avec barre de progression. 7 tests verts.
+- **V1 – Tâche 13 (page Liste)** : tri dans les deux sens, 7 filtres, pagination, export CSV avec les filtres actifs. 6 tests verts.
+- **V1 – Tâche 14 (fiche prospect)** : coordonnées (source, date, Copier), priorité, scores et analyse ; suivi ; « Ne plus contacter » ; suppression confirmée. 12 tests verts.
+- **V1 – Tâche 15 (bout en bout, documentation)** : test `test_smoke_collect_list_detail_export` et `README.md`.
+  - Vérification réelle : cercle de 500 m autour de Bellecour à Lyon, métier coiffure. Résultat : 66 prospects en 42 s, sans erreur ; carte, liste, fiche et export CSV contrôlés dans un navigateur.
+  - L'étape 4 du plan (récolte d'une commune réelle) reste à faire par Duval.
+- **V1 – Revue finale** : relecture faite par l'auteur du code, sans relecteur indépendant. Les 5 points sensibles du plan sont couverts par des tests. Un défaut corrigé : formules dans l'export CSV. Total : 130 tests backend et 25 tests interface, tous verts.
 
 ## Décisions et écarts par rapport au plan
 
