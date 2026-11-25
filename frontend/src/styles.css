@@ -48,3 +48,18 @@ h2 { font-size: 1.05rem; }
 .legend p { margin: 0 0 0.3rem; font-size: 0.85rem; color: var(--muted); }
 .legend-scale { display: flex; gap: 2px; }
 .legend-scale span { flex: 1; height: 10px; border-radius: 2px; }
+
+.list-page { padding: 1rem; overflow-y: auto; height: 100%; display: flex; flex-direction: column; gap: 0.8rem; }
+.filters { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: flex-end; background: #fff; padding: 0.8rem; border: 1px solid var(--line); border-radius: 8px; }
+.filters .search { flex: 1; min-width: 200px; }
+.export { text-decoration: none; color: var(--accent); }
+table.prospects { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+.prospects th, .prospects td { text-align: left; padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+.prospects th { background: var(--paper); font-weight: 600; }
+.prospects a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.sort { background: none; border: 0; font: inherit; font-weight: 600; cursor: pointer; padding: 0; color: var(--ink); }
+.score-chip { display: inline-block; min-width: 2.2rem; text-align: center; border: 3px solid; border-radius: 999px; padding: 0 0.3rem; font-weight: 600; }
+.badge { display: inline-block; margin-left: 0.4rem; padding: 0.05rem 0.4rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+.badge.warning { background: #fff3cd; color: #7a4f00; border: 1px solid #e0b84f; }
+.favorite { color: #d4a017; }
+.pager { display: flex; gap: 0.8rem; align-items: center; }

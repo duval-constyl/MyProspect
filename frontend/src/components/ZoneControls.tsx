@@ -1,14 +1,7 @@
 import { type FormEvent, useState } from "react";
 
+import { TRADES } from "../labels";
 import type { CollectBody, LatLong, ZoneKind } from "../types";
-
-export const TRADES = [
-  { label: "Garage", naf: "45.20A" },
-  { label: "Coiffure", naf: "96.02A" },
-  { label: "Restauration", naf: "56.10A" },
-  { label: "Plomberie", naf: "43.22A" },
-  { label: "Agence immobilière", naf: "68.31Z" },
-] as const;
 
 const TABS: { kind: ZoneKind; label: string }[] = [
   { kind: "commune", label: "Commune" },

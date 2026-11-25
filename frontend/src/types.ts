@@ -36,3 +36,44 @@ export type Stats = {
   with_site: number;
   without_site: number;
 };
+
+export type Status = "new" | "to_contact" | "contacted" | "replied" | "refused";
+
+export type ProspectListItem = {
+  id: number;
+  siret: string;
+  name: string;
+  naf: string;
+  address: string;
+  city: string | null;
+  lat: number | null;
+  long: number | null;
+  score_web: number | null;
+  tier: number | null;
+  priority: number;
+  status: Status;
+  favorite: boolean;
+  has_site: boolean;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  opposed_to_prospecting: boolean;
+};
+
+export type ProspectList = { items: ProspectListItem[]; total: number };
+
+export type SortKey = "priority" | "score" | "name";
+export type SortOrder = "asc" | "desc";
+
+/** Filters of GET /prospects, shared with the CSV export. */
+export type ProspectFilters = {
+  naf?: string;
+  has_site?: boolean;
+  score_min?: number;
+  status?: Status;
+  favorite?: boolean;
+  opposed?: boolean;
+  q?: string;
+  sort: SortKey;
+  order: SortOrder;
+};

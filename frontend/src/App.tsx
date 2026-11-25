@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 
 import MapPage from "./pages/MapPage";
+import ProspectsPage from "./pages/ProspectsPage";
 
-/** Tiny hash router: #/ (carte). Pages are added as the plan's tasks deliver them. */
+/** Tiny hash router: #/ (carte), #/prospects (liste). */
 function useHashRoute(): string {
   const [hash, setHash] = useState(window.location.hash || "#/");
   useEffect(() => {
@@ -13,7 +14,10 @@ function useHashRoute(): string {
   return hash;
 }
 
-const LINKS = [{ href: "#/", label: "Carte" }];
+const LINKS = [
+  { href: "#/", label: "Carte" },
+  { href: "#/prospects", label: "Prospects" },
+];
 
 export default function App() {
   const route = useHashRoute();
@@ -29,9 +33,7 @@ export default function App() {
           ))}
         </nav>
       </header>
-      <main className="content">
-        <MapPage />
-      </main>
+      <main className="content">{route === "#/prospects" ? <ProspectsPage /> : <MapPage />}</main>
     </div>
   );
 }

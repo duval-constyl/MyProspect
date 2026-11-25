@@ -283,11 +283,11 @@ Fond de carte MapLibre : style vectoriel gratuit OpenFreeMap (`https://tiles.ope
 - Consumes: `GET /prospects` et `GET /exports/prospects.csv`.
 - Produces : tableau triable (nom, métier, ville, score Web, priorité, statut) avec filtres métier, site connu, score minimum, statut, favoris et recherche texte ; bouton « Exporter en CSV » qui reprend les filtres actifs.
 
-- [ ] **Step 1: Tests.** `test_changing_filter_refetches_with_params`. `test_sort_by_priority_toggles_direction`. `test_export_link_contains_active_filters`. `test_row_without_phone_shows_dash_not_empty_or_null`.
-- [ ] **Step 2: Lancer** `npx vitest run src/pages/ProspectsPage.test.tsx`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Relancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: page liste`.
+- [x] **Step 1: Tests.** `test_changing_filter_refetches_with_params`. `test_sort_by_priority_toggles_direction`. `test_export_link_contains_active_filters`. `test_row_without_phone_shows_dash_not_empty_or_null`.
+- [x] **Step 2: Lancer** `npx vitest run src/pages/ProspectsPage.test.tsx`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Relancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: page liste`.
 
 ### Task 14: Fiche prospect
 

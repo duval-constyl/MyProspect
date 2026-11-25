@@ -1,4 +1,4 @@
-import type { Bbox, Cluster, CollectBody, Job, Stats } from "./types";
+import type { Bbox, Cluster, CollectBody, Job, ProspectFilters, ProspectList, Stats } from "./types";
 
 // Vite forwards /api to the backend (see vite.config.ts).
 const BASE = "/api";
@@ -37,6 +37,16 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
+/** Query string of the list filters; absent values are left out. */
+export function filtersQuery(filters: ProspectFilters, extra: Record<string, number> = {}): string {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries({ ...filters, ...extra })) {
+    if (value === undefined || value === null || value === "") continue;
+    params.set(key, String(value));
+  }
+  return params.toString();
+}
+
 export const api = {
   collectZone: (body: CollectBody) =>
     request<{ job_id: number }>("/zones/collect", { method: "POST", body: JSON.stringify(body) }),
@@ -46,4 +56,8 @@ export const api = {
       `/prospects/clusters?bbox=${bbox.join(",")}&zoom=${Math.max(0, Math.floor(zoom))}`,
     ),
   getStats: (bbox: Bbox) => request<Stats>(`/prospects/stats?bbox=${bbox.join(",")}`),
+  listProspects: (filters: ProspectFilters, page: number, perPage: number) =>
+    request<ProspectList>(`/prospects?${filtersQuery(filters, { page, per_page: perPage })}`),
+  /** Plain link (the browser downloads the file), same filters as the list. */
+  exportUrl: (filters: ProspectFilters) => `${BASE}/exports/prospects.csv?${filtersQuery(filters)}`,
 };

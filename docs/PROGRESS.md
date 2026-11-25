@@ -84,6 +84,10 @@
 - **T12 – Comportement des zones** : Cercle = centre actuel de la carte + rayon saisi (2 km par défaut, 50 au plus) ; Dessin libre = clics sur la carte, au moins 3 points, bouton « Effacer le dessin » ; Commune = nom ou code INSEE envoyé à l'API (`{"commune": …}`). Codes NAF envoyés dans l'ordre de la liste. Vérifications avant envoi, en français : « Choisissez au moins un métier. », « Indiquez une commune. », « Placez au moins trois points sur la carte. ». Clic sur un point seul → fiche (`#/prospects/{id}`) ; clic sur un regroupement → zoom avant.
 - **T12 – Suivi de la récolte** : interrogation de `GET /jobs/{id}` toutes les secondes, arrêtée quand l'état est `done` ou `failed` ; à la fin, compteurs, carte et liste sont rechargés. Navigation par ancre (`#/`) dans `App.tsx`, sans bibliothèque de routage (hors pile technique du plan).
 - **T12 – Tests en plus** : onglet Cercle (centre de la carte et rayon envoyés), métier obligatoire avant envoi, message d'une récolte en échec.
+- **T13 – Ajouts** : colonne **Téléphone** (le test du plan exige un tiret quand il manque) ; filtre « Opposition à la prospection » (Toutes / Opposées / Non opposées) et mention « Opposée à la prospection » bien visible dans la ligne (décision du 25/11) ; étoile pour les favoris ; nom cliquable vers la fiche (`#/prospects/{id}`) ; message quand la liste est vide. Une valeur absente s'affiche « — », jamais vide ni « null ».
+- **T13 – Tri** : cliquer une autre colonne la trie dans son sens naturel (priorité et score décroissants, nom croissant) ; cliquer la colonne active inverse le sens. Tout changement de filtre ou de tri ramène à la page 1. Le lien d'export reprend filtres, tri et sens, sans la pagination (tout est exporté).
+- **T13 – Libellés partagés** : `src/labels.ts` (métiers, statuts en français, « — »). La liste des métiers y est déplacée depuis `ZoneControls`.
+- **T13 – Tests en plus** : affichage d'une ligne complète (métier, ville, score, priorité, statut, mention d'opposition, lien vers la fiche), liste vide.
 
 ## Questions ouvertes
 
