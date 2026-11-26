@@ -54,6 +54,7 @@
 - V3 tâche 5 — zones suivies et alertes : `PATCH /zones/{id}` (`watch`, `watch_every_days` de 1 à 90 jours), veille `run_watch` lancée toutes les heures par APScheduler au démarrage de l'API (`WATCH_ENABLED`), alertes « Nouvelle entreprise » / « Entreprise fermée » (`GET /alerts?unseen=true`, `POST /alerts/{id}/seen`), page « Alertes » (alertes non vues, zones à suivre avec fréquence, doublons possibles de la tâche 1).
 - V3 tâche 6 — statistiques de réponse : `GET /stats/outreach?group_by=offer|variant|zone` (contactés, réponses, refus, taux de réponse) et page « Statistiques » avec choix du regroupement.
 - V3 tâche 7 — envoi assisté : `build_eml` (`email.message.EmailMessage`, en-tête `X-Unsent: 1`, sujet encodé et replié, corps en quoted-printable, rapport d'audit PDF en pièce jointe sur demande) et `GET /outreach/{id}/draft.eml?to=…&audit=true` ; sur chaque brouillon e-mail de la fiche : destinataire prérempli avec l'e-mail connu, case « Joindre le rapport d'audit », lien « Ouvrir dans ma messagerie (.eml) ». Aucun envoi, aucune connexion SMTP.
+- V3 tâche 8 — étude de la maquette « après » faite (étape 1) : page d'accueil conceptuelle créée pour trois vrais prospects sans site (garage, coiffure, restaurant du Perche) à partir du nom, du métier, de la ville et de l'année de création, photographiée hors ligne avec Playwright (ordinateur 1280×800, téléphone 390×844). Tâche **en attente** (décision de Duval du 26/11/2026) : à refaire avec une version rédigée par Claude.
 
 ## Décisions et écarts par rapport au plan
 
@@ -200,6 +201,7 @@
 - V3 tâche 7 : le rapport d'audit n'est joint que sur demande (`audit=true`), car sa création (captures d'écran) prend plusieurs secondes ; rapport désactivé → 404 « Rapport d'audit désactivé dans les réglages. », comme le lien PDF. Le calcul du PDF est partagé avec ce lien (`audit_pdf_for`).
 - V3 tâche 7 : l'adresse du destinataire est vérifiée (une seule adresse, sans espace ni retour à la ligne) : rien ne peut être glissé dans les autres en-têtes ; 422 « Adresse e-mail du destinataire invalide. ».
 - V3 tâche 7 : un brouillon d'un prospect passé ensuite sur la liste « ne plus contacter » ne donne plus de fichier .eml (409) ; test ajouté (non listé par le plan), comme ceux du 404 et du fichier téléchargé.
+- V3 tâche 8 : constat de l'étude (variante sans IA, modèle par métier, faits connus seulement, bandeau « Maquette d'illustration », encadrés « à compléter ») : pages propres et lisibles, rien d'inventé, aucun souci de droits ; mais trois pages quasi identiques sans photo ni logo, blocs vides visibles, nom du registre en majuscules sans accents (peut différer de l'enseigne), et « Depuis <année> » donne l'année de la société, pas forcément celle du commerce. Pas assez crédible pour être joint automatiquement. Duval préfère refaire l'étude avec une clé Claude plutôt qu'abandonner : rien n'est ajouté au code d'ici là.
 
 ## Questions ouvertes
 
@@ -237,3 +239,4 @@
   - Article 15.4 : seules la latitude et la longitude peuvent être mises en cache, 30 jours au plus. Rien n'autorise à conserver la note ou le nombre d'avis.
   - Conclusion : le plan (stocker la note et le nombre d'avis, en tirer des points du score Web affiché sur la carte) ne paraît pas conforme. **Décision de Duval : tâche sautée** (aucun appel à Google, score Web inchangé).
 - **Image Docker de base** : ton éditeur signale 3 vulnérabilités élevées dans `python:3.12-slim`. Rien à faire dans le code ; reconstruire régulièrement l'image (`docker compose build --pull`) récupère les correctifs de Debian.
+- V3 tâche 8 en attente : configurer `ANTHROPIC_API_KEY`, puis refaire l'étude (mêmes trois prospects, mêmes formats de capture) avec un texte rédigé par Claude, sans information inventée (ni horaires, ni tarifs, ni prestations), et décider si le résultat peut être joint au rapport d'audit.

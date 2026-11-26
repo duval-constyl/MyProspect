@@ -149,11 +149,13 @@ Un prospect compte comme « contacté » dès qu'il a le statut `contacted`, `re
 
 ### Task 8: Maquette « après » (étude, avec point d'arrêt)
 
+> **En attente depuis le 26/11/2026, décision de Duval** : l'étude (variante sans IA, trois vrais prospects sans site) donne des pages propres mais génériques ; elle sera refaite avec une version rédigée par Claude une fois `ANTHROPIC_API_KEY` configurée. Voir `docs/PROGRESS.md`.
+
 **Files:**
 - Create (si retenue): `backend/app/concept.py`
 - Test: `backend/tests/test_concept.py`
 
-- [ ] **Step 1: Étude (deux heures maximum).** Essayer de produire, pour trois prospects réels, une page d'accueil conceptuelle générée à partir du nom, du métier et de la ville, puis photographiée avec Playwright. **Décider avec Duval** si le résultat est assez crédible pour être joint à un message. **Si non : abandonner cette tâche**, sans autre impact.
+- [x] **Step 1: Étude (deux heures maximum).** Essayer de produire, pour trois prospects réels, une page d'accueil conceptuelle générée à partir du nom, du métier et de la ville, puis photographiée avec Playwright. **Décider avec Duval** si le résultat est assez crédible pour être joint à un message. **Si non : abandonner cette tâche**, sans autre impact.
 - [ ] **Step 2: Tests (si retenue).** `test_concept_page_is_marked_as_illustration` (mention « maquette d'illustration » visible). `test_concept_uses_only_known_facts` (nom, métier, ville ; aucune information inventée comme des horaires ou des tarifs). `test_failure_returns_none`.
 - [ ] **Step 3: Implémenter** `async def render_concept(prospect_id: int, session, llm=None) -> bytes | None` et l'ajouter au rapport (Task 4).
 - [ ] **Step 4: Lancer** `pytest tests/test_concept.py -v`. Attendu : PASS.
