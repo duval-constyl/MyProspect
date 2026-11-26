@@ -141,11 +141,11 @@ Un prospect compte comme « contacté » dès qu'il a le statut `contacted`, `re
 - Consumes: `OutreachDraft`.
 - Produces: `def build_eml(draft: OutreachDraft, to: str, sender_name: str, sender_email: str, audit_pdf: bytes | None = None) -> bytes` ; `GET /outreach/{id}/draft.eml?to=…` ; l'en-tête `X-Unsent: 1` fait ouvrir le fichier comme brouillon dans les clients mail qui le gèrent. Aucun envoi : le module n'ouvre aucune connexion SMTP.
 
-- [ ] **Step 1: Tests.** `test_eml_has_headers_and_unsent_flag`. `test_accents_and_long_subject_are_encoded_correctly` (sujet de 120 caractères avec « é » relu par le module `email` standard). `test_body_line_breaks_preserved`. `test_pdf_attached_when_given`. `test_missing_to_returns_422`. `test_call_draft_returns_409` (un script d'appel n'a pas de fichier e-mail). `test_module_does_not_import_smtplib`.
-- [ ] **Step 2: Lancer** `pytest tests/test_eml.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** avec `email.message.EmailMessage`.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: brouillon eml`.
+- [x] **Step 1: Tests.** `test_eml_has_headers_and_unsent_flag`. `test_accents_and_long_subject_are_encoded_correctly` (sujet de 120 caractères avec « é » relu par le module `email` standard). `test_body_line_breaks_preserved`. `test_pdf_attached_when_given`. `test_missing_to_returns_422`. `test_call_draft_returns_409` (un script d'appel n'a pas de fichier e-mail). `test_module_does_not_import_smtplib`.
+- [x] **Step 2: Lancer** `pytest tests/test_eml.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** avec `email.message.EmailMessage`.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: brouillon eml`.
 
 ### Task 8: Maquette « après » (étude, avec point d'arrêt)
 

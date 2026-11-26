@@ -344,6 +344,36 @@ describe("ProspectPage", () => {
     expect(within(panel).getByText(/02\/12\/2026 · Envoyer le devis/)).toBeInTheDocument();
   });
 
+  it("test_email_draft_eml_link_uses_recipient_and_audit_option", async () => {
+    const user = userEvent.setup();
+    const detail = {
+      ...DETAIL,
+      contacts: [...DETAIL.contacts, { kind: "email", value: "contact@salon-eclat.fr", source: "website", seen_on: "2026-11-20" }],
+    };
+    const emailDraft = {
+      id: 5, offer: "web", channel: "email", subject: "Votre site", body: "Bonjour,", source: "template",
+      variant: "template:v1", created_at: "2026-11-25T10:00:00Z",
+    };
+    const callDraft = { ...emailDraft, id: 6, channel: "call", subject: null, body: "Bonjour, je suis…" };
+    mockApi({ "GET /prospects/1": { body: detail }, "GET /prospects/1/outreach": { body: [emailDraft, callDraft] } });
+    renderPage();
+
+    const card = (await screen.findByText("Objet : Votre site")).closest("article")!;
+    expect(within(card).getByLabelText("Destinataire")).toHaveValue("contact@salon-eclat.fr");
+    const link = within(card).getByRole("link", { name: "Ouvrir dans ma messagerie (.eml)" });
+    expect(link).toHaveAttribute("href", "/api/outreach/5/draft.eml?to=contact%40salon-eclat.fr");
+
+    await user.click(within(card).getByLabelText("Joindre le rapport d'audit"));
+    expect(link).toHaveAttribute("href", "/api/outreach/5/draft.eml?to=contact%40salon-eclat.fr&audit=true");
+
+    await user.clear(within(card).getByLabelText("Destinataire"));
+    expect(within(card).queryByRole("link", { name: "Ouvrir dans ma messagerie (.eml)" })).not.toBeInTheDocument();
+    expect(within(card).getByText(/Indiquez l'adresse du destinataire/)).toBeInTheDocument();
+
+    const callCard = screen.getByText("Bonjour, je suis…").closest("article")!;
+    expect(within(callCard).queryByLabelText("Destinataire")).not.toBeInTheDocument();
+  });
+
   it("test_audit_report_link_follows_selected_offer", async () => {
     const user = userEvent.setup();
     mockApi({ "GET /prospects/1": { body: DETAIL }, "GET /prospects/1/outreach": { body: [] } });

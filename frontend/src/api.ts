@@ -96,6 +96,12 @@ export const api = {
   listDrafts: (id: number) => request<Draft[]>(`/prospects/${id}/outreach`),
   /** Plain link: the browser downloads the PDF. */
   auditReportUrl: (id: number, offer: Offer) => `${BASE}/prospects/${id}/audit.pdf?offer=${offer}`,
+  /** Plain link: an unsent .eml file that the mail client opens as a draft. */
+  draftEmlUrl: (draftId: number, to: string, audit: boolean) => {
+    const params = new URLSearchParams({ to });
+    if (audit) params.set("audit", "true");
+    return `${BASE}/outreach/${draftId}/draft.eml?${params}`;
+  },
   prepareDraft: (id: number, offer: Offer, channel: Channel) =>
     request<Draft>(`/prospects/${id}/outreach`, { method: "POST", body: JSON.stringify({ offer, channel }) }),
   listZones: () => request<ZoneInfo[]>("/zones"),

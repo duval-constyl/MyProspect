@@ -11,10 +11,10 @@ const SOURCE_LABELS: Record<Draft["source"], string> = {
   template: "Modèle fixe, à relire",
 };
 
-type Props = { prospectId: number; opposed: boolean };
+type Props = { prospectId: number; opposed: boolean; email?: string | null };
 
 /** Prepares drafts for Duval to read and send himself: the tool never sends anything. */
-export default function OutreachDrafts({ prospectId, opposed }: Props) {
+export default function OutreachDrafts({ prospectId, opposed, email = null }: Props) {
   const queryClient = useQueryClient();
   const [offer, setOffer] = useState<Offer>("web");
   const [problem, setProblem] = useState<string | null>(null);
@@ -63,12 +63,14 @@ export default function OutreachDrafts({ prospectId, opposed }: Props) {
         </p>
       )}
       {drafts.data && drafts.data.length === 0 && <p className="hint">Aucun brouillon pour l'instant.</p>}
-      {drafts.data?.map((draft) => <DraftCard key={draft.id} draft={draft} />)}
+      {drafts.data?.map((draft) => <DraftCard key={draft.id} draft={draft} email={email} />)}
     </section>
   );
 }
 
-function DraftCard({ draft }: { draft: Draft }) {
+const EMAIL_ADDRESS = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+function DraftCard({ draft, email }: { draft: Draft; email: string | null }) {
   const [copied, setCopied] = useState(false);
   const fullText = draft.subject ? `Objet : ${draft.subject}\n\n${draft.body}` : draft.body;
 
@@ -92,6 +94,34 @@ function DraftCard({ draft }: { draft: Draft }) {
       <button type="button" className="secondary" onClick={copy}>
         {copied ? "Copié" : "Copier"}
       </button>
+      {draft.channel === "email" && <EmlDownload draftId={draft.id} email={email} />}
     </article>
+  );
+}
+
+/** The draft as an .eml file: the mail client opens it unsent, Duval checks it and sends it. */
+function EmlDownload({ draftId, email }: { draftId: number; email: string | null }) {
+  const [to, setTo] = useState(email ?? "");
+  const [audit, setAudit] = useState(false);
+  const valid = EMAIL_ADDRESS.test(to.trim());
+
+  return (
+    <div className="draft-actions">
+      <label className="field">
+        Destinataire
+        <input type="email" value={to} onChange={(event) => setTo(event.target.value)} placeholder="contact@entreprise.fr" />
+      </label>
+      <label>
+        <input type="checkbox" checked={audit} onChange={(event) => setAudit(event.target.checked)} /> Joindre le rapport
+        d'audit
+      </label>
+      {valid ? (
+        <a className="secondary export" href={api.draftEmlUrl(draftId, to.trim(), audit)} download>
+          Ouvrir dans ma messagerie (.eml)
+        </a>
+      ) : (
+        <span className="hint">Indiquez l'adresse du destinataire pour créer le fichier .eml.</span>
+      )}
+    </div>
   );
 }

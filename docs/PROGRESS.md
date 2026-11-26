@@ -53,6 +53,7 @@
 - **V3 – Tâche 4 (captures d'écran)** : `capture_site` (Chromium via Playwright, ordinateur 1280×800 et téléphone 390×844, ne lève jamais) ; le rapport intègre les captures en data URI, avec un texte de remplacement si une capture manque ; la route PDF fait la capture si `SCREENSHOTS_ENABLED`. Vérifié en vrai dans Docker : rapport de « SALON CONFORT » avec ses deux captures, en 10 s environ. 10 tests en plus, 243 au total.
 - V3 tâche 5 — zones suivies et alertes : `PATCH /zones/{id}` (`watch`, `watch_every_days` de 1 à 90 jours), veille `run_watch` lancée toutes les heures par APScheduler au démarrage de l'API (`WATCH_ENABLED`), alertes « Nouvelle entreprise » / « Entreprise fermée » (`GET /alerts?unseen=true`, `POST /alerts/{id}/seen`), page « Alertes » (alertes non vues, zones à suivre avec fréquence, doublons possibles de la tâche 1).
 - V3 tâche 6 — statistiques de réponse : `GET /stats/outreach?group_by=offer|variant|zone` (contactés, réponses, refus, taux de réponse) et page « Statistiques » avec choix du regroupement.
+- V3 tâche 7 — envoi assisté : `build_eml` (`email.message.EmailMessage`, en-tête `X-Unsent: 1`, sujet encodé et replié, corps en quoted-printable, rapport d'audit PDF en pièce jointe sur demande) et `GET /outreach/{id}/draft.eml?to=…&audit=true` ; sur chaque brouillon e-mail de la fiche : destinataire prérempli avec l'e-mail connu, case « Joindre le rapport d'audit », lien « Ouvrir dans ma messagerie (.eml) ». Aucun envoi, aucune connexion SMTP.
 
 ## Décisions et écarts par rapport au plan
 
@@ -195,6 +196,10 @@
 - V3 tâche 6 : chaque prospect est compté une fois, dans le groupe de son **dernier** brouillon (offre et variante), celui qui a le plus de chances d'avoir été envoyé ; un prospect contacté sans brouillon va sous `none` (« Sans brouillon »). Les prospects sans brouillon et pas encore contactés ne sont pas comptés.
 - V3 tâche 6 : par zone, la clé est l'identifiant de la zone (texte) et la page affiche son libellé grâce à `GET /zones` ; toutes les zones ont une ligne, un prospect compte dans chaque zone qui le contient, et les prospects contactés hors de toute zone (ou sans position) vont sous `none` (« Hors zone »). Test `test_group_by_zone` ajouté (non listé par le plan).
 - V3 tâche 6 : `reply_rate` est renvoyé sans arrondi (la page affiche un pourcentage entier, format français).
+- V3 tâche 7 : nouveau réglage facultatif `SENDER_EMAIL` (la signature du plan demande `sender_email`, absent des réglages) ; vide, l'en-tête `From` est omis et la messagerie choisit le compte.
+- V3 tâche 7 : le rapport d'audit n'est joint que sur demande (`audit=true`), car sa création (captures d'écran) prend plusieurs secondes ; rapport désactivé → 404 « Rapport d'audit désactivé dans les réglages. », comme le lien PDF. Le calcul du PDF est partagé avec ce lien (`audit_pdf_for`).
+- V3 tâche 7 : l'adresse du destinataire est vérifiée (une seule adresse, sans espace ni retour à la ligne) : rien ne peut être glissé dans les autres en-têtes ; 422 « Adresse e-mail du destinataire invalide. ».
+- V3 tâche 7 : un brouillon d'un prospect passé ensuite sur la liste « ne plus contacter » ne donne plus de fichier .eml (409) ; test ajouté (non listé par le plan), comme ceux du 404 et du fichier téléchargé.
 
 ## Questions ouvertes
 

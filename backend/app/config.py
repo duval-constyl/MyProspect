@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = None
     sender_name: str = ""
     sender_business: str = ""
+    # V3 Task 7: sender address of the .eml drafts (empty: the mail client chooses).
+    sender_email: str = ""
     # V3 features, each can be switched off.
     audit_report_enabled: bool = True
     screenshots_enabled: bool = True

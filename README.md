@@ -32,6 +32,7 @@ Arrêt : `docker compose down`. Pour effacer aussi toutes les données : `docker
 | `POSTGRES_PASSWORD` | **Obligatoire.** Mot de passe de la base locale : choisissez-le long et aléatoire, et reportez-le dans `DATABASE_URL` et `TEST_DATABASE_URL`. Aucun mot de passe par défaut n'existe dans le dépôt. |
 | `HOME_LAT`, `HOME_LONG` | **Obligatoires.** Votre position en degrés décimaux. Elle sert au bonus « proche » (≤ 20 km) de la priorité de contact. |
 | `SENDER_NAME`, `SENDER_BUSINESS` | Votre nom et votre activité, repris dans chaque brouillon d'approche (signature, présentation au téléphone). |
+| `SENDER_EMAIL` | Facultative. Adresse d'expéditeur écrite dans les brouillons `.eml` ; vide, votre messagerie utilise son compte par défaut. |
 | `ANTHROPIC_API_KEY` | Facultative. Clé de l'API Claude pour rédiger les brouillons ; sans elle, des modèles de texte fixes sont utilisés. |
 | `SCREENSHOTS_ENABLED` | `true` par défaut : captures de la page d'accueil (ordinateur 1280×800, téléphone 390×844) dans le rapport d'audit. Le navigateur Chromium est inclus dans l'image Docker ; hors Docker : `python -m playwright install chromium`. |
 | `WATCH_ENABLED` | `true` par défaut : toutes les heures, l'API récolte de nouveau les zones suivies arrivées à échéance et crée les alertes (page « Alertes »). La première veille d'une zone fixe le point de départ, sans alerte. |

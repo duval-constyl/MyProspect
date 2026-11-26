@@ -155,7 +155,11 @@ export default function ProspectPage({ id }: { id: number }) {
 
         <div className="detail-side">
           <TrackingForm tracking={data.tracking} onChange={(patch) => tracking.mutate(patch)} saving={tracking.isPending} />
-          <OutreachDrafts prospectId={data.id} opposed={data.opposed_to_prospecting} />
+          <OutreachDrafts
+            prospectId={data.id}
+            opposed={data.opposed_to_prospecting}
+            email={data.contacts.find((contact) => contact.kind === "email")?.value ?? null}
+          />
           <FollowUps prospectId={data.id} />
           <section className="card actions" aria-label="Actions">
             <button type="button" className="secondary" onClick={() => doNotContact.mutate()} disabled={doNotContact.isPending}>

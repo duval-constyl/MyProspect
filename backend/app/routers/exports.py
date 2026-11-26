@@ -16,6 +16,7 @@ from app.db import get_session
 from app.domain import Offer
 from app.report import render_audit_pdf
 from app.routers.prospects import ProspectFilters, prospect_detail, prospect_filters, query_rows
+from app.schemas import ProspectDetail
 
 router = APIRouter()
 
@@ -89,6 +90,15 @@ def export_prospects(
     )
 
 
+async def audit_pdf_for(detail: ProspectDetail, offer: str) -> bytes:
+    """The audit report PDF of a prospect, with the site screenshots when they are enabled."""
+    screenshots = None
+    if get_settings().screenshots_enabled and detail.site_analysis is not None:
+        # A site that cannot be loaded gives placeholder text instead of images.
+        screenshots = await capture_site(detail.site_analysis.url)
+    return await run_in_threadpool(render_audit_pdf, detail, Offer(offer), screenshots)
+
+
 @router.get("/prospects/{prospect_id}/audit.pdf")
 async def audit_report(
     prospect_id: int, session: SessionDep, offer: Literal["web", "mobile", "cloud"] = "web"
@@ -96,13 +106,8 @@ async def audit_report(
     """Audit report to attach to a first message (no private notes, no status)."""
     if not get_settings().audit_report_enabled:  # read before anything else
         raise HTTPException(404, "Rapport d'audit désactivé dans les réglages.")
-    settings = get_settings()
     detail = prospect_detail(prospect_id, session)  # 404 if unknown
-    screenshots = None
-    if settings.screenshots_enabled and detail.site_analysis is not None:
-        # A site that cannot be loaded gives placeholder text instead of images.
-        screenshots = await capture_site(detail.site_analysis.url)
-    pdf = await run_in_threadpool(render_audit_pdf, detail, Offer(offer), screenshots)
+    pdf = await audit_pdf_for(detail, offer)
     return Response(
         content=pdf,
         media_type="application/pdf",
