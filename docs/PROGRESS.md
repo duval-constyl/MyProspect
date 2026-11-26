@@ -56,6 +56,7 @@
 - V3 tâche 7 — envoi assisté : `build_eml` (`email.message.EmailMessage`, en-tête `X-Unsent: 1`, sujet encodé et replié, corps en quoted-printable, rapport d'audit PDF en pièce jointe sur demande) et `GET /outreach/{id}/draft.eml?to=…&audit=true` ; sur chaque brouillon e-mail de la fiche : destinataire prérempli avec l'e-mail connu, case « Joindre le rapport d'audit », lien « Ouvrir dans ma messagerie (.eml) ». Aucun envoi, aucune connexion SMTP.
 - V3 tâche 8 — étude de la maquette « après » faite (étape 1) : page d'accueil conceptuelle créée pour trois vrais prospects sans site (garage, coiffure, restaurant du Perche) à partir du nom, du métier, de la ville et de l'année de création, photographiée hors ligne avec Playwright (ordinateur 1280×800, téléphone 390×844). Tâche **en attente** (décision de Duval du 26/11/2026) : à refaire avec une version rédigée par Claude.
 - V3 relecture finale (auto-relecture, sans relecteur séparé) : deux corrections, chacune avec un test vu en échec puis réussi.
+- V3 vérification réelle (26/11/2026, base locale, API et interface lancées) : veille réelle d'une petite zone (premier passage puis second passage : 66 entreprises récoltées à chaque fois, aucune alerte, aucune fermeture, un 502 d'Overpass absorbé) ; doublon réel repéré (« ELLES D ' COIFF » / « ELLES D'COIFF ») ; brouillon `.eml` réel avec rapport d'audit joint (1,1 Mo, `X-Unsent: 1`, 13 s avec les captures) ; pages « Alertes » et « Statistiques » et lien `.eml` de la fiche vérifiés dans le navigateur, sans erreur dans la console. Les données de test (brouillon, date de veille) ont été retirées ensuite.
 
 ## Décisions et écarts par rapport au plan
 
@@ -243,3 +244,7 @@
   - Conclusion : le plan (stocker la note et le nombre d'avis, en tirer des points du score Web affiché sur la carte) ne paraît pas conforme. **Décision de Duval : tâche sautée** (aucun appel à Google, score Web inchangé).
 - **Image Docker de base** : ton éditeur signale 3 vulnérabilités élevées dans `python:3.12-slim`. Rien à faire dans le code ; reconstruire régulièrement l'image (`docker compose build --pull`) récupère les correctifs de Debian.
 - V3 tâche 8 en attente : configurer `ANTHROPIC_API_KEY`, puis refaire l'étude (mêmes trois prospects, mêmes formats de capture) avec un texte rédigé par Claude, sans information inventée (ni horaires, ni tarifs, ni prestations), et décider si le résultat peut être joint au rapport d'audit.
+- V3 (mineur) : la liste des doublons montre aussi les entreprises marquées fermées.
+- V3 (mineur) : pas de compteur d'alertes non vues dans la barre de navigation.
+- V3 (mineur) : deux zones peuvent porter le même libellé (« Cercle de 0.5 km ») dans « Alertes » et « Statistiques » ; ajouter la date de récolte ou le centre pour les distinguer ?
+- V3 (mineur) : sur certains sites animés, la capture ordinateur du rapport montre une zone d'accueil vide (la capture téléphone est correcte).
