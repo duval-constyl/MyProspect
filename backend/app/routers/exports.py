@@ -4,11 +4,19 @@ import csv
 import io
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Response
+from typing import Literal
+
+from fastapi import APIRouter, Depends, HTTPException, Response
+from starlette.concurrency import run_in_threadpool
 from sqlalchemy.orm import Session
 
+from app.analysis.screenshot import capture_site
+from app.config import get_settings
 from app.db import get_session
-from app.routers.prospects import ProspectFilters, prospect_filters, query_rows
+from app.domain import Offer
+from app.report import render_audit_pdf
+from app.routers.prospects import ProspectFilters, prospect_detail, prospect_filters, query_rows
+from app.schemas import ProspectDetail
 
 router = APIRouter()
 
@@ -66,7 +74,7 @@ def export_prospects(
                 _cell(row.phone),
                 _cell(row.email),
                 _cell(row.website),
-                _cell(row.score),
+                _cell(row.score_web),
                 row.priority,
                 STATUS_LABELS.get(row.status, row.status),
                 _yes_no(row.favorite),
@@ -79,4 +87,29 @@ def export_prospects(
         content=buffer.getvalue().encode("utf-8-sig"),
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": 'attachment; filename="prospects.csv"'},
+    )
+
+
+async def audit_pdf_for(detail: ProspectDetail, offer: str) -> bytes:
+    """The audit report PDF of a prospect, with the site screenshots when they are enabled."""
+    screenshots = None
+    if get_settings().screenshots_enabled and detail.site_analysis is not None:
+        # A site that cannot be loaded gives placeholder text instead of images.
+        screenshots = await capture_site(detail.site_analysis.url)
+    return await run_in_threadpool(render_audit_pdf, detail, Offer(offer), screenshots)
+
+
+@router.get("/prospects/{prospect_id}/audit.pdf")
+async def audit_report(
+    prospect_id: int, session: SessionDep, offer: Literal["web", "mobile", "cloud"] = "web"
+) -> Response:
+    """Audit report to attach to a first message (no private notes, no status)."""
+    if not get_settings().audit_report_enabled:  # read before anything else
+        raise HTTPException(404, "Rapport d'audit désactivé dans les réglages.")
+    detail = prospect_detail(prospect_id, session)  # 404 if unknown
+    pdf = await audit_pdf_for(detail, offer)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="audit-{detail.siret}-{offer}.pdf"'},
     )

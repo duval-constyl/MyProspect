@@ -18,6 +18,12 @@ dependencies = [
     "httpx>=0.27",
     "selectolax>=0.3",
     "shapely>=2.0",
+    "anthropic>=2.14",
+    "tzdata>=2024.1",  # Europe/Paris everywhere, including slim Docker images
+    "jinja2>=3.1",
+    "weasyprint>=62",
+    "playwright>=1.50",
+    "apscheduler>=3.11,<4",
 ]
 
 [project.optional-dependencies]
@@ -29,6 +35,9 @@ dev = [
 
 [tool.setuptools.packages.find]
 include = ["app*"]
+
+[tool.setuptools.package-data]
+app = ["templates/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

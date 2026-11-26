@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Audit rapide – {{ company }}</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    body { font-family: "DejaVu Sans", Arial, sans-serif; color: #1d2733; font-size: 10.5pt; line-height: 1.45; }
+    h1 { font-size: 17pt; margin: 0 0 2mm; overflow-wrap: anywhere; }
+    h2 { font-size: 12pt; margin: 7mm 0 2mm; color: #1d3557; }
+    .subtitle { color: #5f6b7a; margin: 0 0 6mm; }
+    .score { display: flex; align-items: center; gap: 6mm; margin: 4mm 0; }
+    .ring { width: 22mm; height: 22mm; border-radius: 50%; border: 2.5mm solid {{ tier_color }};
+            display: flex; align-items: center; justify-content: center; font-size: 18pt; font-weight: bold; }
+    .tier { color: #5f6b7a; }
+    ul { padding-left: 5mm; }
+    li { margin: 1.5mm 0; }
+    .explain { color: #5f6b7a; }
+    table { border-collapse: collapse; width: 100%; }
+    td { padding: 1.5mm 2mm; border-bottom: 0.3mm solid #d9dee5; }
+    td:first-child { color: #5f6b7a; width: 45%; }
+    .shots { display: flex; gap: 4mm; align-items: flex-start; }
+    .shots figure { margin: 0; }
+    .shots img { border: 0.3mm solid #d9dee5; }
+    .shots { page-break-inside: avoid; }
+    .shot-desktop img { width: 100mm; }
+    .shot-mobile img { width: 32mm; }
+    .placeholder { color: #5f6b7a; font-style: italic; }
+    footer { margin-top: 9mm; padding-top: 3mm; border-top: 0.3mm solid #d9dee5; color: #5f6b7a; font-size: 9pt; }
+  </style>
+</head>
+<body>
+  <h1>{{ company }}</h1>
+  <p class="subtitle">Audit rapide : {{ offer_title }}{% if city %} · {{ city }}{% endif %} · {{ report_date }}</p>
+
+  <h2>Note d'opportunité</h2>
+  {% if score is not none %}
+  <div class="score">
+    <div class="ring">{{ score }}</div>
+    <div class="tier">Palier {{ tier }} / 6<br>Plus la note est haute, plus il y a de points à améliorer.</div>
+  </div>
+  {% endif %}
+
+  <h2>Points relevés</h2>
+  {% if reasons %}
+  <ul>
+    {% for reason in reasons %}
+    <li><strong>{{ reason.label }}</strong>{% if reason.explanation %}<br><span class="explain">{{ reason.explanation }}</span>{% endif %}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>Aucun point d'amélioration relevé pour cette offre.</p>
+  {% endif %}
+
+  <h2>Votre site en chiffres</h2>
+  {% if site %}
+  <table>
+    <tr><td>Adresse analysée</td><td>{{ site.url }}</td></tr>
+    {% if site.reachable %}
+    <tr><td>Connexion sécurisée (HTTPS)</td><td>{{ site.https }}</td></tr>
+    <tr><td>Adapté au mobile</td><td>{{ site.mobile }}</td></tr>
+    <tr><td>Temps de réponse</td><td>{{ site.response_time }}</td></tr>
+    <tr><td>Vitesse sur mobile (PageSpeed)</td><td>{{ site.mobile_perf }}</td></tr>
+    {% else %}
+    <tr><td>Accès</td><td>Le site n'a pas pu être chargé lors de l'analyse.</td></tr>
+    {% endif %}
+    <tr><td>Date de l'analyse</td><td>{{ site.analyzed_on }}</td></tr>
+  </table>
+  {% else %}
+  <p>Aucun site web connu à la date de ce rapport.</p>
+  {% endif %}
+
+  {% if screenshots is not none %}
+  <h2>Votre page d'accueil aujourd'hui</h2>
+  <div class="shots">
+    <figure class="shot-desktop">
+      {% if screenshots.desktop %}<img src="{{ screenshots.desktop }}" alt="Page d'accueil sur ordinateur">
+      {% else %}<p class="placeholder">Capture sur ordinateur indisponible : le site n'a pas pu être affiché.</p>{% endif %}
+    </figure>
+    <figure class="shot-mobile">
+      {% if screenshots.mobile %}<img src="{{ screenshots.mobile }}" alt="Page d'accueil sur téléphone">
+      {% else %}<p class="placeholder">Capture sur téléphone indisponible.</p>{% endif %}
+    </figure>
+  </div>
+  {% endif %}
+
+  <footer>
+    Rapport préparé par {{ sender }}.<br>
+    Sources : registre officiel des entreprises, OpenStreetMap et analyse automatique de la page d'accueil.
+  </footer>
+</body>
+</html>

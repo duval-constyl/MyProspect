@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
 from sqlalchemy import Select, and_, exists, func, or_, select
 from sqlalchemy.orm import Session, aliased
 
@@ -40,6 +41,7 @@ router = APIRouter()
 SessionDep = Annotated[Session, Depends(get_session)]
 CITY = re.compile(r"\b\d{5}\s+(.+)$")
 CLUSTER_CELLS_PER_TILE = 4  # about 64 px per cluster cell on 256 px tiles
+OFFER_ORDER = [Offer.WEB.value, Offer.MOBILE.value, Offer.CLOUD.value]
 
 
 @dataclass(frozen=True)
@@ -55,6 +57,7 @@ class ProspectFilters:
     opposed: bool | None = None
     sort: str = "priority"
     order: str | None = None
+    include_closed: bool = False
 
 
 def parse_bbox(bbox: str | None) -> tuple[float, float, float, float] | None:
@@ -79,6 +82,7 @@ def prospect_filters(
     opposed: bool | None = None,
     sort: Literal["priority", "score", "name"] = "priority",
     order: Literal["asc", "desc"] | None = None,
+    include_closed: bool = False,
 ) -> ProspectFilters:
     """Query parameters shared by the list and the CSV export."""
     codes = [code.strip() for code in naf.split(",") if code.strip()] if naf else None
@@ -94,6 +98,7 @@ def prospect_filters(
         opposed=opposed,
         sort=sort,
         order=order,
+        include_closed=include_closed,
     )
 
 
@@ -107,8 +112,9 @@ class ProspectRow:
     prospect: Prospect
     lat: float | None
     long: float | None
-    score: int | None
+    score: int | None  # score of the selected offer
     tier: int | None
+    score_web: int | None
     phone: str | None
     email: str | None
     website: str | None
@@ -139,6 +145,7 @@ def _has_site():
 
 def _rows_query(filters: ProspectFilters) -> Select:
     score = aliased(ScoreRow)
+    web = aliased(ScoreRow)
     status = func.coalesce(Tracking.status, Status.NEW.value)
     favorite = func.coalesce(Tracking.favorite, False)
     query = (
@@ -148,6 +155,7 @@ def _rows_query(filters: ProspectFilters) -> Select:
             func.ST_X(Prospect.geom).label("long"),
             score.value.label("score"),
             score.tier.label("tier"),
+            web.value.label("score_web"),
             _latest_contact("phone").label("phone"),
             _latest_contact("email").label("email"),
             _latest_contact("website").label("website"),
@@ -156,8 +164,11 @@ def _rows_query(filters: ProspectFilters) -> Select:
             func.coalesce(Tracking.notes, "").label("notes"),
         )
         .outerjoin(score, and_(score.prospect_id == Prospect.id, score.offer == filters.offer))
+        .outerjoin(web, and_(web.prospect_id == Prospect.id, web.offer == Offer.WEB.value))
         .outerjoin(Tracking, Tracking.prospect_id == Prospect.id)
     )
+    if not filters.include_closed:
+        query = query.where(Prospect.closed.is_(False))
     if filters.bbox:
         query = query.where(func.ST_Intersects(Prospect.geom, _envelope(filters.bbox)))
     if filters.naf:
@@ -207,6 +218,7 @@ def query_rows(session: Session, filters: ProspectFilters) -> list[ProspectRow]:
                 long=record.long,
                 score=record.score,
                 tier=record.tier,
+                score_web=record.score_web,
                 phone=record.phone,
                 email=record.email,
                 website=record.website,
@@ -251,7 +263,8 @@ def list_prospects(
             city=city_of(row.prospect.address),
             lat=row.lat,
             long=row.long,
-            score_web=row.score,
+            score=row.score,
+            score_web=row.score_web,
             tier=row.tier,
             priority=row.priority,
             status=row.status,
@@ -272,6 +285,7 @@ def prospect_clusters(
     session: SessionDep,
     bbox: str,
     zoom: Annotated[int, Query(ge=0, le=22)],
+    offer: Literal["web", "mobile", "cloud"] = "web",
 ) -> Clusters:
     envelope = _envelope(parse_bbox(bbox))
     cell = 360 / (2**zoom) / CLUSTER_CELLS_PER_TILE
@@ -285,8 +299,12 @@ def prospect_clusters(
             func.max(score.value).label("max_score"),
             func.min(Prospect.id).label("first_id"),
         )
-        .outerjoin(score, and_(score.prospect_id == Prospect.id, score.offer == Offer.WEB.value))
-        .where(Prospect.geom.is_not(None), func.ST_Intersects(Prospect.geom, envelope))
+        .outerjoin(score, and_(score.prospect_id == Prospect.id, score.offer == offer))
+        .where(
+            Prospect.geom.is_not(None),
+            Prospect.closed.is_(False),
+            func.ST_Intersects(Prospect.geom, envelope),
+        )
         .group_by(func.ST_SnapToGrid(Prospect.geom, cell))
     )
     return Clusters(
@@ -309,11 +327,34 @@ def prospect_stats(session: SessionDep, bbox: str | None = None) -> Stats:
     query = select(
         func.count().label("in_view"),
         func.count().filter(_has_site()).label("with_site"),
-    ).select_from(Prospect)
+    ).select_from(Prospect).where(Prospect.closed.is_(False))
     if bbox:
         query = query.where(func.ST_Intersects(Prospect.geom, _envelope(parse_bbox(bbox))))
     row = session.execute(query).one()
     return Stats(in_view=row.in_view, with_site=row.with_site, without_site=row.in_view - row.with_site)
+
+
+class ProspectRef(BaseModel):
+    id: int
+    name: str
+
+
+class DuplicatePair(BaseModel):
+    first: ProspectRef
+    second: ProspectRef
+
+
+@router.get("/prospects/duplicates")
+def duplicates(session: SessionDep) -> list[DuplicatePair]:
+    """Pairs of prospects with the same normalized name, less than 30 m apart."""
+    from app.reconcile import find_duplicates
+
+    pairs = find_duplicates(session)
+    names = {p.id: p.name for p in session.scalars(select(Prospect).where(Prospect.id.in_({i for pair in pairs for i in pair})))}
+    return [
+        DuplicatePair(first=ProspectRef(id=a, name=names[a]), second=ProspectRef(id=b, name=names[b]))
+        for a, b in pairs
+    ]
 
 
 @router.get("/prospects/{prospect_id}")
@@ -335,14 +376,20 @@ def prospect_detail(prospect_id: int, session: SessionDep) -> ProspectDetail:
     )
     analysis = session.scalar(select(SiteAnalysisRow).where(SiteAnalysisRow.prospect_id == prospect.id))
     scores = list(
-        session.scalars(select(ScoreRow).where(ScoreRow.prospect_id == prospect.id).order_by(ScoreRow.offer))
+        session.scalars(select(ScoreRow).where(ScoreRow.prospect_id == prospect.id))
     )
+    scores.sort(key=lambda s: OFFER_ORDER.index(s.offer) if s.offer in OFFER_ORDER else len(OFFER_ORDER))
     tracking = session.scalar(select(Tracking).where(Tracking.prospect_id == prospect.id))
 
-    web_score = next((s.value for s in scores if s.offer == Offer.WEB.value), None)
     phone = next((c.value for c in contacts if c.kind == "phone"), None)
     email = next((c.value for c in contacts if c.kind == "email"), None)
-    priority, priority_reasons = _priority(prospect, lat, long, web_score, phone, email)
+    priority_by_offer = {}
+    for offer in OFFER_ORDER:
+        offer_score = next((s.value for s in scores if s.offer == offer), None)
+        value, reasons = _priority(prospect, lat, long, offer_score, phone, email)
+        priority_by_offer[offer] = PriorityOut(
+            value=value, reasons=[ReasonOut(**dataclasses.asdict(r)) for r in reasons]
+        )
 
     return ProspectDetail(
         id=prospect.id,
@@ -367,9 +414,8 @@ def prospect_detail(prospect_id: int, session: SessionDep) -> ProspectDetail:
             ScoreOut(offer=s.offer, value=s.value, tier=s.tier, reasons=[ReasonOut(**r) for r in s.reasons])
             for s in scores
         ],
-        priority=PriorityOut(
-            value=priority, reasons=[ReasonOut(**dataclasses.asdict(r)) for r in priority_reasons]
-        ),
+        priority=priority_by_offer[Offer.WEB.value],
+        priority_by_offer=priority_by_offer,
         tracking=TrackingOut(
             status=tracking.status if tracking else Status.NEW.value,
             favorite=tracking.favorite if tracking else False,

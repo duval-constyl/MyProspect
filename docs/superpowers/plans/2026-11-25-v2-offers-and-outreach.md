@@ -40,11 +40,11 @@ Toutes celles de la V1, et en plus :
 
 Détection : domaines de prestataires connus dans les liens ou iframes (planity, calendly, zenchef, thefork, lafourchette, doctolib, resalib, uber eats, deliveroo, foodles) ; ou liens dont le **texte** ou l'**URL** contient « réserver », « prendre rendez-vous », « commander ». Le texte courant des paragraphes ne compte pas.
 
-- [ ] **Step 1: Tests.** `test_detects_planity_link_as_booking`. `test_detects_order_link_text`. `test_paragraph_mentioning_reservation_is_not_booking`. `test_reads_wordpress_version_from_generator_meta`. `test_reads_jquery_version_from_script_src`. `test_existing_v1_fields_unchanged`.
-- [ ] **Step 2: Lancer** `pytest tests/test_site_signals.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** et migrer (colonnes par défaut `false` pour les analyses déjà enregistrées).
-- [ ] **Step 4: Lancer** `alembic upgrade head && pytest backend/tests -v`. Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: signaux de réservation et versions techniques`.
+- [x] **Step 1: Tests.** `test_detects_planity_link_as_booking`. `test_detects_order_link_text`. `test_paragraph_mentioning_reservation_is_not_booking`. `test_reads_wordpress_version_from_generator_meta`. `test_reads_jquery_version_from_script_src`. `test_existing_v1_fields_unchanged`.
+- [x] **Step 2: Lancer** `pytest tests/test_site_signals.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** et migrer (colonnes par défaut `false` pour les analyses déjà enregistrées).
+- [x] **Step 4: Lancer** `alembic upgrade head && pytest backend/tests -v`. Attendu : PASS.
+- [x] **Step 5: Commit** `feat: signaux de réservation et versions techniques`.
 
 ### Task 2: Score Mobile
 
@@ -58,11 +58,11 @@ Détection : domaines de prestataires connus dans les liens ou iframes (planity,
 
 Si `naf` n'est pas dans `BOOKING_NAF` : valeur 0, aucune raison. Sinon : pas de réservation en ligne détectée **+50** (`no_online_booking`) ; pour `ORDER_NAF`, pas de commande en ligne **+20** (`no_online_order`) ; pas de site **+20** (`no_site_for_mobile`) ; site sans viewport **+10** (`not_mobile_ready`). Plafond 100. Pas de site : réservation et commande sont considérées absentes.
 
-- [ ] **Step 1: Tests.** `test_naf_outside_list_scores_zero_no_reasons`. `test_hairdresser_without_site_scores_70` (50 + 20). `test_restaurant_without_booking_or_order_with_site_scores_70`. `test_restaurant_with_booking_and_order_scores_0`. `test_garage_site_without_viewport_adds_10`. `test_cap_100`.
-- [ ] **Step 2: Lancer** `pytest tests/test_scoring_mobile.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: score mobile`.
+- [x] **Step 1: Tests.** `test_naf_outside_list_scores_zero_no_reasons`. `test_hairdresser_without_site_scores_70` (50 + 20). `test_restaurant_without_booking_or_order_with_site_scores_70`. `test_restaurant_with_booking_and_order_scores_0`. `test_garage_site_without_viewport_adds_10`. `test_cap_100`.
+- [x] **Step 2: Lancer** `pytest tests/test_scoring_mobile.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: score mobile`.
 
 ### Task 3: Score Cloud et logiciel
 
@@ -75,11 +75,11 @@ Si `naf` n'est pas dans `BOOKING_NAF` : valeur 0, aucune raison. Sinon : pas de 
 
 Points : technologie obsolète **+30** (`outdated_tech` : jQuery < 3, WordPress < 6) ; entreprise créée depuis moins de 24 mois **+25** (`recent_company`) ; effectif dans `{"03","11","12","21"}` (6 à 99 salariés) **+20** (`mid_size`) ; offre d'emploi technique ouverte **+25** (`hiring_tech`). Plafond 100.
 
-- [ ] **Step 1: Tests.** `test_jquery_1_is_outdated_jquery_3_is_not`. `test_wordpress_5_outdated`. `test_recent_company_boundary` (23 mois oui, 25 mois non). `test_mid_size_codes`. `test_hiring_flag_adds_25`. `test_all_unknown_inputs_scores_0_no_error` (tous les paramètres à `None`).
-- [ ] **Step 2: Lancer** `pytest tests/test_scoring_cloud.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: score cloud`.
+- [x] **Step 1: Tests.** `test_jquery_1_is_outdated_jquery_3_is_not`. `test_wordpress_5_outdated`. `test_recent_company_boundary` (23 mois oui, 25 mois non). `test_mid_size_codes`. `test_hiring_flag_adds_25`. `test_all_unknown_inputs_scores_0_no_error` (tous les paramètres à `None`).
+- [x] **Step 2: Lancer** `pytest tests/test_scoring_cloud.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: score cloud`.
 
 ### Task 4: Offres d'emploi techniques (étude puis intégration facultative)
 
@@ -90,11 +90,11 @@ Points : technologie obsolète **+30** (`outdated_tech` : jQuery < 3, WordPress 
 **Interfaces:**
 - Produces: `async def has_open_tech_job(company_name: str, siret: str, client=None) -> bool` ; réglage `Settings.francetravail_client_id/secret: str | None`.
 
-- [ ] **Step 1: Étude (une heure maximum).** Lire la documentation de l'API « Offres d'emploi » de France Travail (inscription gratuite requise) et décider si une recherche par entreprise est possible. **Si non : sauter cette tâche** ; `hiring_tech` reste à `False` et la Task 3 est inchangée.
-- [ ] **Step 2: Tests (si retenue).** `test_returns_false_without_credentials`. `test_true_when_offer_matches_company_and_tech_keywords` (développeur, informatique, devops). `test_false_when_api_errors`.
-- [ ] **Step 3: Implémenter** avec jeton OAuth mis en cache.
-- [ ] **Step 4: Lancer** `pytest tests/test_jobs_source.py -v`. Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: offres d'emploi techniques`.
+- [x] **Step 1: Étude (une heure maximum).** Lire la documentation de l'API « Offres d'emploi » de France Travail (inscription gratuite requise) et décider si une recherche par entreprise est possible. **Si non : sauter cette tâche** ; `hiring_tech` reste à `False` et la Task 3 est inchangée.
+- [x] **Step 2: Tests (si retenue).** `test_returns_false_without_credentials`. `test_true_when_offer_matches_company_and_tech_keywords` (développeur, informatique, devops). `test_false_when_api_errors`.
+- [x] **Step 3: Implémenter** avec jeton OAuth mis en cache.
+- [x] **Step 4: Lancer** `pytest tests/test_jobs_source.py -v`. Attendu : PASS.
+- [x] **Step 5: Commit** `feat: offres d'emploi techniques`.
 
 ### Task 5: Trois scores dans la récolte, l'API et l'interface
 
@@ -106,11 +106,11 @@ Points : technologie obsolète **+30** (`outdated_tech` : jQuery < 3, WordPress 
 - Consumes: `score_web`, `score_mobile`, `score_cloud`, `contact_priority`.
 - Produces: la récolte enregistre une `ScoreRow` par offre ; `GET /prospects?offer=web|mobile|cloud` filtre et trie sur cette offre ; `ProspectDetail.priority_by_offer: dict[Offer, {value, reasons}]` ; sélecteur d'offre dans la carte et la liste ; la fiche affiche les trois `ScoreCard`.
 
-- [ ] **Step 1: Tests.** `test_collect_stores_three_scores_per_prospect`. `test_list_sorted_by_mobile_priority_when_offer_is_mobile`. `test_recollect_updates_scores_without_duplicates`. Front : `test_offer_selector_changes_query_param`, `test_profile_shows_three_score_cards`.
-- [ ] **Step 2: Lancer** `pytest backend/tests/test_multi_offer.py -v` et `npx vitest run`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: trois scores par prospect`.
+- [x] **Step 1: Tests.** `test_collect_stores_three_scores_per_prospect`. `test_list_sorted_by_mobile_priority_when_offer_is_mobile`. `test_recollect_updates_scores_without_duplicates`. Front : `test_offer_selector_changes_query_param`, `test_profile_shows_three_score_cards`.
+- [x] **Step 2: Lancer** `pytest backend/tests/test_multi_offer.py -v` et `npx vitest run`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: trois scores par prospect`.
 
 ### Task 6: Brouillons d'approche
 
@@ -124,11 +124,11 @@ Points : technologie obsolète **+30** (`outdated_tech` : jQuery < 3, WordPress 
 - Le modèle reçoit uniquement : nom de l'entreprise, métier, ville, raisons du score pour l'offre, `sender_name`, `sender_business`. Demande : texte en français, vouvoiement, 120 mots maximum, aucune promesse de résultat chiffré.
 - Repli (`source="template"`) : modèle fixe par offre et par canal, rempli avec les raisons.
 
-- [ ] **Step 1: Tests (modèle de langage simulé).** `test_email_draft_contains_source_sender_and_optout`. `test_draft_mentions_only_given_reasons` (le brouillon d'un prospect sans HTTPS parle de sécurité du site, pas de lenteur). `test_call_script_under_120_words`. `test_without_api_key_uses_template`. `test_llm_error_falls_back_to_template`. `test_overlong_llm_answer_is_rejected_then_template`. `test_do_not_contact_prospect_returns_409`. `test_unknown_prospect_404`. `test_variant_is_stored_for_later_statistics`.
-- [ ] **Step 2: Lancer** `pytest tests/test_outreach.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.** Le contrôle de présence de la source, de l'identité et de la phrase de désinscription se fait **après** génération ; s'il manque un élément, on l'ajoute de façon fixe.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: brouillons d'approche`.
+- [x] **Step 1: Tests (modèle de langage simulé).** `test_email_draft_contains_source_sender_and_optout`. `test_draft_mentions_only_given_reasons` (le brouillon d'un prospect sans HTTPS parle de sécurité du site, pas de lenteur). `test_call_script_under_120_words`. `test_without_api_key_uses_template`. `test_llm_error_falls_back_to_template`. `test_overlong_llm_answer_is_rejected_then_template`. `test_do_not_contact_prospect_returns_409`. `test_unknown_prospect_404`. `test_variant_is_stored_for_later_statistics`.
+- [x] **Step 2: Lancer** `pytest tests/test_outreach.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.** Le contrôle de présence de la source, de l'identité et de la phrase de désinscription se fait **après** génération ; s'il manque un élément, on l'ajoute de façon fixe.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: brouillons d'approche`.
 
 ### Task 7: Relances et page « Aujourd'hui »
 
@@ -140,11 +140,11 @@ Points : technologie obsolète **+30** (`outdated_tech` : jQuery < 3, WordPress 
 **Interfaces:**
 - Produces: `FollowUp(id, prospect_id, due_on: date, note, done_at)` ; `TrackingEvent(id, prospect_id, at, kind: "status"|"note"|"followup", text)` écrit à chaque changement de suivi ; `POST /prospects/{id}/followups` (`{due_on, note}`) ; `POST /followups/{id}/done` ; `GET /today` → `{followups_due: [...], top_priority: [...20 prospects]}` ; `top_priority` exclut les statuts `contacted`, `replied`, `refused`.
 
-- [ ] **Step 1: Tests.** `test_followup_due_today_appears_once`. `test_past_due_followup_appears_in_today`. `test_done_followup_disappears`. `test_due_date_uses_paris_calendar_day` (21 h 30 UTC le 24 novembre = 25 novembre à Paris). `test_status_change_writes_event`. `test_top_priority_excludes_contacted_and_refused`. Front : `test_today_page_lists_followups_and_top_prospects`.
-- [ ] **Step 2: Lancer** `pytest backend/tests/test_followups.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer** les tests Python et `npx vitest run`. Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: relances et page aujourd'hui`.
+- [x] **Step 1: Tests.** `test_followup_due_today_appears_once`. `test_past_due_followup_appears_in_today`. `test_done_followup_disappears`. `test_due_date_uses_paris_calendar_day` (21 h 30 UTC le 24 novembre = 25 novembre à Paris). `test_status_change_writes_event`. `test_top_priority_excludes_contacted_and_refused`. Front : `test_today_page_lists_followups_and_top_prospects`.
+- [x] **Step 2: Lancer** `pytest backend/tests/test_followups.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer** les tests Python et `npx vitest run`. Attendu : PASS.
+- [x] **Step 5: Commit** `feat: relances et page aujourd'hui`.
 
 ---
 

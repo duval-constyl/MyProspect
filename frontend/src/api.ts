@@ -1,14 +1,26 @@
 import type {
+  Alert,
   Bbox,
+  Channel,
   Cluster,
   CollectBody,
+  Draft,
+  DuplicatePair,
+  FollowUp,
+  HistoryData,
   Job,
+  Offer,
+  OutreachStat,
   ProspectDetail,
   ProspectFilters,
   ProspectList,
   Stats,
+  StatsGroupBy,
+  TodayData,
   Tracking,
   TrackingPatch,
+  ZoneInfo,
+  ZonePatch,
 } from "./types";
 
 // Vite forwards /api to the backend (see vite.config.ts).
@@ -62,9 +74,9 @@ export const api = {
   collectZone: (body: CollectBody) =>
     request<{ job_id: number }>("/zones/collect", { method: "POST", body: JSON.stringify(body) }),
   getJob: (id: number) => request<Job>(`/jobs/${id}`),
-  getClusters: (bbox: Bbox, zoom: number) =>
+  getClusters: (bbox: Bbox, zoom: number, offer: Offer = "web") =>
     request<{ clusters: Cluster[] }>(
-      `/prospects/clusters?bbox=${bbox.join(",")}&zoom=${Math.max(0, Math.floor(zoom))}`,
+      `/prospects/clusters?bbox=${bbox.join(",")}&zoom=${Math.max(0, Math.floor(zoom))}&offer=${offer}`,
     ),
   getStats: (bbox: Bbox) => request<Stats>(`/prospects/stats?bbox=${bbox.join(",")}`),
   listProspects: (filters: ProspectFilters, page: number, perPage: number) =>
@@ -76,4 +88,27 @@ export const api = {
     request<Tracking>(`/prospects/${id}/tracking`, { method: "PATCH", body: JSON.stringify(patch) }),
   deleteProspect: (id: number) => request<void>(`/prospects/${id}`, { method: "DELETE" }),
   doNotContact: (id: number) => request<Tracking>(`/prospects/${id}/do-not-contact`, { method: "POST" }),
+  getToday: () => request<TodayData>("/today"),
+  getHistory: (id: number) => request<HistoryData>(`/prospects/${id}/history`),
+  planFollowup: (id: number, dueOn: string, note: string) =>
+    request<FollowUp>(`/prospects/${id}/followups`, { method: "POST", body: JSON.stringify({ due_on: dueOn, note }) }),
+  completeFollowup: (followupId: number) => request<FollowUp>(`/followups/${followupId}/done`, { method: "POST" }),
+  listDrafts: (id: number) => request<Draft[]>(`/prospects/${id}/outreach`),
+  /** Plain link: the browser downloads the PDF. */
+  auditReportUrl: (id: number, offer: Offer) => `${BASE}/prospects/${id}/audit.pdf?offer=${offer}`,
+  /** Plain link: an unsent .eml file that the mail client opens as a draft. */
+  draftEmlUrl: (draftId: number, to: string, audit: boolean) => {
+    const params = new URLSearchParams({ to });
+    if (audit) params.set("audit", "true");
+    return `${BASE}/outreach/${draftId}/draft.eml?${params}`;
+  },
+  prepareDraft: (id: number, offer: Offer, channel: Channel) =>
+    request<Draft>(`/prospects/${id}/outreach`, { method: "POST", body: JSON.stringify({ offer, channel }) }),
+  listZones: () => request<ZoneInfo[]>("/zones"),
+  patchZone: (id: number, patch: ZonePatch) =>
+    request<ZoneInfo>(`/zones/${id}`, { method: "PATCH", body: JSON.stringify(patch) }),
+  listAlerts: (unseen = true) => request<Alert[]>(`/alerts?unseen=${unseen}`),
+  markAlertSeen: (id: number) => request<Alert>(`/alerts/${id}/seen`, { method: "POST" }),
+  listDuplicates: () => request<DuplicatePair[]>("/prospects/duplicates"),
+  getOutreachStats: (groupBy: StatsGroupBy) => request<OutreachStat[]>(`/stats/outreach?group_by=${groupBy}`),
 };

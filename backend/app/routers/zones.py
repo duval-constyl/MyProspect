@@ -7,7 +7,7 @@ from typing import Annotated, Literal
 
 import httpx
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -46,9 +46,34 @@ class JobOut(BaseModel):
 class ZoneOut(BaseModel):
     id: int
     kind: str
+    label: str
     geojson: dict
     naf_codes: list[str]
     collected_at: datetime
+    watch: bool
+    watch_every_days: int
+    last_watch_at: datetime | None
+
+
+class ZonePatch(BaseModel):
+    watch: bool | None = None
+    watch_every_days: int | None = Field(default=None, ge=1, le=90)
+
+
+def _zone_out(zone: Zone) -> ZoneOut:
+    from app.watch import zone_label
+
+    return ZoneOut(
+        id=zone.id,
+        kind=zone.kind,
+        label=zone_label(zone),
+        geojson=zone.geojson,
+        naf_codes=zone.naf_codes,
+        collected_at=zone.collected_at,
+        watch=zone.watch,
+        watch_every_days=zone.watch_every_days,
+        last_watch_at=zone.last_watch_at,
+    )
 
 
 @router.post("/zones/collect", status_code=202)
@@ -94,7 +119,18 @@ def get_job(job_id: int, session: SessionDep) -> JobOut:
 @router.get("/zones")
 def list_zones(session: SessionDep) -> list[ZoneOut]:
     zones = session.scalars(select(Zone).order_by(Zone.collected_at.desc(), Zone.id.desc()))
-    return [
-        ZoneOut(id=z.id, kind=z.kind, geojson=z.geojson, naf_codes=z.naf_codes, collected_at=z.collected_at)
-        for z in zones
-    ]
+    return [_zone_out(zone) for zone in zones]
+
+
+@router.patch("/zones/{zone_id}")
+def update_zone(zone_id: int, body: ZonePatch, session: SessionDep) -> ZoneOut:
+    """Watch a zone (collected again every `watch_every_days` days) or stop watching it."""
+    zone = session.get(Zone, zone_id)
+    if zone is None:
+        raise HTTPException(404, "Zone introuvable.")
+    for key, value in body.model_dump(exclude_unset=True).items():
+        if value is not None:
+            setattr(zone, key, value)
+    session.commit()
+    session.refresh(zone)
+    return _zone_out(zone)

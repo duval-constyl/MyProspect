@@ -114,6 +114,7 @@ async def test_maps_establishment_fields():
     [company] = await collect()
 
     assert company.name == "SALON ECLAT"
+    assert company.legal_name == "ECLAT COIFFURE SARL"
     assert company.naf == "96.02A"
     assert company.effectif_code == "01"
     assert company.created_on == date(2015, 3, 1)

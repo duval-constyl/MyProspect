@@ -55,6 +55,8 @@ class RegistryCompany:
     closed: bool
     # Not in the V1 plan: decided by Duval on 2026-11-25 (see docs/PROGRESS.md).
     opposed_to_prospecting: bool = False
+    # V2: legal name (raison sociale), used to recognise the employer of a job offer.
+    legal_name: str = ""
 
 
 @dataclass(frozen=True)
@@ -81,3 +83,18 @@ class SiteAnalysis:
     tech: list[str]
     mobile_perf: int | None
     analyzed_at: datetime
+    # V2: booking / online order links detected on the site.
+    has_booking: bool = False
+    has_online_order: bool = False
+
+
+@dataclass(frozen=True)
+class JobOffer:
+    """A technical job offer from France Travail (V2, Task 4)."""
+
+    offer_id: str
+    title: str
+    employer: str | None
+    rome_code: str | None
+    postal_code: str | None
+    commune: str | None

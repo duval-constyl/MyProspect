@@ -37,13 +37,15 @@ Toutes celles de la V1 et de la V2, et en plus :
 **Interfaces:**
 - Produces: `def find_duplicates(session, max_distance_m: int = 30) -> list[tuple[int, int]]` (paires d'identifiants de prospects de même nom normalisé et proches) ; `async def mark_closed(session, zone_id: int, lookup=registry_lookup_by_siret) -> int` (nombre de prospects de la zone absents de la dernière récolte et déclarés fermés par le registre, marqués `closed=True`).
 
-- [ ] **Step 1: Tests.** `test_duplicates_same_name_within_30m`. `test_same_name_far_apart_not_duplicate`. `test_absent_and_closed_company_is_marked_closed`. `test_absent_but_still_active_is_kept`. `test_closed_prospects_hidden_from_default_list_but_kept_in_database`.
-- [ ] **Step 2: Lancer** `pytest tests/test_reconcile.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.** Le filtre par défaut de `GET /prospects` exclut `closed=True` (paramètre `include_closed`).
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: doublons et fermetures`.
+- [x] **Step 1: Tests.** `test_duplicates_same_name_within_30m`. `test_same_name_far_apart_not_duplicate`. `test_absent_and_closed_company_is_marked_closed`. `test_absent_but_still_active_is_kept`. `test_closed_prospects_hidden_from_default_list_but_kept_in_database`.
+- [x] **Step 2: Lancer** `pytest tests/test_reconcile.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.** Le filtre par défaut de `GET /prospects` exclut `closed=True` (paramètre `include_closed`).
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: doublons et fermetures`.
 
 ### Task 2: Signaux d'avis (lieux Google) avec plafond
+
+> **Sautée le 25/11/2026, décision de Duval** : les conditions Google Maps Platform pour l'EEE (15.1, aucun usage avec une carte ; 15.4, seules latitude et longitude peuvent être mises en cache) contredisent le stockage de la note et son usage dans un score affiché sur la carte. Voir `docs/PROGRESS.md`.
 
 **Files:**
 - Create: `backend/app/sources/places.py`, migration `0005_places.py`
@@ -72,11 +74,11 @@ Avant de se lancer, relire la grille tarifaire en vigueur de l'API Places et la 
 - Produces: `def render_audit_html(detail: ProspectDetail, offer: Offer) -> str` ; `def render_audit_pdf(detail: ProspectDetail, offer: Offer) -> bytes` ; `GET /prospects/{id}/audit.pdf?offer=web`.
 - Contenu : nom de l'entreprise, score et palier, raisons en langage clair, chiffres clés du site (HTTPS, mobile, temps de réponse), signature de l'expéditeur. **Exclus** : notes, statut, priorité interne, autres prospects.
 
-- [ ] **Step 1: Tests.** `test_html_contains_score_and_every_reason`. `test_html_never_contains_private_notes_or_status`. `test_prospect_without_site_renders`. `test_long_company_name_renders`. `test_pdf_starts_with_pdf_header_and_is_not_empty`. `test_unknown_prospect_404`.
-- [ ] **Step 2: Lancer** `pytest tests/test_report.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** avec Jinja2 et WeasyPrint.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: rapport d'audit pdf`.
+- [x] **Step 1: Tests.** `test_html_contains_score_and_every_reason`. `test_html_never_contains_private_notes_or_status`. `test_prospect_without_site_renders`. `test_long_company_name_renders`. `test_pdf_starts_with_pdf_header_and_is_not_empty`. `test_unknown_prospect_404`.
+- [x] **Step 2: Lancer** `pytest tests/test_report.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** avec Jinja2 et WeasyPrint.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: rapport d'audit pdf`.
 
 ### Task 4: Captures d'écran dans le rapport
 
@@ -89,11 +91,11 @@ Avant de se lancer, relire la grille tarifaire en vigueur de l'API Places et la 
 - Produces: `@dataclass Screenshots(desktop_png: bytes | None, mobile_png: bytes | None)` ; `async def capture_site(url: str, timeout_s: int = 15) -> Screenshots` (ne lève jamais ; `None` en cas d'échec) ; `render_audit_html(detail, offer, screenshots: Screenshots | None = None)`.
 - Tailles : bureau 1280×800, mobile 390×844.
 
-- [ ] **Step 1: Tests (navigateur simulé).** `test_returns_both_images_on_success`. `test_returns_none_images_on_timeout`. `test_malformed_url_returns_none_images`. `test_report_shows_placeholder_text_when_screenshot_missing`. `test_report_embeds_images_as_data_uri_when_present`.
-- [ ] **Step 2: Lancer** `pytest tests/test_screenshot.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** avec Playwright (Chromium) ; l'image Docker `api` installe le navigateur.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: captures d'écran du site`.
+- [x] **Step 1: Tests (navigateur simulé).** `test_returns_both_images_on_success`. `test_returns_none_images_on_timeout`. `test_malformed_url_returns_none_images`. `test_report_shows_placeholder_text_when_screenshot_missing`. `test_report_embeds_images_as_data_uri_when_present`.
+- [x] **Step 2: Lancer** `pytest tests/test_screenshot.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** avec Playwright (Chromium) ; l'image Docker `api` installe le navigateur.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: captures d'écran du site`.
 
 ### Task 5: Zones suivies et alertes
 
@@ -105,11 +107,11 @@ Avant de se lancer, relire la grille tarifaire en vigueur de l'API Places et la 
 **Interfaces:**
 - Produces: `async def run_watch(session_factory, now: datetime) -> int` (récolte les zones dont l'échéance est passée, crée les alertes, renvoie leur nombre) ; planificateur APScheduler lancé au démarrage de l'API, vérification toutes les heures ; `PATCH /zones/{id}` (`{watch, watch_every_days}`) ; `GET /alerts?unseen=true` ; `POST /alerts/{id}/seen`.
 
-- [ ] **Step 1: Tests.** `test_new_company_in_watched_zone_creates_one_alert`. `test_run_twice_without_change_creates_no_new_alert`. `test_zone_not_due_is_skipped`. `test_closed_company_creates_closed_alert`. `test_excluded_company_never_alerts`. `test_failed_collection_creates_no_alert_and_does_not_crash_scheduler`.
-- [ ] **Step 2: Lancer** `pytest tests/test_watch.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.** Le premier passage d'une zone nouvellement suivie fixe l'état de départ sans alerte.
-- [ ] **Step 4: Lancer** les tests et `npx vitest run`. Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: zones suivies et alertes`.
+- [x] **Step 1: Tests.** `test_new_company_in_watched_zone_creates_one_alert`. `test_run_twice_without_change_creates_no_new_alert`. `test_zone_not_due_is_skipped`. `test_closed_company_creates_closed_alert`. `test_excluded_company_never_alerts`. `test_failed_collection_creates_no_alert_and_does_not_crash_scheduler`.
+- [x] **Step 2: Lancer** `pytest tests/test_watch.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.** Le premier passage d'une zone nouvellement suivie fixe l'état de départ sans alerte.
+- [x] **Step 4: Lancer** les tests et `npx vitest run`. Attendu : PASS.
+- [x] **Step 5: Commit** `feat: zones suivies et alertes`.
 
 ### Task 6: Statistiques de réponse
 
@@ -123,11 +125,11 @@ Avant de se lancer, relire la grille tarifaire en vigueur de l'API Places et la 
 
 Un prospect compte comme « contacté » dès qu'il a le statut `contacted`, `replied` ou `refused`.
 
-- [ ] **Step 1: Tests.** `test_reply_rate_by_offer`. `test_group_by_variant`. `test_zero_contacted_gives_rate_0_not_division_error`. `test_prospect_without_draft_counted_under_variant_none`. Front : `test_stats_page_renders_rows_and_percentages`.
-- [ ] **Step 2: Lancer** `pytest tests/test_stats.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter.**
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: statistiques de réponse`.
+- [x] **Step 1: Tests.** `test_reply_rate_by_offer`. `test_group_by_variant`. `test_zero_contacted_gives_rate_0_not_division_error`. `test_prospect_without_draft_counted_under_variant_none`. Front : `test_stats_page_renders_rows_and_percentages`.
+- [x] **Step 2: Lancer** `pytest tests/test_stats.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter.**
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: statistiques de réponse`.
 
 ### Task 7: Envoi assisté (brouillon `.eml`)
 
@@ -139,19 +141,21 @@ Un prospect compte comme « contacté » dès qu'il a le statut `contacted`, `re
 - Consumes: `OutreachDraft`.
 - Produces: `def build_eml(draft: OutreachDraft, to: str, sender_name: str, sender_email: str, audit_pdf: bytes | None = None) -> bytes` ; `GET /outreach/{id}/draft.eml?to=…` ; l'en-tête `X-Unsent: 1` fait ouvrir le fichier comme brouillon dans les clients mail qui le gèrent. Aucun envoi : le module n'ouvre aucune connexion SMTP.
 
-- [ ] **Step 1: Tests.** `test_eml_has_headers_and_unsent_flag`. `test_accents_and_long_subject_are_encoded_correctly` (sujet de 120 caractères avec « é » relu par le module `email` standard). `test_body_line_breaks_preserved`. `test_pdf_attached_when_given`. `test_missing_to_returns_422`. `test_call_draft_returns_409` (un script d'appel n'a pas de fichier e-mail). `test_module_does_not_import_smtplib`.
-- [ ] **Step 2: Lancer** `pytest tests/test_eml.py -v`. Attendu : FAIL.
-- [ ] **Step 3: Implémenter** avec `email.message.EmailMessage`.
-- [ ] **Step 4: Lancer.** Attendu : PASS.
-- [ ] **Step 5: Commit** `feat: brouillon eml`.
+- [x] **Step 1: Tests.** `test_eml_has_headers_and_unsent_flag`. `test_accents_and_long_subject_are_encoded_correctly` (sujet de 120 caractères avec « é » relu par le module `email` standard). `test_body_line_breaks_preserved`. `test_pdf_attached_when_given`. `test_missing_to_returns_422`. `test_call_draft_returns_409` (un script d'appel n'a pas de fichier e-mail). `test_module_does_not_import_smtplib`.
+- [x] **Step 2: Lancer** `pytest tests/test_eml.py -v`. Attendu : FAIL.
+- [x] **Step 3: Implémenter** avec `email.message.EmailMessage`.
+- [x] **Step 4: Lancer.** Attendu : PASS.
+- [x] **Step 5: Commit** `feat: brouillon eml`.
 
 ### Task 8: Maquette « après » (étude, avec point d'arrêt)
+
+> **En attente depuis le 26/11/2026, décision de Duval** : l'étude (variante sans IA, trois vrais prospects sans site) donne des pages propres mais génériques ; elle sera refaite avec une version rédigée par Claude une fois `ANTHROPIC_API_KEY` configurée. Voir `docs/PROGRESS.md`.
 
 **Files:**
 - Create (si retenue): `backend/app/concept.py`
 - Test: `backend/tests/test_concept.py`
 
-- [ ] **Step 1: Étude (deux heures maximum).** Essayer de produire, pour trois prospects réels, une page d'accueil conceptuelle générée à partir du nom, du métier et de la ville, puis photographiée avec Playwright. **Décider avec Duval** si le résultat est assez crédible pour être joint à un message. **Si non : abandonner cette tâche**, sans autre impact.
+- [x] **Step 1: Étude (deux heures maximum).** Essayer de produire, pour trois prospects réels, une page d'accueil conceptuelle générée à partir du nom, du métier et de la ville, puis photographiée avec Playwright. **Décider avec Duval** si le résultat est assez crédible pour être joint à un message. **Si non : abandonner cette tâche**, sans autre impact.
 - [ ] **Step 2: Tests (si retenue).** `test_concept_page_is_marked_as_illustration` (mention « maquette d'illustration » visible). `test_concept_uses_only_known_facts` (nom, métier, ville ; aucune information inventée comme des horaires ou des tarifs). `test_failure_returns_none`.
 - [ ] **Step 3: Implémenter** `async def render_concept(prospect_id: int, session, llm=None) -> bytes | None` et l'ajouter au rapport (Task 4).
 - [ ] **Step 4: Lancer** `pytest tests/test_concept.py -v`. Attendu : PASS.

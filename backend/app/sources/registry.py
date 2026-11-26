@@ -17,6 +17,7 @@ from app.domain import Circle, RegistryCompany
 from app.http import new_http_client
 
 REGISTRY_URL = "https://recherche-entreprises.api.gouv.fr/near_point"
+SEARCH_URL = "https://recherche-entreprises.api.gouv.fr/search"  # q = 14 digits: direct SIRET lookup
 MAX_RADIUS_KM = 50
 PER_PAGE = 25  # API maximum
 MATCHING_ESTABLISHMENTS_LIMIT = 100  # API maximum (default 10)
@@ -100,12 +101,16 @@ async def _get_page(
     }
     if naf_codes:
         params["activite_principale"] = ",".join(naf_codes)
+    return await _get_json(http, REGISTRY_URL, params, f"pour la page {page}")
 
+
+async def _get_json(http: httpx.AsyncClient, url: str, params: dict, what: str) -> dict:
+    """GET with the shared rate limit and 3 retries on 429, 5xx or network errors."""
     problem = ""
     for attempt in range(RETRIES + 1):
         await _limiter.wait()
         try:
-            response = await http.get(REGISTRY_URL, params=params)
+            response = await http.get(url, params=params)
         except httpx.HTTPError as exc:
             problem = f"erreur réseau ({type(exc).__name__})"
             retry_after = None
@@ -119,9 +124,27 @@ async def _get_page(
         if attempt < RETRIES:
             await _sleep(retry_after if retry_after is not None else 2**attempt)
 
-    raise RegistryUnavailable(
-        f"Registre des entreprises indisponible ({problem}) pour la page {page}."
-    )
+    raise RegistryUnavailable(f"Registre des entreprises indisponible ({problem}) {what}.")
+
+
+async def registry_lookup_by_siret(siret: str, client: httpx.AsyncClient | None = None) -> str | None:
+    """State of one establishment in the registry: "closed", "active", or None if unknown."""
+    own_client = client is None
+    http = client or new_http_client(timeout=TIMEOUT_S)
+    try:
+        payload = await _get_json(http, SEARCH_URL, {"q": siret}, f"pour le SIRET {siret}")
+    except (RegistryUnavailable, ValueError):
+        return None
+    finally:
+        if own_client:
+            await http.aclose()
+    for legal_unit in payload.get("results") or []:
+        for establishment in legal_unit.get("matching_etablissements") or []:
+            if establishment.get("siret") != siret:
+                continue
+            closed = establishment.get("etat_administratif") == "F" or legal_unit.get("etat_administratif") == "C"
+            return "closed" if closed else "active"
+    return None
 
 
 def _format_radius(radius_km: float) -> str:
@@ -169,6 +192,7 @@ def _to_company(legal_unit: dict, establishment: dict) -> RegistryCompany:
         is_individual=bool(is_individual),
         closed=False,
         opposed_to_prospecting=legal_unit.get("opposition_diffusion_commerciale") is True,
+        legal_name=legal_unit.get("nom_complet") or legal_unit.get("nom_raison_sociale") or "",
     )
 
 

@@ -22,6 +22,16 @@ services:
       HOME_LAT: "${HOME_LAT:?HOME_LAT manquant, copiez .env.example vers .env et renseignez votre position}"
       HOME_LONG: "${HOME_LONG:?HOME_LONG manquant, copiez .env.example vers .env et renseignez votre position}"
       PAGESPEED_API_KEY: ${PAGESPEED_API_KEY:-}
+      # Optional keys and identity (V2), feature switches (V3): read from .env.
+      FRANCETRAVAIL_CLIENT_ID: ${FRANCETRAVAIL_CLIENT_ID:-}
+      FRANCETRAVAIL_CLIENT_SECRET: ${FRANCETRAVAIL_CLIENT_SECRET:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      SENDER_NAME: ${SENDER_NAME:-}
+      SENDER_BUSINESS: ${SENDER_BUSINESS:-}
+      SENDER_EMAIL: ${SENDER_EMAIL:-}
+      AUDIT_REPORT_ENABLED: ${AUDIT_REPORT_ENABLED:-true}
+      SCREENSHOTS_ENABLED: ${SCREENSHOTS_ENABLED:-true}
+      WATCH_ENABLED: ${WATCH_ENABLED:-true}
     ports:
       - "127.0.0.1:${API_PORT:-8000}:8000"
     depends_on:

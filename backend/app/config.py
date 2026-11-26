@@ -15,8 +15,29 @@ class Settings(BaseSettings):
     home_lat: float
     home_long: float
     pagespeed_api_key: str | None = None
+    # France Travail « Offres d'emploi v2 » application (optional, V2 Task 4).
+    francetravail_client_id: str | None = None
+    francetravail_client_secret: str | None = None
+    # Outreach drafts (V2 Task 6): language model key (optional) and sender identity.
+    anthropic_api_key: str | None = None
+    sender_name: str = ""
+    sender_business: str = ""
+    # V3 Task 7: sender address of the .eml drafts (empty: the mail client chooses).
+    sender_email: str = ""
+    # V3 features, each can be switched off.
+    audit_report_enabled: bool = True
+    screenshots_enabled: bool = True
+    watch_enabled: bool = True
+    # Windows outside Docker: folder holding the GTK DLLs WeasyPrint needs (e.g. Inkscape's bin).
+    weasyprint_dll_directories: str | None = None
 
-    @field_validator("pagespeed_api_key", mode="before")
+    @field_validator(
+        "pagespeed_api_key",
+        "francetravail_client_id",
+        "francetravail_client_secret",
+        "anthropic_api_key",
+        mode="before",
+    )
     @classmethod
     def _blank_key_is_none(cls, value: str | None) -> str | None:
         return value or None

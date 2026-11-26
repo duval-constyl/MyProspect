@@ -2,9 +2,9 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { api } from "../api";
-import { MISSING, STATUS_LABELS, TRADES, tradeLabel } from "../labels";
+import { MISSING, OFFERS, STATUS_LABELS, TRADES, offerLabel, tradeLabel } from "../labels";
 import { tierColor } from "../tiers";
-import type { ProspectFilters, SortKey, Status } from "../types";
+import type { Offer, ProspectFilters, SortKey, Status } from "../types";
 
 const PER_PAGE = 50;
 const DEFAULT_ORDER: Record<SortKey, "asc" | "desc"> = { priority: "desc", score: "desc", name: "asc" };
@@ -26,7 +26,7 @@ function SortButton({ column, label, filters, onSort }: SortButtonProps) {
 }
 
 export default function ProspectsPage() {
-  const [filters, setFilters] = useState<ProspectFilters>({ sort: "priority", order: "desc" });
+  const [filters, setFilters] = useState<ProspectFilters>({ offer: "web", sort: "priority", order: "desc" });
   const [page, setPage] = useState(1);
 
   const list = useQuery({
@@ -55,6 +55,16 @@ export default function ProspectsPage() {
   return (
     <div className="list-page">
       <section className="filters" aria-label="Filtres">
+        <label className="field">
+          Offre
+          <select value={filters.offer} onChange={(e) => update({ offer: e.target.value as Offer })}>
+            {OFFERS.map((offer) => (
+              <option key={offer.value} value={offer.value}>
+                {offer.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="field">
           Métier
           <select value={filters.naf ?? ""} onChange={(e) => update({ naf: e.target.value || undefined })}>
@@ -147,7 +157,7 @@ export default function ProspectsPage() {
             <th>Ville</th>
             <th>Téléphone</th>
             <th>
-              <SortButton column="score" label="Score Web" filters={filters} onSort={sortBy} />
+              <SortButton column="score" label={`Score ${offerLabel(filters.offer)}`} filters={filters} onSort={sortBy} />
             </th>
             <th>
               <SortButton column="priority" label="Priorité" filters={filters} onSort={sortBy} />
@@ -171,11 +181,11 @@ export default function ProspectsPage() {
               <td>{prospect.city ?? MISSING}</td>
               <td data-column="phone">{prospect.phone ?? MISSING}</td>
               <td>
-                {prospect.score_web === null ? (
+                {prospect.score === null ? (
                   MISSING
                 ) : (
                   <span className="score-chip" style={{ borderColor: tierColor(prospect.tier) }}>
-                    {prospect.score_web}
+                    {prospect.score}
                   </span>
                 )}
               </td>
