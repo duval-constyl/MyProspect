@@ -89,6 +89,20 @@ async def test_absent_but_still_active_is_kept(add, db_session):
     assert not any(db_session.get(Prospect, p.id).closed for p in (active, unknown, outside))
 
 
+async def test_other_trades_in_the_zone_are_not_looked_up(add, db_session):
+    zone_id = finished_collection(db_session)  # the zone collects hairdressers (96.02A) only
+    garage = add("11111111100011", "GARAGE DU COIN", LYON, naf="45.20A")  # collected by another zone
+    collected_at(db_session, garage.id, STARTED - timedelta(days=7))
+    lookup = fake_lookup({garage.siret: "closed"})
+
+    count = await mark_closed(db_session, zone_id, lookup=lookup)
+
+    db_session.expire_all()
+    assert count == 0
+    assert lookup.asked == []  # never searched by this zone: its absence means nothing
+    assert db_session.get(Prospect, garage.id).closed is False
+
+
 async def test_zone_without_finished_collection_marks_nothing(db_session):
     job = create_collection(db_session, "circle", CIRCLE_ZONE, ["96.02A"])
 

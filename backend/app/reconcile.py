@@ -55,6 +55,8 @@ async def mark_closed(session: Session, zone_id: int, lookup=registry_lookup_by_
             Prospect.closed.is_(False),
             Prospect.geom.is_not(None),
             Prospect.last_collected_at < started_at,
+            # Only the trades this zone collects: other trades were never searched here.
+            Prospect.naf.in_(zone.naf_codes),
         )
     ).all()
     marked = 0

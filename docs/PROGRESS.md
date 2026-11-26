@@ -55,6 +55,7 @@
 - V3 tâche 6 — statistiques de réponse : `GET /stats/outreach?group_by=offer|variant|zone` (contactés, réponses, refus, taux de réponse) et page « Statistiques » avec choix du regroupement.
 - V3 tâche 7 — envoi assisté : `build_eml` (`email.message.EmailMessage`, en-tête `X-Unsent: 1`, sujet encodé et replié, corps en quoted-printable, rapport d'audit PDF en pièce jointe sur demande) et `GET /outreach/{id}/draft.eml?to=…&audit=true` ; sur chaque brouillon e-mail de la fiche : destinataire prérempli avec l'e-mail connu, case « Joindre le rapport d'audit », lien « Ouvrir dans ma messagerie (.eml) ». Aucun envoi, aucune connexion SMTP.
 - V3 tâche 8 — étude de la maquette « après » faite (étape 1) : page d'accueil conceptuelle créée pour trois vrais prospects sans site (garage, coiffure, restaurant du Perche) à partir du nom, du métier, de la ville et de l'année de création, photographiée hors ligne avec Playwright (ordinateur 1280×800, téléphone 390×844). Tâche **en attente** (décision de Duval du 26/11/2026) : à refaire avec une version rédigée par Claude.
+- V3 relecture finale (auto-relecture, sans relecteur séparé) : deux corrections, chacune avec un test vu en échec puis réussi.
 
 ## Décisions et écarts par rapport au plan
 
@@ -202,6 +203,8 @@
 - V3 tâche 7 : l'adresse du destinataire est vérifiée (une seule adresse, sans espace ni retour à la ligne) : rien ne peut être glissé dans les autres en-têtes ; 422 « Adresse e-mail du destinataire invalide. ».
 - V3 tâche 7 : un brouillon d'un prospect passé ensuite sur la liste « ne plus contacter » ne donne plus de fichier .eml (409) ; test ajouté (non listé par le plan), comme ceux du 404 et du fichier téléchargé.
 - V3 tâche 8 : constat de l'étude (variante sans IA, modèle par métier, faits connus seulement, bandeau « Maquette d'illustration », encadrés « à compléter ») : pages propres et lisibles, rien d'inventé, aucun souci de droits ; mais trois pages quasi identiques sans photo ni logo, blocs vides visibles, nom du registre en majuscules sans accents (peut différer de l'enseigne), et « Depuis <année> » donne l'année de la société, pas forcément celle du commerce. Pas assez crédible pour être joint automatiquement. Duval préfère refaire l'étude avec une clé Claude plutôt qu'abandonner : rien n'est ajouté au code d'ici là.
+- V3 relecture : `docker-compose.yml` ne transmettait au conteneur `api` que `DATABASE_URL`, `HOME_LAT`, `HOME_LONG` et `PAGESPEED_API_KEY` (le conteneur ne lit pas `.env`). Les clés et l'identité de la V2 (`ANTHROPIC_API_KEY`, `FRANCETRAVAIL_*`, `SENDER_*`) et les interrupteurs de la V3 étaient donc ignorés avec `docker compose up`. Corrigé : toutes les variables sont transmises (sauf `WEASYPRINT_DLL_DIRECTORIES`, propre à Windows) ; `tests/test_compose.py` vérifie que chaque réglage y figure.
+- V3 relecture : `mark_closed` interrogeait le registre pour toutes les entreprises de la zone absentes de la dernière récolte, y compris celles d'autres métiers (récoltées par une autre zone, donc jamais cherchées ici) : des milliers d'appels possibles par semaine dans une grande ville. Corrigé : seuls les métiers de la zone sont vérifiés (`test_other_trades_in_the_zone_are_not_looked_up`).
 
 ## Questions ouvertes
 
